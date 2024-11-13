@@ -104,9 +104,11 @@ class _LogInState extends State<LogIn> {
                       onPressed: _login,
                       child: Text('로그인'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 110, 66, 172), 
+                        backgroundColor:
+                            const Color.fromARGB(255, 110, 66, 172),
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 150),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 150),
                         textStyle: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -122,16 +124,19 @@ class _LogInState extends State<LogIn> {
                     //   ),
                     // ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.push(context, 
-                        MaterialPageRoute(builder: (context) => SignUpPage()),
-                        );
-                      },
-                      child: Text('회원가입',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),)
-                    ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignUpPage()),
+                          );
+                        },
+                        child: Text(
+                          '회원가입',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        )),
                   ],
                 ),
               ),
