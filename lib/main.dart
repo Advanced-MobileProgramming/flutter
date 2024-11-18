@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
+import 'myHome.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,12 +29,20 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // 1초 후에 로그인 화면으로 이동
+    // 2초 후에 로그인 화면으로 이동
     Future.delayed(Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LogIn()),
       );
+
+      /* myHome.dart 테스트용 - testUser로 ID 넘겨서 바로 화면 홈화면 띄움 */
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => HomePage(username: "testUser"),
+      //   ),
+      // );
     });
   }
 
