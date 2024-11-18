@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:soobook/signUp.dart';
+import 'package:soobook/myHome.dart';
 
 class LogIn extends StatefulWidget {
   @override
@@ -21,12 +22,30 @@ class _LogInState extends State<LogIn> {
         _username = _usernameController.text;
         _password = _passwordController.text;
       });
-      // 로그인 성공 메시지
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logged in as $_username')),
-      );
+
+      print("Logging in with username: $_username");
+
+      if (_username != null && _username!.isNotEmpty) {
+        // 로그인 성공 메시지
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logged in as $_username')),
+        );
+
+        // HomePage로 이동하며 아이디 전달
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(username: _username!),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로그인 아이디를 입력해주세요.')),
+        );
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
