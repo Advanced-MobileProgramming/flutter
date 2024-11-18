@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'myHome.dart';
+import 'allBooks.dart';
+import 'bookShelf.dart';
+import 'myPage.dart';
 
 void main() {
   runApp(MyApp());

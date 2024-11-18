@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
-/* 메인 홈 페이지 탭 */
-/* 책 추천 및 내가 쓴 지난 리뷰 확인 가능 */
+import 'package:soobook/bookShelf.dart';
+import 'package:soobook/myPage.dart';
+import 'allBooks.dart'; // AllBooksPage import
 
 class HomePage extends StatefulWidget {
   final String username;
@@ -20,7 +20,8 @@ class _HomePageState extends State<HomePage> {
     // LibraryPage(),
     // MyPage(),
   ];
-  final PageController _pageController = PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
+  final PageController _pageController =
+      PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
   final List<Map<String, String>> books = List.generate(
     10,
     (index) => {
@@ -34,11 +35,32 @@ class _HomePageState extends State<HomePage> {
     "유익한 내용이 많았어요.",
     "감동적인 이야기였어요.",
   ];
-   // 탭을 눌렀을 때 페이지 변경
+
+  // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+
+    if (index == 1) {
+      // 책장 탭 클릭 시 BookShelfPage로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BookshelfPage()),
+      );
+    } else if (index == 2) {
+      // 도서 탭 클릭 시 AllBooksPage로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AllBooksPage()),
+      );
+    } else if (index == 3) {
+      // 마이페이지 탭 클릭 시 MyPage로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MyPage()),
+      );
+    }
     _pageController.jumpToPage(index); // 애니메이션 없이 페이지 전환
   }
 
@@ -53,11 +75,16 @@ class _HomePageState extends State<HomePage> {
             children: [
               // 홈 텍스트와 로고 배치
               Padding(
-                padding: const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
+                padding:
+                    const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('홈', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 126, 113, 159))),
+                    Text('홈',
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 126, 113, 159))),
                     Image.asset('image/logo2.png', width: 80, height: 80),
                   ],
                 ),
@@ -69,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: Color.fromARGB(98, 187, 163, 187) // 채도가 낮은 보라색
-,
+                  ,
                 ),
                 child: Row(
                   children: [
@@ -79,7 +106,8 @@ class _HomePageState extends State<HomePage> {
                           hintText: '도서명이나 저자를 입력하세요.',
                           hintStyle: TextStyle(fontSize: 14),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
                         textAlign: TextAlign.left,
                       ),
@@ -97,7 +125,10 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(left: 16.0), // 왼쪽에만 16의 여백 설정
                 child: Text(
                   '${widget.username}님, 안녕하세요:D\n오늘도 수Book한 하루 되세요!',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color.fromARGB(255, 126, 113, 159)),
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromARGB(255, 126, 113, 159)),
                 ),
               ),
 
@@ -108,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: Color.fromARGB(90, 94, 70, 120) // 채도가 낮은 보라색
-,
+                  ,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,10 +147,10 @@ class _HomePageState extends State<HomePage> {
                     Text(
                       '이런 책은 어떠세요?',
                       style: TextStyle(
-                        fontSize: 25, 
+                        fontSize: 25,
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 126, 113, 159),
-                        ),
+                      ),
                     ),
                     SizedBox(height: 10),
                     Container(
@@ -135,7 +166,8 @@ class _HomePageState extends State<HomePage> {
                               double value = 1.0;
                               if (_pageController.position.haveDimensions) {
                                 value = _pageController.page! - index;
-                                value = (1 - (value.abs() * 0.3)).clamp(0.7, 1.0); // 크기 조정
+                                value = (1 - (value.abs() * 0.3))
+                                    .clamp(0.7, 1.0); // 크기 조정
                               }
 
                               return Center(
@@ -163,7 +195,9 @@ class _HomePageState extends State<HomePage> {
                                   SizedBox(height: 10),
                                   Text(
                                     books[index]["title"]!, // 동적으로 제목 변경
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 5),
                                   // Text(
@@ -183,97 +217,108 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 20),
               // 내가 쓴 리뷰 섹션
               Container(
-  padding: EdgeInsets.all(10),
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(8),
-  ),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(left: 16.0), // 왼쪽에만 16의 여백 설정
-        child: Text(
-          '내가 쓴 리뷰',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 126, 113, 159)),
-        ),
-      ),
-      SizedBox(height: 16), // 제목과 리스트 간격
-      Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Color.fromARGB(255, 221, 218, 226),
-        ),
-        child: Column(
-          children: reviews.map((review) {
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 8), // 각 카드 간격
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 50.0), // 카드 내부 여백
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "책 제목", // 제목 표시
-                          style: TextStyle(
-                            fontSize: 18,
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 16.0), // 왼쪽에만 16의 여백 설정
+                      child: Text(
+                        '내가 쓴 리뷰',
+                        style: TextStyle(
+                            fontSize: 25,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            // 더보기 버튼 클릭 이벤트 처리
-                          },
-                          child: Text(
-                            "더보기",
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ),
-                      ],
+                            color: Color.fromARGB(255, 126, 113, 159)),
+                      ),
                     ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Image.asset(
-                          'image/book_image_1.jpg',
-                          width: 80,
-                          height: 80,
-                          //fit: BoxFit.cover,
-                        ),
-                        SizedBox(width: 16), // 이미지와 텍스트 간격
-                        Expanded(
-                          child: Text(
-                            "❝"+review+"❞", // 리뷰 내용 표시
-                            maxLines: 2, // 최대 두 줄 표시
-                            overflow: TextOverflow.ellipsis, // 내용 초과 시 생략
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 16), // 제목과 리스트 간격
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Color.fromARGB(255, 221, 218, 226),
+                      ),
+                      child: Column(
+                        children: reviews.map((review) {
+                          return Card(
+                            margin:
+                                EdgeInsets.symmetric(vertical: 8), // 각 카드 간격
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 20.0,
+                                  right: 20.0,
+                                  top: 20.0,
+                                  bottom: 50.0), // 카드 내부 여백
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "책 제목", // 제목 표시
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          // 더보기 버튼 클릭 이벤트 처리
+                                        },
+                                        child: Text(
+                                          "더보기",
+                                          style: TextStyle(color: Colors.blue),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        'image/book_image_1.jpg',
+                                        width: 80,
+                                        height: 80,
+                                        //fit: BoxFit.cover,
+                                      ),
+                                      SizedBox(width: 16), // 이미지와 텍스트 간격
+                                      Expanded(
+                                        child: Text(
+                                          "❝" + review + "❞", // 리뷰 내용 표시
+                                          maxLines: 2, // 최대 두 줄 표시
+                                          overflow: TextOverflow
+                                              .ellipsis, // 내용 초과 시 생략
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ],
                 ),
               ),
-            );
-          }).toList(),
-        ),
-      ),
-    ],
-  ),
-),
-
             ],
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-       currentIndex: _selectedIndex,
+        currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.fixed,
         onTap: _onItemTapped,
         items: [
           BottomNavigationBarItem(
@@ -281,11 +326,11 @@ class _HomePageState extends State<HomePage> {
             label: '홈',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
+            icon: Icon(Icons.folder_open),
             label: '책장',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.library_books),
+            icon: Icon(Icons.format_list_bulleted),
             label: '도서',
           ),
           BottomNavigationBarItem(
@@ -300,4 +345,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-} 
+}
