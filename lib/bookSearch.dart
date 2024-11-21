@@ -44,7 +44,7 @@ class _BookSearchPageState extends State<BookSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('책장',
+        title: Text('책 검색',
             style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
