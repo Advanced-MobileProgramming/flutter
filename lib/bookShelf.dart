@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'allBooks.dart';
 import 'myPage.dart';
 import 'myHome.dart';
+import 'bookSearch.dart';
 
 class BookshelfPage extends StatefulWidget {
   @override
@@ -69,30 +70,78 @@ class _BookshelfPageState extends State<BookshelfPage> {
       ),
       body: Column(
         children: [
-          // 검색 바
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: '도서명이나 저자를 입력하세요.',
-                      hintStyle: TextStyle(fontSize: 14),
-                      border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: InkWell(
+              onTap: () {
+                // 검색 페이지로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const BookSearchPage()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
                 ),
-                IconButton(
-                  icon: Icon(Icons.search, color: Colors.grey),
-                  onPressed: () {},
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: '도서명이나 저자를 입력하세요.',
+                          hintStyle: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 109, 109, 109),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8), // 패딩 설정
+                        ),
+                        onTap: () {
+                          // 검색 바를 탭하면 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const BookSearchPage()),
+                          );
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.search,
+                          color: Color.fromARGB(255, 109, 109, 109)),
+                      onPressed: () {
+                        // 추가적인 검색 동작 처리 가능
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // 세그먼트 컨트롤 바 (네모 박스 형식)
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 16), // 세그먼트 바와 콘텐츠 사이 여백 추가
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSegment('전체', 0),
+                    _buildSegment('읽는 중', 1),
+                    _buildSegment('완료', 2),
+                    _buildSegment('컬렉션', 3),
+                  ],
+                ),
+                // 세그먼트 바 아래에 보더라인 추가
+                Container(
+                  height: 0.7,
+                  color: Color.fromARGB(255, 126, 113, 159), // 보라색 보더라인
+                  margin: EdgeInsets.only(top: 8),
                 ),
               ],
             ),

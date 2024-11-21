@@ -87,37 +87,40 @@ class _AllBooksPageState extends State<AllBooksPage> {
           children: [
             // 검색 바
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: '도서명이나 저자를 입력하세요.',
-                        hintStyle: TextStyle(fontSize: 14),
-                        border: InputBorder.none,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: '도서명이나 저자를 입력하세요.',
+                          hintStyle: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 109, 109, 109),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
+                        ),
+                        onTap: () {
+                          // 페이지 이동 동작을 제거했습니다. 필요시 여기에 다른 동작을 넣을 수 있습니다.
+                        },
                       ),
-                      textAlign: TextAlign.left,
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.search, color: Colors.grey),
-                    onPressed: () {
-                      // 검색 버튼 클릭 시 동작 (현재는 입력값으로 자동 검색)
-                    },
-                  ),
-                ],
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
+                      onPressed: () {
+                        // 검색 버튼 클릭 시 동작을 여기에서 처리합니다.
+                        // 예: 입력된 검색어를 사용하여 검색 동작을 수행
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             SizedBox(height: 16), // 검색 바와 리스트 간 간격
