@@ -71,54 +71,54 @@ class _BookshelfPageState extends State<BookshelfPage> {
       body: Column(
         children: [
           Container(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: InkWell(
-                  onTap: () {
-                    // 검색 페이지로 이동
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const BookSearchPage()),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: '도서명이나 저자를 입력하세요.',
-                              hintStyle: const TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 109, 109, 109),
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
-                            ),
-                            onTap: () {
-                              // 검색 바를 탭하면 페이지로 이동
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const BookSearchPage()),
-                              );
-                            },
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: InkWell(
+              onTap: () {
+                // 검색 페이지로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: '도서명이나 저자를 입력하세요.',
+                          hintStyle: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 109, 109, 109),
                           ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
-                          onPressed: () {
-                            // 추가적인 검색 동작 처리 가능
-                          },
-                        ),
-                      ],
+                        onTap: () {
+                          // 검색 바를 탭하면 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
+                      onPressed: () {
+                        // 추가적인 검색 동작 처리 가능
+                      },
+                    ),
+                  ],
                 ),
               ),
+            ),
+          ),
           // 세그먼트 컨트롤 바 (네모 박스 형식)
           Container(
             margin: EdgeInsets.symmetric(vertical: 16), // 세그먼트 바와 콘텐츠 사이 여백 추가
@@ -142,7 +142,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ],
             ),
           ),
-
           // 탭에 해당하는 내용
           Expanded(
             child: _getTabContent(_currentTabIndex),
@@ -178,7 +177,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
       ),
     );
   }
-
   // 세그먼트 탭을 만들기 위한 메소드
   Widget _buildSegment(String label, int index) {
     return GestureDetector(
