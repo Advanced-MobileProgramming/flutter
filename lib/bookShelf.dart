@@ -147,30 +147,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
             ),
           ),
 
-          // 세그먼트 컨트롤 바 (네모 박스 형식)
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 16), // 세그먼트 바와 콘텐츠 사이 여백 추가
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSegment('전체', 0),
-                    _buildSegment('읽는 중', 1),
-                    _buildSegment('완료', 2),
-                    _buildSegment('컬렉션', 3),
-                  ],
-                ),
-                // 세그먼트 바 아래에 보더라인 추가
-                Container(
-                  height: 0.7,
-                  color: Color.fromARGB(255, 126, 113, 159), // 보라색 보더라인
-                  margin: EdgeInsets.only(top: 8),
-                ),
-              ],
-            ),
-          ),
-
           // 탭에 해당하는 내용
           Expanded(
             child: _getTabContent(_currentTabIndex),
