@@ -193,7 +193,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-        margin: EdgeInsets.only(right: 15, left: 14),
+        margin: EdgeInsets.only(right: 16, left: 16),
         decoration: BoxDecoration(
           color: _currentTabIndex == index
               ? Color.fromARGB(255, 126, 113, 159)

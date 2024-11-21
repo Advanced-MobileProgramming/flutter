@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:soobook/allBooks.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
+import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 
 class MyPage extends StatefulWidget {
   @override
@@ -11,35 +12,28 @@ class MyPage extends StatefulWidget {
 class _MyPageState extends State<MyPage> {
   int _selectedIndex = 3;
 
-  // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
     if (index == 0) {
-      // 홈 탭 클릭 시 MyHomePage로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(
-                  username: 'username',
-                )), // 실제 HomePage 위젯을 임포트한 후 수정
+            builder: (context) => HomePage(username: 'username')), // 수정 필요
       );
     } else if (index == 1) {
-      // 책장 탭 클릭 시 BookshelfPage로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => BookshelfPage()),
       );
     } else if (index == 2) {
-      // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => AllBooksPage()),
       );
     } else if (index == 3) {
-      // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MyPage()),
@@ -57,44 +51,162 @@ class _MyPageState extends State<MyPage> {
                 fontWeight: FontWeight.bold,
                 color: Color.fromARGB(255, 126, 113, 159))),
         backgroundColor: Colors.white,
-        automaticallyImplyLeading: false, // 뒤로 가기 버튼 비활성화
-        toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
-        titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
+        automaticallyImplyLeading: false,
+        toolbarHeight: 120.0,
+        titleSpacing: 20.0,
       ),
       body: Container(
-        color: Colors.white, // 배경색 흰색으로 설정
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '마이페이지입니다.', // 마이페이지 메시지
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        color: Colors.white,
+        child: Column(
+          children: [
+            // 프로필 사진이 포함된 FloatingActionButton
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+              child: SizedBox(
+                width: 400, // 원하는 너비
+                height: 180, // 원하는 높이
+                child: FloatingActionButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('프로필 수정 페이지로 이동')),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: 20),
+                      // 프로필 사진
+                      CircleAvatar(
+                        radius: 50, // 이미지 크기
+                        backgroundImage: AssetImage('image/DefaultProfile.png'),
+                        backgroundColor: Colors.transparent, // 배경색 제거
+                      ),
+                      SizedBox(width: 10), // 프로필 사진과 텍스트 사이의 간격
+                      // 유저 닉네임과 유저 ID를 포함한 Column
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center, // 중앙 정렬
+                        children: [
+                          // 유저 닉네임
+                          Text(
+                            '유저 닉네임', // 여기에 실제 유저 닉네임을 넣으세요
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Color.fromARGB(235, 126, 113, 159), // 닉네임 색상
+                            ),
+                          ),
+                          // 유저 ID
+                          Text(
+                            '유저 id', // 여기에 실제 유저 id를 넣으세요
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Color.fromARGB(235, 126, 113, 159), // ID 색상
+                            ),
+                          ),
+                        ],
+                      ),
+                      Spacer(), // 화살표 아이콘을 오른쪽 끝으로 배치하기 위해 사용
+                      IconButton(
+                        icon: Icon(Icons.arrow_forward_ios),
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('화살표 버튼 클릭됨')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  backgroundColor:
+                      Color.fromARGB(235, 234, 229, 239), // FAB 배경색
+                ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // 로그아웃 기능 추가 (예시)
-                  // 예를 들어, 로그인 페이지로 이동하거나 세션 종료 처리
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('로그아웃 처리')),
-                  );
-                },
-                child: Text('로그아웃'),
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 15.0),
+                children: [
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                  ListTile(
+                    leading: Icon(Icons.library_books, color: Colors.black),
+                    title: Text('독후감 관리',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('독후감 페이지로 이동')),
+                      );
+                    },
+                  ),
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                  ListTile(
+                    leading: Icon(Icons.rate_review, color: Colors.black),
+                    title: Text('내가 쓴 리뷰',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('리뷰 페이지로 이동')),
+                      );
+                    },
+                  ),
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                  ListTile(
+                    leading: Icon(Icons.question_answer, color: Colors.black),
+                    title: Text('의견 보내기',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('의견 보내기 페이지로 이동')),
+                      );
+                    },
+                  ),
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                  ListTile(
+                    leading: Icon(Icons.update, color: Colors.black),
+                    title: Text('업데이트',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('업데이트 페이지로 이동')),
+                      );
+                    },
+                  ),
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                  ListTile(
+                    leading: Icon(Icons.help_outline, color: Colors.black),
+                    title: Text('이용약관',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('이용약관 페이지로 이동')),
+                      );
+                    },
+                  ),
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                  ListTile(
+                    leading: Icon(Icons.logout, color: Colors.black),
+                    title: Text('로그아웃',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LogIn()),
+                      );
+                    },
+                  ),
+                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
+                ],
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // 앱 설정 페이지로 이동할 수 있는 예시
-                  // 예: SettingsPage로 이동
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('설정 페이지로 이동')),
-                  );
-                },
-                child: Text('앱 설정'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(

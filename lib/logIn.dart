@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:soobook/signUp.dart';
 import 'package:soobook/myHome.dart';
+import 'package:soobook/myPage.dart';
 
 class LogIn extends StatefulWidget {
   @override
@@ -45,7 +46,6 @@ class _LogInState extends State<LogIn> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
