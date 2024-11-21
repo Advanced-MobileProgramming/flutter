@@ -51,8 +51,15 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Page'),
-        backgroundColor: Color.fromARGB(255, 126, 113, 159), // 앱바 색상
+        title: Text('마이 페이지',
+            style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 126, 113, 159))),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false, // 뒤로 가기 버튼 비활성화
+        toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
+        titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
       ),
       body: Container(
         color: Colors.white, // 배경색 흰색으로 설정

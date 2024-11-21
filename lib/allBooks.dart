@@ -70,12 +70,16 @@ class _AllBooksPageState extends State<AllBooksPage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text('전체 도서',
-              style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 126, 113, 159))),
-          backgroundColor: Colors.white),
+        title: Text('전체 도서',
+            style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 126, 113, 159))),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false, // 뒤로 가기 버튼 비활성화
+        toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
+        titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
