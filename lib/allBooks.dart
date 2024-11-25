@@ -5,21 +5,28 @@ import 'myHome.dart';
 import 'bookSearch.dart';
 
 class AllBooksPage extends StatefulWidget {
+  final String username;
+  AllBooksPage({required this.username});
   @override
   _AllBooksPageState createState() => _AllBooksPageState();
 }
 
 class _AllBooksPageState extends State<AllBooksPage> {
   int _selectedIndex = 2;
-  final List<Map<String, String>> books = List.generate(
-    10,
-    (index) => {
-      "title": "Book $index",
-      "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
-      "author": "Author $index", // 책 저자
-      "description": "책에 대한 간단한 설명입니다.", // 책 설명
-    },
-  );
+  // 책 리스트
+  final List<Map<String, dynamic>> books = List.generate(
+  10,
+  (index) => {
+    "title": "Book $index",
+    "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+    "author": "Author $index", // 책 저자
+    "description": "책에 대한 간단한 설명입니다.", // 책 설명
+    "status": 
+        index % 2 == 0
+        ? "reading"  // 읽는 중
+        : "completed", // 완료
+    "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
+  },);
 
   final PageController _pageController =
       PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
@@ -37,26 +44,26 @@ class _AllBooksPageState extends State<AllBooksPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(username: 'example'), // 사용자 이름 전달
+          builder: (context) => HomePage(username: widget.username), // 사용자 이름 전달
         ),
       );
     } else if (index == 1) {
       // 책장 탭 클릭 시 BookShelfPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage()),
+        MaterialPageRoute(builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage()),
+        MaterialPageRoute(builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MyPage()),
+        MaterialPageRoute(builder: (context) => MyPage(username: widget.username)),
       );
     }
   }
@@ -71,7 +78,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('도서',
+        title: Text('전체 도서',
             style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
