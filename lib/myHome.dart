@@ -15,22 +15,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    HomePage(username: 'example'), // 여기에 아이디 값 넘겨주기
-    // BookshelfPage(),
-    // LibraryPage(),
-    // MyPage(),
-  ];
+
   final PageController _pageController =
       PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
-  final List<Map<String, String>> books = List.generate(
-    10,
-    (index) => {
-      "title": "Book $index",
-      "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
-      //"description": "책에 대한 간단한 설명입니다.",
-    },
-  );
+  
+  // 책 리스트
+  final List<Map<String, dynamic>> books = List.generate(
+  10,
+  (index) => {
+    "title": "Book $index",
+    "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+    "author": "Author $index", // 책 저자
+    "description": "책에 대한 간단한 설명입니다.", // 책 설명
+    "status": 
+        index % 2 == 0
+        ? "reading"  // 읽는 중
+        : "completed", // 완료
+    "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
+  },);
+
   final List<String> reviews = [
     "재미있는 책이었어요.",
     "유익한 내용이 많았어요.",
@@ -47,19 +50,19 @@ class _HomePageState extends State<HomePage> {
       // 책장 탭 클릭 시 BookShelfPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage()),
+        MaterialPageRoute(builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage()),
+        MaterialPageRoute(builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MyPage()),
+        MaterialPageRoute(builder: (context) => MyPage(username: widget.username)),
       );
     }
     _pageController.jumpToPage(index); // 애니메이션 없이 페이지 전환
