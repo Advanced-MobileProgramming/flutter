@@ -54,7 +54,8 @@ class _BookSearchPageState extends State<BookSearchPage> {
         toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
         titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color.fromARGB(255, 126, 113, 159)),
+          icon:
+              Icon(Icons.arrow_back, color: Color.fromARGB(255, 126, 113, 159)),
           onPressed: () {
             // 뒤로 가기 동작 정의
             Navigator.pop(context);
