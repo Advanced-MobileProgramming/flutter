@@ -313,7 +313,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                     crossAxisCount: 3, // 한 행에 3개의 카드
                     crossAxisSpacing: 8, // 열 간격
                     mainAxisSpacing: 20, // 행 간격
-                    childAspectRatio: 0.7, // 카드와 퍼센트 바 포함 비율
+                    childAspectRatio: 0.65, // 카드와 퍼센트 바 포함 비율
                   ),
                   itemCount: filteredBooks.length,
                   itemBuilder: (context, index) {
@@ -321,6 +321,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       children: [
                         Expanded(
                           child: Card(
+                            color: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -334,6 +335,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             ),
                           ),
                         ),
+                        SizedBox(height: 13.0),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: ClipRRect(
