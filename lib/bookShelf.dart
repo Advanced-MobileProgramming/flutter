@@ -139,28 +139,33 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ),
             ),
           ),
-          // 세그먼트 컨트롤 바 (네모 박스 형식)
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 16), // 세그먼트 바와 콘텐츠 사이 여백 추가
-            child: Column(
+          // 세그먼트 컨트롤 바
+          Padding(padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          child: Container(
+            margin: EdgeInsets.only(top: 16.0), // 세그먼트 바와 콘텐츠 사이 여백 추가
+            decoration: BoxDecoration(
+              color: Colors.grey[200], // 탭 배경 색상 설정
+              borderRadius: BorderRadius.circular(50), // 둥근 배경을 위한 borderRadius
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSegment('전체', 0),
-                    _buildSegment('읽는 중', 1),
-                    _buildSegment('완료', 2),
-                    _buildSegment('컬렉션', 3),
-                  ],
+                // 각 탭을 Expanded로 감싸서 고정된 크기 설정
+                Expanded(
+                  child: _buildSegment('전체', 0),
                 ),
-                // 세그먼트 바 아래에 보더라인 추가
-                Container(
-                  height: 0.7,
-                  color: Color.fromARGB(255, 126, 113, 159), // 보라색 보더라인
-                  margin: EdgeInsets.only(top: 8),
+                Expanded(
+                  child: _buildSegment('읽는중', 1),
+                ),
+                Expanded(
+                  child: _buildSegment('완료', 2),
+                ),
+                Expanded(
+                  child: _buildSegment('컬렉션', 3),
                 ),
               ],
             ),
+          ),
           ),
           // 탭에 해당하는 내용
           Expanded(
@@ -197,6 +202,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
       ),
     );
   }
+
   // 세그먼트 탭을 만들기 위한 메소드
   Widget _buildSegment(String label, int index) {
     return GestureDetector(
@@ -206,12 +212,12 @@ class _BookshelfPageState extends State<BookshelfPage> {
         });
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-        margin: EdgeInsets.only(right: 16, left: 16),
+        padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+        margin: EdgeInsets.only(right: 5.0, left: 5.0, top: 5.0, bottom: 5.0),
         decoration: BoxDecoration(
           color: _currentTabIndex == index
-              ? Color.fromARGB(255, 126, 113, 159)
-              : Colors.transparent, // 선택된 탭은 보라색 배경
+              ? Colors.white
+              : Colors.transparent, // 선택된 탭은 흰색 배경
           borderRadius: BorderRadius.circular(50),
           border: Border.all(
             color: Colors.transparent,
@@ -221,12 +227,12 @@ class _BookshelfPageState extends State<BookshelfPage> {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12, // 폰트 크기 설정
+            fontSize: 14, // 폰트 크기 설정
             color: _currentTabIndex == index
-                ? Colors.white
-                : Color.fromARGB(255, 126, 113, 159),
-            fontWeight: FontWeight.bold,
+              ? Color.fromARGB(255, 70, 12, 230) // 선택된 탭은 색 변경
+              : Colors.black,
           ),
+          textAlign: TextAlign.center, // 텍스트가 중앙에 위치하도록 설정
         ),
       ),
     );
