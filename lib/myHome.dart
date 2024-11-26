@@ -102,14 +102,16 @@ class _HomePageState extends State<HomePage> {
                     // 검색 페이지로 이동
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const BookSearchPage()),
                     );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
-                      color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+                      color:
+                          const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
                     ),
                     child: Row(
                       children: [
@@ -122,19 +124,23 @@ class _HomePageState extends State<HomePage> {
                                 color: Color.fromARGB(255, 109, 109, 109),
                               ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8), // 패딩 설정
                             ),
                             onTap: () {
                               // 검색 바를 탭하면 페이지로 이동
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const BookSearchPage()),
                               );
                             },
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
+                          icon: const Icon(Icons.search,
+                              color: Color.fromARGB(255, 109, 109, 109)),
                           onPressed: () {
                             // 추가적인 검색 동작 처리 가능
                           },
@@ -214,8 +220,10 @@ class _HomePageState extends State<HomePage> {
                                 children: [
                                   Image.asset(
                                     books[index]["image"]!, // 동적으로 이미지 변경
-                                    height: 150,
-                                    width: 150,
+                                    height: Curves.easeOut.transform(1.0) *
+                                        150, // 기본 이미지 크기
+                                    width: Curves.easeOut.transform(1.0) *
+                                        150, // 기본 이미지 크기
                                   ),
                                   SizedBox(height: 10),
                                   Text(
