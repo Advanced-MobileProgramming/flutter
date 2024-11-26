@@ -169,8 +169,11 @@ class _AllBooksPageState extends State<AllBooksPage> {
             description: filteredBooks[index]["description"]!,
             status: filteredBooks[index]["status"]!,
             progress: filteredBooks[index]["progress"]!,
-            startDay: '2024-11-20',
-            endDay: '2024-12-01',
+            startDay: '',
+            endDay: '',
+            publisher: '한빛미디어',
+            publishYear: '2023',
+            publishMonth: '3',
           ),
         ),
       );
