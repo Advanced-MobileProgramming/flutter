@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myPage.dart';
-import 'myHome.dart'; // HomePage import 추가
+import 'myHome.dart';
+import 'bookSearch.dart';
 
 class AllBooksPage extends StatefulWidget {
+  final String username;
+  AllBooksPage({required this.username});
   @override
   _AllBooksPageState createState() => _AllBooksPageState();
 }
 
 class _AllBooksPageState extends State<AllBooksPage> {
   int _selectedIndex = 2;
-  final List<Map<String, String>> books = List.generate(
-    10,
-    (index) => {
-      "title": "Book $index",
-      "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
-      "author": "Author $index", // 책 저자
-      "description": "책에 대한 간단한 설명입니다.", // 책 설명
-    },
-  );
+  // 책 리스트
+  final List<Map<String, dynamic>> books = List.generate(
+  10,
+  (index) => {
+    "title": "Book $index",
+    "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+    "author": "Author $index", // 책 저자
+    "description": "책에 대한 간단한 설명입니다.", // 책 설명
+    "status": 
+        index % 2 == 0
+        ? "reading"  // 읽는 중
+        : "completed", // 완료
+    "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
+  },);
 
   final PageController _pageController =
       PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
@@ -36,26 +44,26 @@ class _AllBooksPageState extends State<AllBooksPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(username: 'example'), // 사용자 이름 전달
+          builder: (context) => HomePage(username: widget.username), // 사용자 이름 전달
         ),
       );
     } else if (index == 1) {
       // 책장 탭 클릭 시 BookShelfPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage()),
+        MaterialPageRoute(builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage()),
+        MaterialPageRoute(builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MyPage()),
+        MaterialPageRoute(builder: (context) => MyPage(username: widget.username)),
       );
     }
   }
@@ -80,14 +88,18 @@ class _AllBooksPageState extends State<AllBooksPage> {
         toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
         titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 검색 바
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: InkWell(
+              onTap: () {
+                // 검색 페이지로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                );
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
@@ -108,25 +120,30 @@ class _AllBooksPageState extends State<AllBooksPage> {
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
                         ),
                         onTap: () {
-                          // 페이지 이동 동작을 제거했습니다. 필요시 여기에 다른 동작을 넣을 수 있습니다.
+                          // 검색 바를 탭하면 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                          );
                         },
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
                       onPressed: () {
-                        // 검색 버튼 클릭 시 동작을 여기에서 처리합니다.
-                        // 예: 입력된 검색어를 사용하여 검색 동작을 수행
+                        // 추가적인 검색 동작 처리 가능
                       },
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 16), // 검색 바와 리스트 간 간격
-
-            // 도서 목록 표시
-            Expanded(
+          ),
+          SizedBox(height: 16),
+          // 도서 목록 표시
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0), // 외부와의 패딩 값 (위, 아래, 좌, 우 16.0)
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3, // 3개의 열
@@ -152,8 +169,8 @@ class _AllBooksPageState extends State<AllBooksPage> {
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

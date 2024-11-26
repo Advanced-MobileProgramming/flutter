@@ -5,6 +5,8 @@ import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
 import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 
 class MyPage extends StatefulWidget {
+  final String username;
+  MyPage({required this.username});
   @override
   _MyPageState createState() => _MyPageState();
 }
@@ -21,22 +23,26 @@ class _MyPageState extends State<MyPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
+<<<<<<< HEAD
             builder: (context) => HomePage(username: 'username')), // 수정 필요
+=======
+            builder: (context) => HomePage(username: widget.username)), // 수정 필요
+>>>>>>> origin/ui2
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage()),
+        MaterialPageRoute(builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage()),
+        MaterialPageRoute(builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MyPage()),
+        MaterialPageRoute(builder: (context) => MyPage(username: widget.username,)),
       );
     }
   }
@@ -45,7 +51,7 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('마이 페이지',
+        title: Text('마이페이지',
             style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -89,7 +95,11 @@ class _MyPageState extends State<MyPage> {
                         children: [
                           // 유저 닉네임
                           Text(
+<<<<<<< HEAD
                             '유저 닉네임', // 여기에 실제 유저 닉네임을 넣으세요
+=======
+                            '${widget.username}', // 여기에 실제 유저 닉네임을 넣으세요
+>>>>>>> origin/ui2
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -99,7 +109,11 @@ class _MyPageState extends State<MyPage> {
                           ),
                           // 유저 ID
                           Text(
+<<<<<<< HEAD
                             '유저 id', // 여기에 실제 유저 id를 넣으세요
+=======
+                            '@${widget.username}', // 여기에 실제 유저 id를 넣으세요
+>>>>>>> origin/ui2
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -134,7 +148,11 @@ class _MyPageState extends State<MyPage> {
                     leading: Icon(Icons.library_books, color: Colors.black),
                     title: Text('독후감 관리',
                         style: TextStyle(
+<<<<<<< HEAD
                             fontSize: 18, fontWeight: FontWeight.bold)),
+=======
+                            fontSize: 18, )),
+>>>>>>> origin/ui2
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('독후감 페이지로 이동')),
@@ -146,7 +164,11 @@ class _MyPageState extends State<MyPage> {
                     leading: Icon(Icons.rate_review, color: Colors.black),
                     title: Text('내가 쓴 리뷰',
                         style: TextStyle(
+<<<<<<< HEAD
                             fontSize: 18, fontWeight: FontWeight.bold)),
+=======
+                            fontSize: 18, )),
+>>>>>>> origin/ui2
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('리뷰 페이지로 이동')),
@@ -158,7 +180,11 @@ class _MyPageState extends State<MyPage> {
                     leading: Icon(Icons.question_answer, color: Colors.black),
                     title: Text('의견 보내기',
                         style: TextStyle(
+<<<<<<< HEAD
                             fontSize: 18, fontWeight: FontWeight.bold)),
+=======
+                            fontSize: 18, )),
+>>>>>>> origin/ui2
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('의견 보내기 페이지로 이동')),
@@ -170,7 +196,11 @@ class _MyPageState extends State<MyPage> {
                     leading: Icon(Icons.update, color: Colors.black),
                     title: Text('업데이트',
                         style: TextStyle(
+<<<<<<< HEAD
                             fontSize: 18, fontWeight: FontWeight.bold)),
+=======
+                            fontSize: 18, )),
+>>>>>>> origin/ui2
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('업데이트 페이지로 이동')),
@@ -182,7 +212,11 @@ class _MyPageState extends State<MyPage> {
                     leading: Icon(Icons.help_outline, color: Colors.black),
                     title: Text('이용약관',
                         style: TextStyle(
+<<<<<<< HEAD
                             fontSize: 18, fontWeight: FontWeight.bold)),
+=======
+                            fontSize: 18, )),
+>>>>>>> origin/ui2
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('이용약관 페이지로 이동')),
@@ -194,7 +228,11 @@ class _MyPageState extends State<MyPage> {
                     leading: Icon(Icons.logout, color: Colors.black),
                     title: Text('로그아웃',
                         style: TextStyle(
+<<<<<<< HEAD
                             fontSize: 18, fontWeight: FontWeight.bold)),
+=======
+                            fontSize: 18, )),
+>>>>>>> origin/ui2
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
