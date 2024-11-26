@@ -281,6 +281,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                   itemCount: filteredBooks.length,
                   itemBuilder: (context, index) {
                     return Card(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -408,6 +409,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                   itemCount: filteredBooks.length,
                   itemBuilder: (context, index) {
                     return Card(
+                      color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
