@@ -1,21 +1,72 @@
+//프로필 수정 페이지
 import 'package:flutter/material.dart';
 import 'package:soobook/allBooks.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
 import 'package:soobook/login.dart'; // 로그인 페이지 임포트
-import 'package:soobook/profileEdit.dart';
-import 'package:soobook/bookReport.dart';
-import 'package:soobook/myReview.dart';
+import 'package:soobook/myPage.dart';
 
-class MyPage extends StatefulWidget {
+class ProfileEditPage extends StatefulWidget {
   final String username;
-  MyPage({required this.username});
+  ProfileEditPage({required this.username});
   @override
-  _MyPageState createState() => _MyPageState();
+  _ProfileEditPageState createState() => _ProfileEditPageState();
 }
 
-class _MyPageState extends State<MyPage> {
+class _ProfileEditPageState extends State<ProfileEditPage> {
   int _selectedIndex = 3;
+
+  TextEditingController _nicknameController = TextEditingController();
+
+  // _username을 상태로 관리
+  String _username = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _username = widget.username; // 초기값 설정
+  }
+
+  // 닉네임 변경을 위한 다이얼로그 표시 함수
+  void _showNicknameChangeDialog() {
+    _nicknameController.text = widget.username; // 기본값으로 현재 유저 닉네임 설정
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('닉네임 변경'),
+          content: TextField(
+            controller: _nicknameController,
+            decoration: InputDecoration(
+              hintText: '새로운 닉네임을 입력하세요',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                // 여기서 새로운 닉네임을 처리
+                setState(() {
+                  _username = _nicknameController.text; // _username을 업데이트
+                });
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('닉네임이 변경되었습니다.')),
+                );
+              },
+              child: Text('저장'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -71,7 +122,8 @@ class _MyPageState extends State<MyPage> {
           children: [
             // 프로필 사진이 포함된 FloatingActionButton
             Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+              padding: const EdgeInsets.only(
+                  top: 10.0, bottom: 20.0, left: 20.0, right: 20.0),
               child: SizedBox(
                 width: 400, // 원하는 너비
                 height: 180, // 원하는 높이
@@ -82,7 +134,6 @@ class _MyPageState extends State<MyPage> {
                     );
                   },
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(width: 20),
                       // 프로필 사진
@@ -119,20 +170,6 @@ class _MyPageState extends State<MyPage> {
                           ),
                         ],
                       ),
-                      Spacer(), // 화살표 아이콘을 오른쪽 끝으로 배치하기 위해 사용
-                      IconButton(
-                        icon: Icon(Icons.arrow_forward_ios),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfileEditPage(
-                                username: widget.username,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                   backgroundColor:
@@ -146,82 +183,35 @@ class _MyPageState extends State<MyPage> {
                 children: [
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
                   ListTile(
-                    leading: Icon(Icons.library_books, color: Colors.black),
-                    title: Text('독후감 관리',
+                    leading: Icon(Icons.auto_fix_high, color: Colors.black),
+                    title: Text('프로필 꾸미기',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      // 독후감 관리 버튼 클릭 시 bookReport.dart로 이동
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookReportPage(),
-                        ),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('독후감 페이지로 이동')),
                       );
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
                   ListTile(
-                    leading: Icon(Icons.rate_review, color: Colors.black),
-                    title: Text('나의 리뷰',
+                    leading: Icon(Icons.edit, color: Colors.black),
+                    title: Text('닉네임 변경',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      // 내가 쓴 리뷰 버튼 클릭 시 myReview.dart로 이동
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MyReviewPage(),
-                        ),
-                      );
+                      _showNicknameChangeDialog();
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
                   ListTile(
-                    leading: Icon(Icons.question_answer, color: Colors.black),
-                    title: Text('의견 보내기',
+                    leading: Icon(Icons.exit_to_app, color: Colors.black),
+                    title: Text('회원탈퇴',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('의견 보내기 페이지로 이동')),
-                      );
-                    },
-                  ),
-                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
-                  ListTile(
-                    leading: Icon(Icons.update, color: Colors.black),
-                    title: Text('업데이트',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('업데이트 페이지로 이동')),
-                      );
-                    },
-                  ),
-                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
-                  ListTile(
-                    leading: Icon(Icons.help_outline, color: Colors.black),
-                    title: Text('이용약관',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('이용약관 페이지로 이동')),
-                      );
-                    },
-                  ),
-                  Divider(color: Color.fromARGB(255, 126, 113, 159)),
-                  ListTile(
-                    leading: Icon(Icons.logout, color: Colors.black),
-                    title: Text('로그아웃',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LogIn()),
                       );
                     },
                   ),
