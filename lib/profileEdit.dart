@@ -112,7 +112,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                 fontWeight: FontWeight.bold,
                 color: Color.fromARGB(255, 126, 113, 159))),
         backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         toolbarHeight: 120.0,
         titleSpacing: 20.0,
       ),
