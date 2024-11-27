@@ -15,6 +15,7 @@ class AllBooksPage extends StatefulWidget {
 class _AllBooksPageState extends State<AllBooksPage> {
   int _selectedIndex = 2;
   // 책 리스트
+  // 책 리스트
   final List<Map<String, dynamic>> books = List.generate(
   10,
   (index) => {
@@ -26,7 +27,13 @@ class _AllBooksPageState extends State<AllBooksPage> {
         index % 2 == 0
         ? "reading"  // 읽는 중
         : "completed", // 완료
-    "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
+    "startDay": '',
+    "endDay": '',
+    "publisher": "한빛미디어",
+    "publishYear": 2023,
+    "publishMonth": 3,
+    "totalPages": 736,
+    "readPages": 220,
   },);
 
   final PageController _pageController =
@@ -164,16 +171,17 @@ class _AllBooksPageState extends State<AllBooksPage> {
                         MaterialPageRoute(
                           builder: (context) => UnstoredBookDetail(
                             title: filteredBooks[index]["title"]!,
-                            image: filteredBooks[index]["image"]!,
-                            author: filteredBooks[index]["author"]!,
-                            description: filteredBooks[index]["description"]!,
-                            status: filteredBooks[index]["status"]!,
-                            progress: filteredBooks[index]["progress"]!,
-                            startDay: '',
-                            endDay: '',
-                            publisher: '한빛미디어',
-                            publishYear: '2023',
-                            publishMonth: '3',
+                                image: filteredBooks[index]["image"]!,
+                                author: filteredBooks[index]["author"]!,
+                                description: filteredBooks[index]["description"]!,
+                                status: filteredBooks[index]["status"]!,
+                                startDay: filteredBooks[index]["startDay"]!, // 임시 데이터 전송
+                                endDay: filteredBooks[index]["endDay"]!,
+                                publisher: filteredBooks[index]["publisher"]!,
+                                publishYear: filteredBooks[index]["publishYear"]!,
+                                publishMonth: filteredBooks[index]["publishMonth"]!,
+                                totalPages: filteredBooks[index]["totalPages"]!,
+                                readPages: filteredBooks[index]["readPages"]!,
                           ),
                         ),
                       );
