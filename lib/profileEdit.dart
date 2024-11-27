@@ -102,6 +102,69 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     }
   }
 
+  void _showPasswordConfirmationDialog() {
+    TextEditingController _passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('회원탈퇴'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('회원탈퇴를 위해 비밀번호를 입력해주세요.'),
+              SizedBox(height: 10),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: '비밀번호',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                String inputPassword = _passwordController.text;
+                // 예: 실제 비밀번호를 여기서 가져옴 (현재는 "1234"로 가정)
+                String storedPassword = "1234";
+
+                if (inputPassword == storedPassword) {
+                  // 탈퇴 성공 처리
+                  Navigator.of(context).pop(); // 다이얼로그 닫기
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('회원탈퇴가 완료되었습니다.')),
+                  );
+
+                  // 로그인 페이지로 이동
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LogIn()),
+                  );
+                } else {
+                  // 비밀번호 불일치 처리
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
+                  );
+                }
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,9 +273,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('의견 보내기 페이지로 이동')),
-                      );
+                      _showPasswordConfirmationDialog();
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
