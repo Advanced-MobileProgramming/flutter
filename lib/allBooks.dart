@@ -154,43 +154,46 @@ class _AllBooksPageState extends State<AllBooksPage> {
                 ),
                 itemCount: filteredBooks.length,
                 itemBuilder: (context, index) {
-  return GestureDetector(
-    onTap: () {
-      // 카드를 눌렀을 때 동작
-      print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
-      // 예: 상세 정보 페이지로 이동
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UnstoredBookDetail(
-            title: filteredBooks[index]["title"]!,
-            image: filteredBooks[index]["image"]!,
-            author: filteredBooks[index]["author"]!,
-            description: filteredBooks[index]["description"]!,
-            status: filteredBooks[index]["status"]!,
-            progress: filteredBooks[index]["progress"]!,
-            startDay: '2024-11-20',
-            endDay: '2024-12-01',
-          ),
-        ),
-      );
-    },
-    child: Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: 4,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.asset(
-          filteredBooks[index]["image"]!, // 동적으로 이미지 변경
-          fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
-        ),
-      ),
-    ),
-  );
-},
+                  return GestureDetector(
+                    onTap: () {
+                      // 카드를 눌렀을 때 동작
+                      print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                      // 예: 상세 정보 페이지로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UnstoredBookDetail(
+                            title: filteredBooks[index]["title"]!,
+                            image: filteredBooks[index]["image"]!,
+                            author: filteredBooks[index]["author"]!,
+                            description: filteredBooks[index]["description"]!,
+                            status: filteredBooks[index]["status"]!,
+                            progress: filteredBooks[index]["progress"]!,
+                            startDay: '',
+                            endDay: '',
+                            publisher: '한빛미디어',
+                            publishYear: '2023',
+                            publishMonth: '3',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                          fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),

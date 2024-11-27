@@ -4,6 +4,7 @@ import 'allBooks.dart';
 import 'myPage.dart';
 import 'myHome.dart';
 import 'bookSearch.dart';
+import 'StoredBookDetail.dart';
 
 class BookshelfPage extends StatefulWidget {
   final String username;
@@ -139,28 +140,33 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ),
             ),
           ),
-          // 세그먼트 컨트롤 바 (네모 박스 형식)
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 16), // 세그먼트 바와 콘텐츠 사이 여백 추가
-            child: Column(
+          // 세그먼트 컨트롤 바
+          Padding(padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+          child: Container(
+            margin: EdgeInsets.only(top: 16.0), // 세그먼트 바와 콘텐츠 사이 여백 추가
+            decoration: BoxDecoration(
+              color: Colors.grey[200], // 탭 배경 색상 설정
+              borderRadius: BorderRadius.circular(50), // 둥근 배경을 위한 borderRadius
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSegment('전체', 0),
-                    _buildSegment('읽는 중', 1),
-                    _buildSegment('완료', 2),
-                    _buildSegment('컬렉션', 3),
-                  ],
+                // 각 탭을 Expanded로 감싸서 고정된 크기 설정
+                Expanded(
+                  child: _buildSegment('전체', 0),
                 ),
-                // 세그먼트 바 아래에 보더라인 추가
-                Container(
-                  height: 0.7,
-                  color: Color.fromARGB(255, 126, 113, 159), // 보라색 보더라인
-                  margin: EdgeInsets.only(top: 8),
+                Expanded(
+                  child: _buildSegment('읽는중', 1),
+                ),
+                Expanded(
+                  child: _buildSegment('완료', 2),
+                ),
+                Expanded(
+                  child: _buildSegment('컬렉션', 3),
                 ),
               ],
             ),
+          ),
           ),
           // 탭에 해당하는 내용
           Expanded(
@@ -197,6 +203,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
       ),
     );
   }
+
   // 세그먼트 탭을 만들기 위한 메소드
   Widget _buildSegment(String label, int index) {
     return GestureDetector(
@@ -206,12 +213,12 @@ class _BookshelfPageState extends State<BookshelfPage> {
         });
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-        margin: EdgeInsets.only(right: 16, left: 16),
+        padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+        margin: EdgeInsets.only(right: 5.0, left: 5.0, top: 5.0, bottom: 5.0),
         decoration: BoxDecoration(
           color: _currentTabIndex == index
-              ? Color.fromARGB(255, 126, 113, 159)
-              : Colors.transparent, // 선택된 탭은 보라색 배경
+              ? Colors.white
+              : Colors.transparent, // 선택된 탭은 흰색 배경
           borderRadius: BorderRadius.circular(50),
           border: Border.all(
             color: Colors.transparent,
@@ -221,12 +228,12 @@ class _BookshelfPageState extends State<BookshelfPage> {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12, // 폰트 크기 설정
+            fontSize: 14, // 폰트 크기 설정
             color: _currentTabIndex == index
-                ? Colors.white
-                : Color.fromARGB(255, 126, 113, 159),
-            fontWeight: FontWeight.bold,
+              ? Color.fromARGB(255, 70, 12, 230) // 선택된 탭은 색 변경
+              : Colors.black,
           ),
+          textAlign: TextAlign.center, // 텍스트가 중앙에 위치하도록 설정
         ),
       ),
     );
@@ -271,30 +278,59 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ),
               // 그리드 뷰
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // 3개의 열
-                    crossAxisSpacing: 8, // 열 간 간격
-                    mainAxisSpacing: 8, // 행 간 간격
-                    childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
-                  ),
-                  itemCount: filteredBooks.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 4,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          filteredBooks[index]["image"]!, // 동적으로 이미지 변경
-                          fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                child: Padding(
+                  padding: const EdgeInsets.all(0), // 외부와의 패딩 값
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // 3개의 열
+                      crossAxisSpacing: 8, // 열 간 간격
+                      mainAxisSpacing: 8, // 행 간 간격
+                      childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
+                    ),
+                    itemCount: filteredBooks.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          // 카드를 눌렀을 때 동작
+                          print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StoredBookDetail(
+                                title: filteredBooks[index]["title"]!,
+                                image: filteredBooks[index]["image"]!,
+                                author: filteredBooks[index]["author"]!,
+                                description: filteredBooks[index]["description"]!,
+                                status: filteredBooks[index]["status"]!,
+                                progress: filteredBooks[index]["progress"]!,
+                                startDay: '2024.10.08', // 임시 데이터 전송
+                                endDay: '2024.10.08',
+                                publisher: '한빛미디어',
+                                publishYear: '2023',
+                                publishMonth: '3',
+                                totalPages: 736,
+                                readPages: 220,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 4,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                              fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -429,7 +465,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
           ),
         );
       case 3: // 컬렉션
-      // 컬렉션 목록
+      // 컬렉션 목록 (임시 데이터)
         final collections = [
           "인생책",
           "시집",
