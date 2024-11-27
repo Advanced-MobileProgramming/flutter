@@ -4,6 +4,7 @@ import 'allBooks.dart';
 import 'myPage.dart';
 import 'myHome.dart';
 import 'bookSearch.dart';
+import 'StoredBookDetail.dart';
 
 class BookshelfPage extends StatefulWidget {
   final String username;
@@ -277,30 +278,59 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ),
               // 그리드 뷰
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // 3개의 열
-                    crossAxisSpacing: 8, // 열 간 간격
-                    mainAxisSpacing: 8, // 행 간 간격
-                    childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
-                  ),
-                  itemCount: filteredBooks.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 4,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          filteredBooks[index]["image"]!, // 동적으로 이미지 변경
-                          fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                child: Padding(
+                  padding: const EdgeInsets.all(0), // 외부와의 패딩 값
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // 3개의 열
+                      crossAxisSpacing: 8, // 열 간 간격
+                      mainAxisSpacing: 8, // 행 간 간격
+                      childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
+                    ),
+                    itemCount: filteredBooks.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          // 카드를 눌렀을 때 동작
+                          print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StoredBookDetail(
+                                title: filteredBooks[index]["title"]!,
+                                image: filteredBooks[index]["image"]!,
+                                author: filteredBooks[index]["author"]!,
+                                description: filteredBooks[index]["description"]!,
+                                status: filteredBooks[index]["status"]!,
+                                progress: filteredBooks[index]["progress"]!,
+                                startDay: '2024.10.08', // 임시 데이터 전송
+                                endDay: '2024.10.08',
+                                publisher: '한빛미디어',
+                                publishYear: '2023',
+                                publishMonth: '3',
+                                totalPages: 736,
+                                readPages: 220,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 4,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                              fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -435,7 +465,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
           ),
         );
       case 3: // 컬렉션
-      // 컬렉션 목록
+      // 컬렉션 목록 (임시 데이터)
         final collections = [
           "인생책",
           "시집",
