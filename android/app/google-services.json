@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "289829214507",
+    "firebase_url": "https://subook-59546-default-rtdb.firebaseio.com",
     "project_id": "subook-59546",
     "storage_bucket": "subook-59546.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:289829214507:android:9f1e072b3dd39c32474d6e",
+        "mobilesdk_app_id": "1:289829214507:android:3c2146a2872555d5474d6e",
         "android_client_info": {
-          "package_name": "com.soobook.app"
+          "package_name": "com.example.soobook"
         }
       },
       "oauth_client": [],

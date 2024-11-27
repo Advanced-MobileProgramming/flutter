@@ -21,18 +21,18 @@ class _BookshelfPageState extends State<BookshelfPage> {
 
   // 책 리스트
   final List<Map<String, dynamic>> books = List.generate(
-  10,
-  (index) => {
-    "title": "Book $index",
-    "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
-    "author": "Author $index", // 책 저자
-    "description": "책에 대한 간단한 설명입니다.", // 책 설명
-    "status": 
-        index % 2 == 0
-        ? "reading"  // 읽는 중
-        : "completed", // 완료
-    "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
-  },);
+    10,
+    (index) => {
+      "title": "Book $index",
+      "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+      "author": "Author $index", // 책 저자
+      "description": "책에 대한 간단한 설명입니다.", // 책 설명
+      "status": index % 2 == 0
+          ? "reading" // 읽는 중
+          : "completed", // 완료
+      "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
+    },
+  );
 
   String searchQuery = '';
 
@@ -45,22 +45,30 @@ class _BookshelfPageState extends State<BookshelfPage> {
     if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage(username: widget.username)),
+        MaterialPageRoute(
+            builder: (context) => HomePage(username: widget.username)),
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage(username: widget.username,)),
+        MaterialPageRoute(
+            builder: (context) => BookshelfPage(
+                  username: widget.username,
+                )),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage(username: widget.username)),
+        MaterialPageRoute(
+            builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MyPage(username: widget.username,)),
+        MaterialPageRoute(
+            builder: (context) => MyPage(
+                  username: widget.username,
+                )),
       );
     }
   }
@@ -98,7 +106,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                 // 검색 페이지로 이동
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const BookSearchPage()),
                 );
               },
               child: Container(
@@ -118,19 +127,22 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             color: Color.fromARGB(255, 109, 109, 109),
                           ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8), // 패딩 설정
                         ),
                         onTap: () {
                           // 검색 바를 탭하면 페이지로 이동
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const BookSearchPage()),
                           );
                         },
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
+                      icon: const Icon(Icons.search,
+                          color: Color.fromARGB(255, 109, 109, 109)),
                       onPressed: () {
                         // 추가적인 검색 동작 처리 가능
                       },
@@ -141,32 +153,34 @@ class _BookshelfPageState extends State<BookshelfPage> {
             ),
           ),
           // 세그먼트 컨트롤 바
-          Padding(padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: Container(
-            margin: EdgeInsets.only(top: 16.0), // 세그먼트 바와 콘텐츠 사이 여백 추가
-            decoration: BoxDecoration(
-              color: Colors.grey[200], // 탭 배경 색상 설정
-              borderRadius: BorderRadius.circular(50), // 둥근 배경을 위한 borderRadius
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+            child: Container(
+              margin: EdgeInsets.only(top: 16.0), // 세그먼트 바와 콘텐츠 사이 여백 추가
+              decoration: BoxDecoration(
+                color: Colors.grey[200], // 탭 배경 색상 설정
+                borderRadius:
+                    BorderRadius.circular(50), // 둥근 배경을 위한 borderRadius
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 각 탭을 Expanded로 감싸서 고정된 크기 설정
+                  Expanded(
+                    child: _buildSegment('전체', 0),
+                  ),
+                  Expanded(
+                    child: _buildSegment('읽는중', 1),
+                  ),
+                  Expanded(
+                    child: _buildSegment('완료', 2),
+                  ),
+                  Expanded(
+                    child: _buildSegment('컬렉션', 3),
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 각 탭을 Expanded로 감싸서 고정된 크기 설정
-                Expanded(
-                  child: _buildSegment('전체', 0),
-                ),
-                Expanded(
-                  child: _buildSegment('읽는중', 1),
-                ),
-                Expanded(
-                  child: _buildSegment('완료', 2),
-                ),
-                Expanded(
-                  child: _buildSegment('컬렉션', 3),
-                ),
-              ],
-            ),
-          ),
           ),
           // 탭에 해당하는 내용
           Expanded(
@@ -230,8 +244,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
           style: TextStyle(
             fontSize: 14, // 폰트 크기 설정
             color: _currentTabIndex == index
-              ? Color.fromARGB(255, 70, 12, 230) // 선택된 탭은 색 변경
-              : Colors.black,
+                ? Color.fromARGB(255, 70, 12, 230) // 선택된 탭은 색 변경
+                : Colors.black,
           ),
           textAlign: TextAlign.center, // 텍스트가 중앙에 위치하도록 설정
         ),
@@ -247,7 +261,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
     } else if (status == "completed") {
       // 완료 (completed)
       return books.where((book) => book["status"] == "completed").toList();
-    } 
+    }
     // 전체 목록(all)
     return books;
   }
@@ -263,16 +277,14 @@ class _BookshelfPageState extends State<BookshelfPage> {
             children: [
               // 편집 텍스트 버튼
               Align(
-                alignment: Alignment.topRight,  // 오른쪽 상단에 버튼을 배치
+                alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
                 child: TextButton(
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                   child: Text(
-                    "편집",  // 텍스트 버튼의 내용
+                    "편집", // 텍스트 버튼의 내용
                     style: TextStyle(
-                      color: Color.fromARGB(255, 126, 113, 159),  // 버튼 텍스트 색상
-                      decoration: TextDecoration.underline
-                    ),
+                        color: Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
+                        decoration: TextDecoration.underline),
                   ),
                 ),
               ),
@@ -292,7 +304,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       return GestureDetector(
                         onTap: () {
                           // 카드를 눌렀을 때 동작
-                          print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                          print(
+                              '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -300,7 +313,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 title: filteredBooks[index]["title"]!,
                                 image: filteredBooks[index]["image"]!,
                                 author: filteredBooks[index]["author"]!,
-                                description: filteredBooks[index]["description"]!,
+                                description: filteredBooks[index]
+                                    ["description"]!,
                                 status: filteredBooks[index]["status"]!,
                                 progress: filteredBooks[index]["progress"]!,
                                 startDay: '2024.10.08', // 임시 데이터 전송
@@ -339,7 +353,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
       case 1: // 읽는 중
         final filteredBooks = getFilteredBooks("reading");
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0), // 외부 여백
+          padding: const EdgeInsets.only(
+              bottom: 16.0, right: 16.0, left: 16.0), // 외부 여백
           child: Stack(
             children: [
               // GridView (카드 리스트)
@@ -376,14 +391,18 @@ class _BookshelfPageState extends State<BookshelfPage> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
+                            borderRadius:
+                                BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
                             child: SizedBox(
                               width: 110, // 바의 길이 설정
                               //height: 10, // 바의 높이 설정
                               child: LinearProgressIndicator(
-                                value: filteredBooks[index]["progress"], // 진행 상태 (0.0 ~ 1.0)
+                                value: filteredBooks[index]
+                                    ["progress"], // 진행 상태 (0.0 ~ 1.0)
                                 backgroundColor: Colors.grey[200], // 배경색
-                                valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 126, 113, 200)), // 진행 색상
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color.fromARGB(
+                                        255, 126, 113, 200)), // 진행 색상
                               ),
                             ),
                           ),
@@ -420,16 +439,14 @@ class _BookshelfPageState extends State<BookshelfPage> {
             children: [
               // 편집 텍스트 버튼
               Align(
-                alignment: Alignment.topRight,  // 오른쪽 상단에 버튼을 배치
+                alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
                 child: TextButton(
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                   child: Text(
-                    "편집",  // 텍스트 버튼의 내용
+                    "편집", // 텍스트 버튼의 내용
                     style: TextStyle(
-                      color: Color.fromARGB(255, 126, 113, 159),  // 버튼 텍스트 색상
-                      decoration: TextDecoration.underline
-                    ),
+                        color: Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
+                        decoration: TextDecoration.underline),
                   ),
                 ),
               ),
@@ -465,7 +482,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
           ),
         );
       case 3: // 컬렉션
-      // 컬렉션 목록 (임시 데이터)
+        // 컬렉션 목록 (임시 데이터)
         final collections = [
           "인생책",
           "시집",
@@ -545,15 +562,15 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               print("Settings icon clicked");
                             },
                             child: IconButton(
-                            onPressed: () {
-                              print("Settings icon button clicked");
-                            },
-                            icon: Icon(
-                              Icons.more_vert, // 점 세개 아이콘
-                              color: Color.fromARGB(255, 126, 113, 159),
-                              size: 30,
+                              onPressed: () {
+                                print("Settings icon button clicked");
+                              },
+                              icon: Icon(
+                                Icons.more_vert, // 점 세개 아이콘
+                                color: Color.fromARGB(255, 126, 113, 159),
+                                size: 30,
+                              ),
                             ),
-                          ),
                           ),
                         ),
                       ],
