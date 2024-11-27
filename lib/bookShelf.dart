@@ -39,6 +39,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
     "totalPages": 736,
     "readPages": 220,
     "collection": "인생책",
+    "review": "이 책은 정말 잘 산 것 같다. 추천 드립니다..^^",
+    "bookReport": " 이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린 시절부터 시작해, 어떻게 경제적 자유를 얻었는지, 그리고 그 과정에서 얻은 중요한 삶의 교훈을 담고 있다.  그의 솔직한 이야기가 인상적인 부분이었다. 다음번에도 이 저자의 책이 나오면 구매해야겠다고 생각했다. 굿굿!~~~~~~🤓이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린 시절부터 시작해, 어떻게 경제적 자유를 얻었는지, 그리고 그 과정에서 얻은 중요한 삶의 교훈을 담고 있다.  그의 솔직한 이야기가 인상적인 부분이었다. 다음번에도 이 저자의 책이 나오면 구매해야겠다고 생각했다. 굿굿!~~~~~~🤓",
   },);
 
   String searchQuery = '';
@@ -629,6 +631,9 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 publishMonth: filteredBooks[index]["publishMonth"]!,
                                 totalPages: filteredBooks[index]["totalPages"]!,
                                 readPages: filteredBooks[index]["readPages"]!,
+                                collection: filteredBooks[index]["collection"],
+                                review: filteredBooks[index]["review"],
+                                bookReport: filteredBooks[index]["bookReport"],
                               ),
                             ),
                           );
@@ -697,6 +702,9 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                         publishMonth: filteredBooks[index]["publishMonth"]!,
                                         totalPages: filteredBooks[index]["totalPages"]!,
                                         readPages: filteredBooks[index]["readPages"]!,
+                                        collection: filteredBooks[index]["collection"],
+                                        review: filteredBooks[index]["review"],
+                                        bookReport: filteredBooks[index]["bookReport"],
                                       ),
                                 ),
                               );
@@ -809,6 +817,9 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 publishMonth: filteredBooks[index]["publishMonth"]!,
                                 totalPages: filteredBooks[index]["totalPages"]!,
                                 readPages: filteredBooks[index]["readPages"]!,
+                                collection: filteredBooks[index]["collection"],
+                                review: filteredBooks[index]["review"],
+                                bookReport: filteredBooks[index]["bookReport"],
                               ),
                             ),
                           );
@@ -1035,6 +1046,9 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                   publishMonth: filteredBooks[index]["publishMonth"]!,
                                   totalPages: filteredBooks[index]["totalPages"]!,
                                   readPages: filteredBooks[index]["readPages"]!,
+                                  collection: filteredBooks[index]["collection"],
+                                  review: filteredBooks[index]["review"],
+                                  bookReport: filteredBooks[index]["bookReport"],
                                 ),
                               ),
                             );
