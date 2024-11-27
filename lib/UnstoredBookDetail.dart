@@ -6,12 +6,13 @@ class UnstoredBookDetail extends StatefulWidget {
   final String author;
   final String description;
   final String status;
-  final double progress;
   final String startDay;
   final String endDay;
   final String publisher;
-  final String publishYear;
-  final String publishMonth;
+  final int publishYear;
+  final int publishMonth;
+  final int totalPages;
+  final int readPages;
 
   UnstoredBookDetail({
     required this.title,
@@ -19,12 +20,13 @@ class UnstoredBookDetail extends StatefulWidget {
     required this.author,
     required this.description,
     required this.status,
-    required this.progress,
     required this.startDay,
     required this.endDay,
     required this.publisher,
     required this.publishYear,
     required this.publishMonth,
+    required this.totalPages,
+    required this.readPages,
   });
 
   @override
