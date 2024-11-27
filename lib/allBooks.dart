@@ -1,9 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myPage.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'myHome.dart'; // HomePage import 추가
+import 'myHome.dart';
 import 'bookSearch.dart';
 import 'UnstoredBookDetail.dart';
 
@@ -18,65 +16,23 @@ class _AllBooksPageState extends State<AllBooksPage> {
   int _selectedIndex = 2;
   // 책 리스트
   final List<Map<String, dynamic>> books = List.generate(
-  10,
-  (index) => {
-    "title": "Book $index",
-    "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
-    "author": "Author $index", // 책 저자
-    "description": "책에 대한 간단한 설명입니다.", // 책 설명
-    "status": 
-        index % 2 == 0
-        ? "reading"  // 읽는 중
-        : "completed", // 완료
-    "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
-  },);
+    10,
+    (index) => {
+      "title": "Book $index",
+      "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+      "author": "Author $index", // 책 저자
+      "description": "책에 대한 간단한 설명입니다.", // 책 설명
+      "status": index % 2 == 0
+          ? "reading" // 읽는 중
+          : "completed", // 완료
+      "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
+    },
+  );
 
-  Future<void> fetchBooks() async {
-    final DatabaseReference booksRef = FirebaseDatabase.instance.ref("books");
+  final PageController _pageController =
+      PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
 
-    try {
-      final DataSnapshot snapshot = await booksRef.get();
-      if (snapshot.exists) {
-        final data = snapshot.value as List<dynamic>;
-        setState(() {
-          books = data.map((book) => Map<String, dynamic>.from(book)).toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          books = [];
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Firebase 데이터 가져오기 오류: $e");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchBooks(); // 도서 목록 데이터 가져오기
-  }
-
-  // 기존코드
-  // final List<Map<String, String>> books = List.generate(
-  //   10,
-  //   (index) => {
-  //     "title": "Book $index",
-  //     "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
-  //     "author": "Author $index", // 책 저자
-  //     "description": "책에 대한 간단한 설명입니다.", // 책 설명
-  //   },
-  // );
-
-  // final PageController _pageController =
-  //     PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
-
-  // String searchQuery = '';
+  String searchQuery = '';
 
   // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
@@ -89,26 +45,30 @@ class _AllBooksPageState extends State<AllBooksPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(username: widget.username), // 사용자 이름 전달
+          builder: (context) =>
+              HomePage(username: widget.username), // 사용자 이름 전달
         ),
       );
     } else if (index == 1) {
       // 책장 탭 클릭 시 BookShelfPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage(username: widget.username)),
+        MaterialPageRoute(
+            builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage(username: widget.username)),
+        MaterialPageRoute(
+            builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MyPage(username: widget.username)),
+        MaterialPageRoute(
+            builder: (context) => MyPage(username: widget.username)),
       );
     }
   }
@@ -142,7 +102,8 @@ class _AllBooksPageState extends State<AllBooksPage> {
                 // 검색 페이지로 이동
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                  MaterialPageRoute(
+                      builder: (context) => const BookSearchPage()),
                 );
               },
               child: Container(
@@ -162,39 +123,28 @@ class _AllBooksPageState extends State<AllBooksPage> {
                             color: Color.fromARGB(255, 109, 109, 109),
                           ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8), // 패딩 설정
                         ),
                         onTap: () {
                           // 검색 바를 탭하면 페이지로 이동
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const BookSearchPage()),
                           );
                         },
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
+                      icon: const Icon(Icons.search,
+                          color: Color.fromARGB(255, 109, 109, 109)),
                       onPressed: () {
                         // 추가적인 검색 동작 처리 가능
                       },
-                      decoration: InputDecoration(
-                        hintText: '도서명이나 저자를 입력하세요.',
-                        hintStyle: TextStyle(fontSize: 14),
-                        border: InputBorder.none,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      ),
-                      textAlign: TextAlign.left,
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.search, color: Colors.grey),
-                    onPressed: () {
-                      // 검색 버튼 클릭 시 동작 (현재는 입력값으로 자동 검색)
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -202,7 +152,8 @@ class _AllBooksPageState extends State<AllBooksPage> {
           // 도서 목록 표시
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(16.0), // 외부와의 패딩 값 (위, 아래, 좌, 우 16.0)
+              padding:
+                  const EdgeInsets.all(16.0), // 외부와의 패딩 값 (위, 아래, 좌, 우 16.0)
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3, // 3개의 열
