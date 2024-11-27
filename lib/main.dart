@@ -1,11 +1,22 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:soobook/firebase_options.dart';
 import 'login.dart';
 import 'myHome.dart';
 import 'allBooks.dart';
 import 'bookShelf.dart';
 import 'myPage.dart';
 
-void main() {
+// void main() {
+//   runApp(MyApp());
+// }
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -34,18 +45,18 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // 2초 후에 로그인 화면으로 이동
     Future.delayed(Duration(seconds: 2), () {
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => LogIn()),
-      // );
-
-      /* myHome.dart 테스트용 - testUser로 ID 넘겨서 바로 화면 홈화면 띄움 */
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(username: "testUser"),
-        ),
+        MaterialPageRoute(builder: (context) => LogIn()),
       );
+
+      /* myHome.dart 테스트용 - testUser로 ID 넘겨서 바로 화면 홈화면 띄움 */
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => HomePage(username: "testUser"),
+      //   ),
+      // );
     });
   }
 

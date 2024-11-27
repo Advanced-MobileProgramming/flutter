@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myPage.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'myHome.dart'; // HomePage import 추가
 
 class AllBooksPage extends StatefulWidget {
@@ -10,20 +12,57 @@ class AllBooksPage extends StatefulWidget {
 
 class _AllBooksPageState extends State<AllBooksPage> {
   int _selectedIndex = 2;
-  final List<Map<String, String>> books = List.generate(
-    10,
-    (index) => {
-      "title": "Book $index",
-      "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
-      "author": "Author $index", // 책 저자
-      "description": "책에 대한 간단한 설명입니다.", // 책 설명
-    },
-  );
+  // 수정된 코드
+  List<Map<String, dynamic>> books = []; // 도서 목록을 저장할 리스트
+  String searchQuery = ''; // 검색어를 저장할 변수
+  bool isLoading = true; // 데이터 로딩 여부를 저장할 변수
 
-  final PageController _pageController =
-      PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
+  Future<void> fetchBooks() async {
+    final DatabaseReference booksRef = FirebaseDatabase.instance.ref("books");
 
-  String searchQuery = '';
+    try {
+      final DataSnapshot snapshot = await booksRef.get();
+      if (snapshot.exists) {
+        final data = snapshot.value as List<dynamic>;
+        setState(() {
+          books = data.map((book) => Map<String, dynamic>.from(book)).toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          books = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Firebase 데이터 가져오기 오류: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchBooks(); // 도서 목록 데이터 가져오기
+  }
+
+  // 기존코드
+  // final List<Map<String, String>> books = List.generate(
+  //   10,
+  //   (index) => {
+  //     "title": "Book $index",
+  //     "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
+  //     "author": "Author $index", // 책 저자
+  //     "description": "책에 대한 간단한 설명입니다.", // 책 설명
+  //   },
+  // );
+
+  // final PageController _pageController =
+  //     PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
+
+  // String searchQuery = '';
 
   // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
@@ -70,16 +109,12 @@ class _AllBooksPageState extends State<AllBooksPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('전체 도서',
-            style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 126, 113, 159))),
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false, // 뒤로 가기 버튼 비활성화
-        toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
-        titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
-      ),
+          title: Text('전체 도서',
+              style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 126, 113, 159))),
+          backgroundColor: Colors.white),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -87,40 +122,37 @@ class _AllBooksPageState extends State<AllBooksPage> {
           children: [
             // 검색 바
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: '도서명이나 저자를 입력하세요.',
-                          hintStyle: const TextStyle(
-                            fontSize: 14,
-                            color: Color.fromARGB(255, 109, 109, 109),
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
-                        ),
-                        onTap: () {
-                          // 페이지 이동 동작을 제거했습니다. 필요시 여기에 다른 동작을 넣을 수 있습니다.
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
-                      onPressed: () {
-                        // 검색 버튼 클릭 시 동작을 여기에서 처리합니다.
-                        // 예: 입력된 검색어를 사용하여 검색 동작을 수행
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                        });
                       },
+                      decoration: InputDecoration(
+                        hintText: '도서명이나 저자를 입력하세요.',
+                        hintStyle: TextStyle(fontSize: 14),
+                        border: InputBorder.none,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.search, color: Colors.grey),
+                    onPressed: () {
+                      // 검색 버튼 클릭 시 동작 (현재는 입력값으로 자동 검색)
+                    },
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 16), // 검색 바와 리스트 간 간격
@@ -136,6 +168,10 @@ class _AllBooksPageState extends State<AllBooksPage> {
                 ),
                 itemCount: filteredBooks.length,
                 itemBuilder: (context, index) {
+                  // 코드 추가
+                  final book = filteredBooks[index];
+                  final imagePath =
+                      book["image_path"] ?? 'image/book_image_1.jpg';
                   return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -144,7 +180,8 @@ class _AllBooksPageState extends State<AllBooksPage> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Image.asset(
-                        filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                        imagePath,
+                        //filteredBooks[index]["image"]!, // 동적으로 이미지 변경
                         fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
                       ),
                     ),

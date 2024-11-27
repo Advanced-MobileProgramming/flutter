@@ -35,6 +35,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  firebase_core: ^3.7.0
+  firebase_database: ^11.1.5
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +65,124 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
-  assets:
-    - image/
+
+  assets:  
+    # - assets/bookDB.json
+    - assets/images/books/
+    # - assets/images/books/이처럼_사소한_것들.jpg
+    # - assets/images/books/작은_땅의_야수들.jpg
+    # - assets/images/books/흐르는_강물처럼.jpg
+    # - assets/images/books/소원을_말해줘.jpg
+    # - assets/images/books/시티_뷰.jpg
+    # - assets/images/books/고양이는_사라지지_않는다.jpg
+    # - assets/images/books/불안_해방.jpg
+    # - assets/images/books/나는_둔감하게_살기로_했다.jpg
+    # - assets/images/books/스토아_수업.jpg
+    # - assets/images/books/버리고_갈_것만_남아서_참_홀가분하다.jpg
+    # - assets/images/books/그곳에_자꾸만_가고_싶다.jpg
+    # - assets/images/books/다시_시로_숨_쉬고_싶은_그대에게.jpg
+    # - assets/images/books/마음이_콩밭에_가_있습니다.jpg
+    # - assets/images/books/사랑_두_개의_심장.jpg
+    # - assets/images/books/마음이_흐르는_대로.jpg
+    # - assets/images/books/생의_마지막_날까지.jpg
+    # - assets/images/books/마인드_박스.jpg
+    # - assets/images/books/자유로운_이기주의자.jpg
+    # - assets/images/books/꾸짖는_기술.jpg
+    # - assets/images/books/고품격_유머_스트레칭.jpg
+    # - assets/images/books/그로운.jpg
+    # - assets/images/books/현대적_사랑의_박물관.jpg
+    # - assets/images/books/안녕_내일_또_만나.jpg
+    # - assets/images/books/무중력증후군.jpg
+    # - assets/images/books/모던_하트.jpg
+    # - assets/images/books/마르타의_일.jpg
+    # - assets/images/books/이지_뷰티.jpg
+    # - assets/images/books/크게_그린_사람.jpg
+    # - assets/images/books/담요와_책만_있다면.jpg
+    # - assets/images/books/시인의_붓.jpg
+    # - assets/images/books/혼자_점심_먹는_사람을_위한_시집.jpg
+    # - assets/images/books/이번_생은_초록빛.jpg
+    # - assets/images/books/사는_마음.jpg
+    # - assets/images/books/부상당한_천사에게.jpg
+    # - assets/images/books/구체적_사랑.jpg
+    # - assets/images/books/나의_아름답고_추한_몸에게.jpg
+    # - assets/images/books/이것이_광고인이다.jpg
+    # - assets/images/books/두뇌_비타민.jpg
+    # - assets/images/books/직면하는_마음.jpg
+    # - assets/images/books/공감의_언어.jpg
+    # - assets/images/books/위대한_개츠비.jpg
+    # - assets/images/books/코.jpg
+    # - assets/images/books/3부작.jpg
+    # - assets/images/books/메밀꽃_필_무렵.jpg
+    # - assets/images/books/우상의_눈물.jpg
+    # - assets/images/books/검사의_죄.jpg
+    # - assets/images/books/1026.jpg
+    # - assets/images/books/자살에_관한_모든_것.jpg
+    # - assets/images/books/정약용_코드.jpg
+    # - assets/images/books/샐러드_기념일.jpg
+    # - assets/images/books/좀더_단단한_내가_될래.jpg
+    # - assets/images/books/나만의_색깔을_만들어가는_중입니다.jpg
+    # - assets/images/books/사연_많은_귀여운_환자들을_돌보고_있습니다.jpg
+    # - assets/images/books/세상에_무해한_사람이_되고_싶어.jpg
+    # - assets/images/books/뿌리가_튼튼한_사람이_되고_싶어.jpg
+    # - assets/images/books/그대로_괜찮은_파랑.jpg
+    # - assets/images/books/F4_선언일기.jpg
+    # - assets/images/books/나는_당신이_살았으면_좋겠습니다.jpg
+    # - assets/images/books/성형을_생각하는_당신에게.jpg
+    # - assets/images/books/리더들이_몰래_읽는_한비자.jpg
+    # - assets/images/books/가시고백.jpg
+    # - assets/images/books/기억_전달자.jpg
+    # - assets/images/books/만질_수_있는_생각.jpg
+    # - assets/images/books/순례_주택.jpg
+    # - assets/images/books/엑시트.jpg
+    # - assets/images/books/지구_아이.jpg
+    # - assets/images/books/최후의_Z.jpg
+    # - assets/images/books/거인의_옥편.jpg
+    # - assets/images/books/공원의_위로.jpg
+    # - assets/images/books/노래로_읽는_당시.jpg
+    # - assets/images/books/더_이상_무엇이.jpg
+    # - assets/images/books/마지막_왕국.jpg
+    # - assets/images/books/별빛은_쏟아지고.jpg
+    # - assets/images/books/삶의로서의_일.jpg
+    # - assets/images/books/숙론.jpg
+    # - assets/images/books/아웃라이어.jpg
+    # - assets/images/books/안녕,_삐삐_롱스타킹.jpg
+    # - assets/images/books/앤서.jpg
+    # - assets/images/books/어떤_선택의_재검토.jpg
+    # - assets/images/books/에레혼.jpg
+    # - assets/images/books/옛_시정을_더듬어_(상).jpg
+    # - assets/images/books/이적의_단어들.jpg
+    # - assets/images/books/인생을_건너는_한_문장.jpg
+    # - assets/images/books/제정신이라는_착각.jpg
+    # - assets/images/books/좋아하기_때문에.jpg
+    # - assets/images/books/추억_수리_공장.jpg
+    # - assets/images/books/회복하는_힘.jpg
+    # - assets/images/books/거의_정반대의_행복.jpg
+    # - assets/images/books/고양이가_보았어.jpg
+    # - assets/images/books/구글_임원에서_실리콘밸리_알바생이_되었습니다.jpg
+    # - assets/images/books/그대는_나의_여름이_되세요.jpg
+    # - assets/images/books/나이트.jpg
+    # - assets/images/books/숨은_말_찾기.jpg
+    # - assets/images/books/시_읽는_밤.jpg
+    # - assets/images/books/아가미.jpg
+    # - assets/images/books/어쩌면_별들이_너의_슬픔을_가져갈지도_몰라.jpg
+    # - assets/images/books/언니의_실종에_관한_48_단서들.jpg
+    # - assets/images/books/이_삶이_당신을_어디로_이끌었든.jpg
+    # - assets/images/books/인간_본성의_법칙.jpg
+    # - assets/images/books/잡담이_능력이다.jpg
+    # - assets/images/books/전지적_루이_&_후이_시점.jpg
+    # - assets/images/books/죽을_때까지_나를_다스린다는_것.jpg
+    # - assets/images/books/파과.jpg
+    # - assets/images/books/파우스터.jpg
+    # - assets/images/books/파타.jpg
+    # - assets/images/books/혼자_있는_시간의_힘.jpg
+    # - assets/images/books/회복탄력성.jpg
+    - image/book_image_1.jpg
+    - image/book_image_2.jpg
+    - image/book_image_3.jpg
+    - image/book_image_4.jpg
+    - image/logo.png
+    - image/logo2.png
+    
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

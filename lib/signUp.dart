@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:soobook/logIn.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -15,14 +16,62 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _isUsernameAvailable = false; // 아이디 중복 확인 상태
   String _usernameMessage = ''; // 아이디 중복 확인 메시지
 
-  // 회원가입 처리 로직
-  void _signUp() {
+  // 수정
+  //final DatabaseReference _dbRef = FirebaseDatabase.instance.ref("users");
+
+  // 회원가입 처리 로직(수정)
+  Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('회원가입 완료: ${_usernameController.text}')),
-      );
+      final nickname = _nicknameController.text;
+      final username = _usernameController.text;
+      final password = _passwordController.text;
+
+      // 아이디 중복 확인
+      if (!_isUsernameAvailable) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('아이디 중복 확인을 해주세요.')),
+        );
+        return;
+      }
+
+      // Firebase Realtime Database의 users 경로 참조
+      final DatabaseReference userRef = FirebaseDatabase.instance.ref(
+          "users"); // 결과값: https://soobook-6b7b7-default-rtdb.firebaseio.com/users
+
+      try {
+        // Firebase DB에 회원 정보 저장
+        // Firebase Realtime Database의 users 경로에 사용자 정보 저장
+        await userRef.child(username).set({
+          // username을 key로 사용
+          'nickname': nickname, // 닉네임
+          'password': password, // 비밀번호
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('회원가입 완료: $username')),
+        );
+        // 로그인 페이지로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LogIn()),
+        );
+      } catch (e) {
+        print("회원가입 에러: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('회원가입 중 오류가 발생했습니다.')),
+        );
+      }
     }
   }
+
+  // 회원가입 처리 로직(기존)
+  // void _signUp() {
+  //   if (_formKey.currentState!.validate()) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('회원가입 완료: ${_usernameController.text}')),
+  //     );
+  //   }
+  // }
 
   // 아이디 중복 확인 로직
   Future<void> _checkUsernameAvailability() async {
@@ -34,18 +83,47 @@ class _SignUpPageState extends State<SignUpPage> {
       });
       return;
     }
+
+    // Firebase Realtime Database의 users 경로 참조
+    final DatabaseReference userRef = FirebaseDatabase.instance.ref("users");
+
     // 서버와 통신하여 아이디 중복 확인 (여기서는 비동기 예시로 대체)
-    await Future.delayed(Duration(seconds: 1)); // 비동기 요청 시뮬레이션
-    setState(() {
-      // 예시: 'testuser'는 이미 사용 중인 아이디
-      if (username == 'testuser') {
-        _isUsernameAvailable = false;
-        _usernameMessage = '이미 사용 중인 아이디입니다.';
+    //   await Future.delayed(Duration(seconds: 1)); // 비동기 요청 시뮬레이션
+    //   setState(() {
+    //     // 예시: 'testuser'는 이미 사용 중인 아이디
+    //     if (username == 'testuser') {
+    //       _isUsernameAvailable = false;
+    //       _usernameMessage = '이미 사용 중인 아이디입니다.';
+    //     } else {
+    //       _isUsernameAvailable = true;
+    //       _usernameMessage = '사용 가능한 아이디입니다.';
+    //     }
+    //   });
+    // }
+
+    try {
+      // Firebase에서 해당 아이디가 존재하는지 확인
+      final snapshot = await userRef.child(username).get();
+
+      if (snapshot.exists) {
+        // 아이디가 이미 존재하는 경우
+        setState(() {
+          _isUsernameAvailable = false;
+          _usernameMessage = '이미 사용 중인 아이디입니다.';
+        });
       } else {
-        _isUsernameAvailable = true;
-        _usernameMessage = '사용 가능한 아이디입니다.';
+        // 아이디가 존재하지 않는 경우
+        setState(() {
+          _isUsernameAvailable = true;
+          _usernameMessage = '사용 가능한 아이디입니다.';
+        });
       }
-    });
+    } catch (e) {
+      print("아이디 중복 확인 중 오류 발생: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('아이디 중복 확인 중 오류가 발생했습니다.')),
+      );
+    }
   }
 
   @override
@@ -166,9 +244,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       onPressed: _signUp,
                       child: Text('회원가입'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 110, 66, 172),
+                        backgroundColor:
+                            const Color.fromARGB(255, 110, 66, 172),
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 150),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 150),
                         textStyle: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -177,8 +257,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     // 로그인 페이지로 이동
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, 
-                        MaterialPageRoute(builder: (context) => LogIn()),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LogIn()),
                         );
                       },
                       child: Text(
