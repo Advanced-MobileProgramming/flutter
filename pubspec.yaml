@@ -190,6 +190,7 @@ flutter:
     - image/DefaultProfile.png
     - image/logo.png
     - image/logo2.png
+    - image/
     
 
   # An image asset can refer to one or more resolution-specific "variants", see
