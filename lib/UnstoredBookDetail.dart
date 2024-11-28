@@ -57,6 +57,10 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
     },
   ];
 
+  // 새로운 리뷰를 위한 상태 변수
+  final TextEditingController _reviewController = TextEditingController();
+  double _currentRating = 0.0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -374,7 +378,9 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                         color: Colors.amber,
                       ),
                       onRatingUpdate: (rating) {
-                        print(rating); // 별점 선택 후 처리할 코드
+                        setState(() {
+                          _currentRating = rating; // 상태에 별점 저장
+                        });
                       },
                     ),
                   ],
@@ -382,6 +388,7 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                 SizedBox(height: 10),
                 // 리뷰 텍스트 입력
                 TextField(
+                  controller: _reviewController, // 입력 텍스트 상태 저장
                   decoration: InputDecoration(
                     hintText: "리뷰를 작성하세요...",
                     border: OutlineInputBorder(),
@@ -396,7 +403,33 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                   child: ElevatedButton(
                     onPressed: () {
                       // 리뷰 등록 버튼 클릭 시 처리할 코드
-                      print("리뷰 등록");
+                      if (_reviewController.text.isNotEmpty &&
+                          _currentRating > 0) {
+                        setState(() {
+                          reviews.insert(
+                            // 리스트 최상단에 추가
+                            0,
+                            {
+                              'username': '새 사용자',
+                              'content': _reviewController.text,
+                              'date': DateTime.now()
+                                  .toLocal()
+                                  .toString()
+                                  .split(' ')[0],
+                              'rating': _currentRating.toInt(),
+                            },
+                          );
+                          _reviewController.clear(); // 입력창 초기화
+                          _currentRating = 0.0; // 별점 초기화
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('리뷰가 등록되었습니다!')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('별점과 리뷰 내용을 모두 입력하세요.')),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
