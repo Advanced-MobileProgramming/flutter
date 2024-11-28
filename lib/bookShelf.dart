@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:soobook/bookDetail.dart';
 import 'allBooks.dart';
 import 'myPage.dart';
 import 'myHome.dart';
 import 'bookSearch.dart';
-import 'StoredBookDetail.dart';
 
 class BookshelfPage extends StatefulWidget {
   final String username;
@@ -34,13 +34,15 @@ class _BookshelfPageState extends State<BookshelfPage> {
     "startDay": '2024.10.08',
     "endDay": '2024.10.08',
     "publisher": "한빛미디어",
-    "publishYear": 2023,
-    "publishMonth": 3,
+    "publishYear": "2023",
+    "publishMonth": "3",
     "totalPages": 736,
     "readPages": 220,
     "collection": "인생책",
-    "review": "이 책은 정말 잘 산 것 같다. 추천 드립니다..^^",
+    "review": "",
     "bookReport": "이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린 시절부터 시작해, 어떻게 경제적 자유를 얻었는지, 그리고 그 과정에서 얻은 중요한 삶의 교훈을 담고 있다.  그의 솔직한 이야기가 인상적인 부분이었다. 다음번에도 이 저자의 책이 나오면 구매해야겠다고 생각했다. 굿굿!~~~~~~🤓이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린Kkkk",
+    "rating": 4,
+    "isStored": true,
   },);
 
   String searchQuery = '';
@@ -617,7 +619,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => StoredBookDetail(
+                              builder: (context) => BookDetail(
                                 title: filteredBooks[index]["title"]!,
                                 image: filteredBooks[index]["image"]!,
                                 author: filteredBooks[index]["author"]!,
@@ -634,6 +636,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 collection: filteredBooks[index]["collection"],
                                 review: filteredBooks[index]["review"],
                                 bookReport: filteredBooks[index]["bookReport"],
+                                rating: filteredBooks[index]["rating"],
+                                isStored: filteredBooks[index]["isStored"],
                               ),
                             ),
                           );
@@ -689,7 +693,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => StoredBookDetail(
+                                  builder: (context) => BookDetail(
                                         title: filteredBooks[index]["title"]!,
                                         image: filteredBooks[index]["image"]!,
                                         author: filteredBooks[index]["author"]!,
@@ -705,6 +709,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                         collection: filteredBooks[index]["collection"],
                                         review: filteredBooks[index]["review"],
                                         bookReport: filteredBooks[index]["bookReport"],
+                                        rating: filteredBooks[index]["rating"],
+                                        isStored: filteredBooks[index]["isStored"],
                                       ),
                                 ),
                               );
@@ -804,7 +810,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => StoredBookDetail(
+                              builder: (context) => BookDetail(
                                 title: filteredBooks[index]["title"]!,
                                 image: filteredBooks[index]["image"]!,
                                 author: filteredBooks[index]["author"]!,
@@ -820,6 +826,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 collection: filteredBooks[index]["collection"],
                                 review: filteredBooks[index]["review"],
                                 bookReport: filteredBooks[index]["bookReport"],
+                                rating: filteredBooks[index]["rating"],
+                                isStored: filteredBooks[index]["isStored"],
                               ),
                             ),
                           );
@@ -1033,7 +1041,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => StoredBookDetail(
+                                builder: (context) => BookDetail(
                                   title: filteredBooks[index]["title"]!,
                                   image: filteredBooks[index]["image"]!,
                                   author: filteredBooks[index]["author"]!,
@@ -1049,6 +1057,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                   collection: filteredBooks[index]["collection"],
                                   review: filteredBooks[index]["review"],
                                   bookReport: filteredBooks[index]["bookReport"],
+                                  rating: filteredBooks[index]["rating"],
+                                  isStored: filteredBooks[index]["isStored"],
                                 ),
                               ),
                             );
