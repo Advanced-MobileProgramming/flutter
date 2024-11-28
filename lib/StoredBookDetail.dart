@@ -321,7 +321,7 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
         return Container(
           width: 600,  // 고정된 가로 크기
           height: 330, // 고정된 세로 크기
-          padding: const EdgeInsets.only(left: 22.0, right: 20.0, top: 35.0, bottom: 30.0), // 안쪽 여백
+          padding: const EdgeInsets.only(left: 22.0, right: 20.0, top: 50.0,), // 안쪽 여백
           decoration: BoxDecoration(
             color: Color.fromARGB(255, 226, 224, 231),  // 배경색
             borderRadius: BorderRadius.circular(30),  // 둥근 모서리
@@ -347,7 +347,7 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
                 overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis, // 확장된 경우... 없앰
                 maxLines: _isExpanded ? null : 9,  // 최대 9줄까지만 보이게 함
               ),
-              if (!_isExpanded && widget.bookReport.length > 300)  // 텍스트가 길면 + 더보기 버튼을 보여줌
+              if (!_isExpanded && widget.bookReport.length > 272)  // 텍스트가 길면 + 더보기 버튼을 보여줌
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,  // 버튼을 오른쪽으로 정렬
                   children: [
