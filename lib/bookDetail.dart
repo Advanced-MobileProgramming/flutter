@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'reviewList.dart';
+import 'package:soobook/reviewList.dart';
+import 'package:soobook/addBook.dart';
 
 class BookDetail extends StatefulWidget {
   final String title;
@@ -41,7 +42,7 @@ class BookDetail extends StatefulWidget {
     required this.isStored,
   });
 
-    @override
+  @override
   State<BookDetail> createState() {
     if (isStored) {
       return _StoredBookDetailState();
@@ -190,8 +191,13 @@ class _UnstoredBookDetailState extends State<BookDetail> {
                                     color: Color.fromARGB(255, 126, 113, 159),
                                     size: 45),
                                 onPressed: () {
-                                  // + 버튼 동작
-                                  print("책 추가 버튼 클릭");
+                                  // AddBook 모달 띄우기
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AddBook(); // AddBook 위젯을 호출하여 모달에 띄움
+                                    },
+                                  );
                                 },
                               )
                             ],
