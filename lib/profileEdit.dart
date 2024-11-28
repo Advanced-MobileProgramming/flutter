@@ -6,8 +6,8 @@ import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 import 'package:soobook/myPage.dart';
 
 class ProfileEditPage extends StatefulWidget {
-  final String username;
-  ProfileEditPage({required this.username});
+  final String nickname;
+  ProfileEditPage({required this.nickname});
   @override
   _ProfileEditPageState createState() => _ProfileEditPageState();
 }
@@ -18,13 +18,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   TextEditingController _nicknameController = TextEditingController();
 
   // _username을 상태로 관리
-  String _username = "";
+  String _nickname = "";
   String _profileImagePath = 'image/DefaultProfile.png'; // 기본 프로필 사진
 
   @override
   void initState() {
     super.initState();
-    _username = widget.username; // 초기값 설정
+    _nickname = widget.nickname; // 초기값 설정
   }
 
   void _showProfileImageChangeDialog() {
@@ -78,7 +78,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
   // 닉네임 변경을 위한 다이얼로그 표시 함수
   void _showNicknameChangeDialog() {
-    _nicknameController.text = widget.username; // 기본값으로 현재 유저 닉네임 설정
+    _nicknameController.text = widget.nickname; // 기본값으로 현재 유저 닉네임 설정
 
     showDialog(
       context: context,
@@ -102,7 +102,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               onPressed: () {
                 // 여기서 새로운 닉네임을 처리
                 setState(() {
-                  _username = _nicknameController.text; // _username을 업데이트
+                  _nickname = _nicknameController.text; // _username을 업데이트
                 });
                 Navigator.of(context).pop(); // 다이얼로그 닫기
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -126,26 +126,26 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(username: widget.username)), // 수정 필요
+            builder: (context) => HomePage(nickname: widget.nickname)), // 수정 필요
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(username: widget.username)),
+            builder: (context) => BookshelfPage(nickname: widget.nickname)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(username: widget.username)),
+            builder: (context) => AllBooksPage(nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => MyPage(
-                  username: widget.username,
+                  nickname: widget.nickname,
                 )),
       );
     }
@@ -263,7 +263,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         children: [
                           // 유저 닉네임
                           Text(
-                            '${_username}', // 여기에 실제 유저 닉네임을 넣으세요
+                            '${_nickname}', // 여기에 실제 유저 닉네임을 넣으세요
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -273,7 +273,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '@${_username}', // 여기에 실제 유저 id를 넣으세요
+                            '@${_nickname}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

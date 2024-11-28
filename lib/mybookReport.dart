@@ -9,15 +9,51 @@ class BookReportPage extends StatefulWidget {
 class _BookReportPageState extends State<BookReportPage> {
   // 독후감 데이터 리스트
   List<Map<String, dynamic>> bookReports = [
-    {'title': '책 제목 1', 'author': '저자 1', 'bookReport': '이 책은 정말 훌륭했습니다.'},
+    {
+      'title': '책 제목 1', 
+      'author': '저자 1', 
+      'bookReport': '이 책은 정말 훌륭했습니다.',
+      "image": 'image/book_image_1.jpg',
+      "publisher": "한빛미디어",
+      "publishYear": "2023",
+      "publishMonth": "3",
+    },
     {
       'title': '책 제목 2',
       'author': '저자 2',
-      'bookReport': '좋은 책이었지만 아쉬운 점이 많았어요.'
+      'bookReport': '좋은 책이었지만 아쉬운 점이 많았어요.',
+      "image": 'image/book_image_1.jpg',
+      "publisher": "한빛미디어",
+      "publishYear": "2023",
+      "publishMonth": "3",
     },
-    {'title': '책 제목 3', 'author': '저자 3', 'bookReport': '정말 추천하는 책입니다!'},
-    {'title': '책 제목 4', 'author': '저자 4', 'bookReport': '정말 추천하는 책입니다!'},
-    {'title': '책 제목 5', 'author': '저자 5', 'bookReport': '정말 추천하는 책입니다!'},
+    {
+      'title': '책 제목 3', 
+      'author': '저자 3', 
+      'bookReport': '정말 추천하는 책입니다!', 
+      "image": 'image/book_image_1.jpg',
+      "publisher": "한빛미디어",
+      "publishYear": "2023",
+      "publishMonth": "3",
+    },
+    {
+      'title': '책 제목 4', 
+      'author': '저자 4', 
+      'bookReport': '정말 추천하는 책입니다!', 
+      "image": 'image/book_image_1.jpg',
+      "publisher": "한빛미디어",
+      "publishYear": "2023",
+      "publishMonth": "3",
+    },
+    {
+      'title': '책 제목 5', 
+      'author': '저자 5', 
+      'bookReport': '정말 추천하는 책입니다!', 
+      "image": 'image/book_image_1.jpg',
+      "publisher": "한빛미디어",
+      "publishYear": "2023",
+      "publishMonth": "3",
+    },
   ];
 
   @override
@@ -48,6 +84,10 @@ class _BookReportPageState extends State<BookReportPage> {
                 Color.fromARGB(235, 234, 229, 239),
                 Color.fromARGB(255, 126, 113, 159),
                 bookReports[i]['bookReport'],
+                bookReports[i]['publisher'],
+                bookReports[i]['publishYear'],
+                bookReports[i]['publishMonth'],
+                bookReports[i]['image'],
                 i,
               ),
               // 각 카드 사이에 16px 간격 추가
@@ -60,7 +100,8 @@ class _BookReportPageState extends State<BookReportPage> {
   }
 
   Widget _buildBookCard(String title, String author, Color backgroundColor,
-      Color textColor, String bookReport, int index) {
+      Color textColor, String bookReport, String publisher, String publishYear,
+      String publishMonth, String image, int index) {
     return GestureDetector(
       onTap: () {
         // 카드 클릭 시 독후감 전체 내용을 보여주는 페이지로 이동
@@ -71,6 +112,10 @@ class _BookReportPageState extends State<BookReportPage> {
               title: title,
               author: author,
               bookReport: bookReport,
+              publisher: publisher,
+              publishYear: publishYear,
+              publishMonth: publishMonth,
+              image: image,
             ),
           ),
         );

@@ -21,7 +21,11 @@ class _ReviewListState extends State<ReviewList> {
       children: [
         // 리뷰 입력 카드
         Card(
+          color: const Color.fromARGB(255, 247, 241, 250),
           margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30), // 둥근 모서리 설정
+          ),
           elevation: 2,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -74,8 +78,25 @@ class _ReviewListState extends State<ReviewList> {
                 TextField(
                   controller: _reviewController,
                   decoration: InputDecoration(
-                    hintText: "리뷰를 작성하세요...",
-                    border: OutlineInputBorder(),
+                    hintText: '리뷰를 작성하세요...',
+                    filled: true, // 배경색 활성화
+                    fillColor: Color.fromARGB(255, 250, 248, 250), // 배경색 설정
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30), // 둥근 모서리
+                      borderSide: BorderSide.none, // 테두리 제거
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), // 둥근 모서리
+                      borderSide: BorderSide.none, // 비활성 상태 테두리 제거
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), // 둥근 모서리
+                      borderSide: BorderSide.none, // 포커스 상태 테두리 제거
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 15,
+                    ), // 입력 필드 여백 설정
                   ),
                   maxLines: 3,
                 ),
@@ -126,54 +147,76 @@ class _ReviewListState extends State<ReviewList> {
             ),
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: widget.reviews.length,
-          itemBuilder: (context, index) {
-            final review = widget.reviews[index];
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-              elevation: 2,
-              child: ListTile(
-                leading: CircleAvatar(
-                  child: Text(review['username'][0].toUpperCase()),
-                ),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      review['username'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+        
+        // 리뷰 목록
+        widget.reviews.isEmpty
+            ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 20),  // 위쪽에 간격 추가
+                  Text(
+                    '작성된 리뷰가 없습니다.',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
                     ),
-                    Row(
-                      children: List.generate(
-                        review['rating'],
-                        (index) =>
-                            Icon(Icons.star, size: 16, color: Colors.amber),
+                  ),
+                ],
+              ),
+            )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: widget.reviews.length,
+                itemBuilder: (context, index) {
+                  final review = widget.reviews[index];
+                  return Card(
+                    color: Color.fromARGB(255, 247, 241, 250),
+                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // 둥근 모서리 설정
+                    ),
+                    elevation: 2,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(review['username'][0].toUpperCase()),
+                      ),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            review['username'],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            children: List.generate(
+                              review['rating'],
+                              (index) =>
+                                  Icon(Icons.star, size: 16, color: Colors.amber),
+                            ),
+                          ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 5),
+                          Text(
+                            review['content']!,
+                            style: TextStyle(color: Colors.black87),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            review['date']!,
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 5),
-                    Text(
-                      review['content']!,
-                      style: TextStyle(color: Colors.black87),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      review['date']!,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ],
     );
   }

@@ -7,8 +7,8 @@ import 'myHome.dart';
 import 'bookSearch.dart';
 
 class AllBooksPage extends StatefulWidget {
-  final String username;
-  AllBooksPage({required this.username});
+  final String nickname;
+  AllBooksPage({required this.nickname});
   @override
   _AllBooksPageState createState() => _AllBooksPageState();
 }
@@ -63,7 +63,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              HomePage(username: widget.username), // 사용자 이름 전달
+              HomePage(nickname: widget.nickname), // 사용자 이름 전달
         ),
       );
     } else if (index == 1) {
@@ -71,21 +71,21 @@ class _AllBooksPageState extends State<AllBooksPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(username: widget.username)),
+            builder: (context) => BookshelfPage(nickname: widget.nickname)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(username: widget.username)),
+            builder: (context) => AllBooksPage(nickname: widget.nickname)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(username: widget.username)),
+            builder: (context) => MyPage(nickname: widget.nickname)),
       );
     }
   }

@@ -4,12 +4,12 @@ import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
 import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 import 'package:soobook/profileEdit.dart';
-import 'package:soobook/bookReport.dart';
+import 'package:soobook/mybookReport.dart';
 import 'package:soobook/myReview.dart';
 
 class MyPage extends StatefulWidget {
-  final String username;
-  MyPage({required this.username});
+  final String nickname;
+  MyPage({required this.nickname});
   @override
   _MyPageState createState() => _MyPageState();
 }
@@ -26,26 +26,26 @@ class _MyPageState extends State<MyPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(username: widget.username)), // 수정 필요
+            builder: (context) => HomePage(nickname: widget.nickname)), // 수정 필요
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(username: widget.username)),
+            builder: (context) => BookshelfPage(nickname: widget.nickname)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(username: widget.username)),
+            builder: (context) => AllBooksPage(nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => MyPage(
-                  username: widget.username,
+                  nickname: widget.nickname,
                 )),
       );
     }
@@ -81,7 +81,7 @@ class _MyPageState extends State<MyPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProfileEditPage(
-                          username: widget.username,
+                          nickname: widget.nickname,
                         ),
                       ),
                     );
@@ -104,7 +104,7 @@ class _MyPageState extends State<MyPage> {
                         children: [
                           // 유저 닉네임
                           Text(
-                            '${widget.username}', // 여기에 실제 유저 닉네임을 넣으세요
+                            '${widget.nickname}', // 여기에 실제 유저 닉네임을 넣으세요
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -114,7 +114,7 @@ class _MyPageState extends State<MyPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '@${widget.username}', // 여기에 실제 유저 id를 넣으세요
+                            '@${widget.nickname}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -132,7 +132,7 @@ class _MyPageState extends State<MyPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProfileEditPage(
-                                username: widget.username,
+                                nickname: widget.nickname,
                               ),
                             ),
                           );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:soobook/bookReportDetail.dart';
 import 'package:soobook/reviewList.dart';
 import 'package:soobook/addBook.dart';
 
@@ -57,24 +58,7 @@ class _UnstoredBookDetailState extends State<BookDetail> {
 
   // 샘플 리뷰 데이터
   final List<Map<String, dynamic>> reviews = [
-    {
-      "username": "user1",
-      "content": "이 책은 정말 유익하고 재미있었습니다!",
-      "date": "2024-11-27",
-      "rating": 5,
-    },
-    {
-      "username": "user2",
-      "content": "조금 지루한 부분도 있었지만, 전반적으로 괜찮았어요.",
-      "date": "2024-11-26",
-      "rating": 3,
-    },
-    {
-      "username": "user3",
-      "content": "글이 어렵지 않고 쉽게 읽을 수 있었습니다.",
-      "date": "2024-11-25",
-      "rating": 4,
-    },
+    
   ];
 
   // 새로운 리뷰를 위한 상태 변수
@@ -348,7 +332,17 @@ class _UnstoredBookDetailState extends State<BookDetail> {
 
 class _StoredBookDetailState extends State<BookDetail> {
   int _currentTabIndex = 0; // 세그먼트 바 초기값
-  bool _isExpanded = false; // 텍스트가 부모를 초과했는지 여부
+
+  // 독후감 탭 변수
+  bool _isWriting = false;
+  String _currentReport = '';
+  bool _isEditing = false;
+  final TextEditingController _controller = TextEditingController();
+
+  void initState() {
+    super.initState();
+    _currentReport = widget.bookReport; // 초기 값 설정
+  }
 
   // 샘플 리뷰 데이터
   final List<Map<String, dynamic>> reviews = [
@@ -653,16 +647,16 @@ class _StoredBookDetailState extends State<BookDetail> {
         );
       case 1: // 독후감 탭
         return Container(
-          width: 600, // 고정된 가로 크기
-          height: 330, // 고정된 세로 크기
+          width: 600, // 고정된 너비
+          height: 330, // 고정된 높이
           padding: const EdgeInsets.only(
-            left: 22.0,
-            right: 20.0,
-            top: 50.0,
-          ), // 안쪽 여백
+                left: 22.0,
+                right: 20.0,
+                top: 50.0,
+              ), // 안쪽 여백
           decoration: BoxDecoration(
-            color: Color.fromARGB(255, 226, 224, 231), // 배경색
-            borderRadius: BorderRadius.circular(30), // 둥근 모서리
+            color: Color.fromARGB(255, 247, 241, 250),
+            borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
                 color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.2),
@@ -675,37 +669,15 @@ class _StoredBookDetailState extends State<BookDetail> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.bookReport,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Color.fromARGB(255, 126, 113, 159),
-                ),
-                overflow: _isExpanded
-                    ? TextOverflow.visible
-                    : TextOverflow.ellipsis, // 확장된 경우... 없앰
-                maxLines: _isExpanded ? null : 9, // 최대 9줄까지만 보이게 함
-              ),
-              if (!_isExpanded &&
-                  widget.bookReport.length > 272) // 텍스트가 길면 + 더보기 버튼을 보여줌
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end, // 버튼을 오른쪽으로 정렬
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        // 여기에서 아무 동작도 하지 않도록 남겨두기만 합니다.
-                        print("더보기 버튼 클릭됨 "); // 현재는 아무 일도 일어나지 않음
-                      },
-                      child: Text(
-                        "+ 더보기",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 126, 113, 159),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              // 독후감이 작성되지 않은 경우 (빈 문자열일 때)
+              if (_currentReport.isEmpty && !_isEditing)
+                _buildEmptyReportUI()
+              // 독후감이 작성된 경우
+              else if (!_isEditing)
+                _buildReportDisplayUI(),
+              // 독후감 작성 상태일 때
+              if (_isEditing) 
+                _buildWriteReportUI(),
             ],
           ),
         );
@@ -716,5 +688,162 @@ class _StoredBookDetailState extends State<BookDetail> {
       default:
         return Center(child: Text("잘못된 탭입니다."));
     }
+  }
+  
+  // 독후감이 없을 때 "작성된 독후감이 없습니다." 메시지와 편집 버튼
+  Widget _buildEmptyReportUI() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 편집 버튼을 오른쪽 상단에 배치
+        Align(
+          alignment: Alignment.topRight, // 오른쪽 상단으로 배치
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _isEditing = true;
+              });
+            },
+            icon: Icon(
+              Icons.edit, // 편집 아이콘
+              color: Color.fromARGB(255, 126, 113, 159),
+            ),
+          ),
+        ),
+        // 텍스트 중앙 배치
+        SizedBox(height: 50,),
+        Center(
+          child: Text(
+            '작성된 독후감이 없습니다.',
+            style: TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(255, 126, 113, 159),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWriteReportUI() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: _controller,
+          maxLines: 7,
+          decoration: InputDecoration(
+            hintText: '독후감을 작성하세요...',
+            filled: true, // 배경색 활성화
+            fillColor: Color.fromARGB(255, 250, 248, 250), // 배경색 설정
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30), // 둥근 모서리
+              borderSide: BorderSide.none, // 테두리 제거
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), // 둥근 모서리
+              borderSide: BorderSide.none, // 비활성 상태 테두리 제거
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), // 둥근 모서리
+              borderSide: BorderSide.none, // 포커스 상태 테두리 제거
+            ),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 20,
+              horizontal: 15,
+            ), // 입력 필드 여백 설정
+          ),
+        ),
+        SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              onPressed: _saveBookReport,
+              child: Text('저장'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 126, 113, 159),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReportDisplayUI() {
+    // TextPainter를 사용하여 텍스트가 차지하는 줄 수를 계산
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: _currentReport,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: Color.fromARGB(255, 126, 113, 159),
+        ),
+      ),
+      maxLines: null, // 줄 수를 제한하지 않음
+      textAlign: TextAlign.start,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 32); // 최대 너비 설정
+
+    int lineCount = textPainter.computeLineMetrics().length; // 텍스트가 차지하는 줄 수 계산
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 독후감 텍스트, 줄 수 계산 후 넘치면 ... 표시
+        Text(
+          _currentReport,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Color.fromARGB(255, 126, 113, 159),
+          ),
+          overflow: TextOverflow.ellipsis, // 텍스트가 넘치면 "..." 표시
+          maxLines: 9, // 9줄로 제한
+        ),
+        if (lineCount > 9) // 줄 수가 9줄을 초과하면
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookReportDetailPage(
+                        title: widget.title,
+                        image: widget.image,
+                        author: widget.author,
+                        publisher: widget.publisher,
+                        publishYear: widget.publishYear,
+                        publishMonth: widget.publishMonth,
+                        bookReport: _currentReport,
+                      ),
+                    ),
+                  );
+                },
+                child: Text(
+                  "+ 더보기",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 126, 113, 159),
+                  ),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  // text 저장 후 상태 변경 - 독후감 표시
+  void _saveBookReport() {
+    setState(() {
+      _currentReport = _controller.text;
+      _isEditing = false;
+    });
   }
 }

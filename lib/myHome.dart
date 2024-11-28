@@ -5,9 +5,9 @@ import 'allBooks.dart';
 import 'bookSearch.dart';
 
 class HomePage extends StatefulWidget {
-  final String username;
+  final String nickname;
 
-  HomePage({required this.username});
+  HomePage({required this.nickname});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -51,21 +51,21 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(username: widget.username)),
+            builder: (context) => BookshelfPage(nickname: widget.nickname)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(username: widget.username)),
+            builder: (context) => AllBooksPage(nickname: widget.nickname)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(username: widget.username)),
+            builder: (context) => MyPage(nickname: widget.nickname)),
       );
     }
     _pageController.jumpToPage(index); // 애니메이션 없이 페이지 전환
@@ -158,7 +158,7 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.only(left: 16.0), // 왼쪽에만 16의 여백 설정
                 child: Text(
-                  '${widget.username}님, 안녕하세요:D\n오늘도 수Book한 하루 되세요!',
+                  '${widget.nickname}님, 안녕하세요:D\n오늘도 수Book한 하루 되세요!',
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,

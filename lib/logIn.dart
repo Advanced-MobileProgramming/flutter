@@ -65,6 +65,15 @@ class _LogInState extends State<LogIn> {
           return;
         }
 
+        // 사용자 닉네임 가져오기
+        final nickname = snapshot.child("nickname").value as String?;
+        if (nickname == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('닉네임을 가져올 수 없습니다.')),
+          );
+          return;
+        }
+
         //final storedPassword = snapshot.child("password").value as String;
         final storedPassword = snapshot.child("password").value;
 
@@ -81,7 +90,7 @@ class _LogInState extends State<LogIn> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(username: username),
+              builder: (context) => HomePage(nickname: nickname),
             ),
           );
         } else {

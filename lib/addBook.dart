@@ -114,15 +114,6 @@ class _AddBookState extends State<AddBook> {
                 decoration: BoxDecoration(
                   color: Colors.white, // 배경색
                   borderRadius: BorderRadius.circular(10), // 둥근 모서리 설정
-                  boxShadow: [
-                    // 그림자 추가
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 3), // 그림자의 방향
-                    ),
-                  ],
                 ),
                 child: ExpansionTile(
                   title: Text(
@@ -175,55 +166,104 @@ class _AddBookState extends State<AddBook> {
               // 시작일
               Row(
                 children: [
-                  Text("시작일: ",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 16),
                   Text(
-                    _startDate != null
-                        ? '${_startDate!.toLocal().toString().split(' ')[0]}'
-                        : '날짜 선택',
+                    "시작일  ",
                     style: TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 126, 113, 159)),
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 126, 113, 159)
+                    )
                   ),
                   SizedBox(width: 16),
-                  TextButton(
-                    onPressed: () => _selectDate(context, true),
-                    child: Text("선택"),
+                  GestureDetector(
+                    onTap: () => _selectDate(context, true), // 텍스트 클릭 시 날짜 선택 동작
+                    child: Text(
+                      _startDate != null
+                          ? '${_startDate!.toLocal().toString().split(' ')[0]}'
+                          : '날짜 선택',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color.fromARGB(255, 126, 113, 159),
+                      ),
+                    ),
                   ),
+                  SizedBox(width: 16),
                 ],
               ),
               SizedBox(height: 16),
               // 독서량: 현재 페이지 / 총 페이지
               Row(
                 children: [
-                  Text("독서량: ",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 16),
-                  Container(
-                    width: 100, // 현재 페이지 입력 필드
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: '현재 페이지',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                  Text(
+                    "독서량  ",
+                    style: TextStyle(
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 126, 113, 159)
+                    )
                   ),
                   SizedBox(width: 16),
-                  Text("/"), // 구분자
+Container(
+  width: 100, // 현재 페이지 입력 필드
+  child: TextField(
+    keyboardType: TextInputType.number,
+    decoration: InputDecoration(
+      hintText: '현재 페이지',
+      filled: true, // 배경색 활성화
+      fillColor: Color.fromARGB(255, 250, 248, 240), // 배경색 설정
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12), // 둥근 테두리 설정
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 126, 113, 159), // 테두리 색 설정
+          width: 1.5, // 테두리 두께
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12), // 비활성 상태 둥근 테두리
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 180, 167, 200), // 테두리 색 설정
+          width: 1.5, // 테두리 두께
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12), // 포커스 상태 둥근 테두리
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 126, 113, 159), // 포커스 테두리 색
+          width: 2.0, // 테두리 두께
+        ),
+      ),
+      contentPadding: EdgeInsets.symmetric(
+        vertical: 12,
+        horizontal: 10,
+      ), // 내용 여백 설정
+    ),
+  ),
+),
+
                   SizedBox(width: 16),
                   Text(
-                    _totalPages != null ? '$_totalPages' : '로딩 중...',
+                    "/",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color.fromARGB(255, 126, 113, 159),
+                    ),
+                  ), // 구분자
+                  SizedBox(width: 16),
+                  Text(
+                    _totalPages != null ? '$_totalPages' : '0',
                     style: TextStyle(
                       fontSize: 20,
                       color: Color.fromARGB(255, 126, 113, 159),
                     ),
                   ),
                   SizedBox(width: 16),
-                  Text("p", style: TextStyle(fontSize: 16)), // "p" 표시
+                  Text(
+                    "p",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color.fromARGB(255, 126, 113, 159),
+                    ),
+                  ), // "p" 표시
                 ],
               ),
               SizedBox(height: 16),
@@ -232,14 +272,6 @@ class _AddBookState extends State<AddBook> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: ExpansionTile(
                   title: Text("컬렉션 선택",
@@ -286,46 +318,56 @@ class _AddBookState extends State<AddBook> {
               // 시작일
               Row(
                 children: [
-                  Text("시작일: ",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 16), // 간격 추가
                   Text(
-                    _startDate != null
-                        ? '${_startDate!.toLocal().toString().split(' ')[0]}'
-                        : '날짜 선택',
+                    "시작일  ",
                     style: TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 126, 113, 159)),
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 126, 113, 159)
+                    )
                   ),
                   SizedBox(width: 16), // 간격 추가
-                  TextButton(
-                    onPressed: () => _selectDate(context, true),
-                    child: Text("선택"),
+                  GestureDetector(
+                    onTap: () => _selectDate(context, true), // 텍스트 클릭 시 날짜 선택 동작
+                    child: Text(
+                      _startDate != null
+                          ? '${_startDate!.toLocal().toString().split(' ')[0]}'
+                          : '날짜 선택',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color.fromARGB(255, 126, 113, 159),
+                      ),
+                    ),
                   ),
+                  SizedBox(width: 16),
                 ],
               ),
               SizedBox(height: 16),
               // 종료일
               Row(
                 children: [
-                  Text("종료일: ",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 16), // 간격 추가
                   Text(
-                    _endDate != null
-                        ? '${_endDate!.toLocal().toString().split(' ')[0]}'
-                        : '날짜 선택',
+                    "종료일  ",
                     style: TextStyle(
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 126, 113, 159)),
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 126, 113, 159)
+                    )
                   ),
                   SizedBox(width: 16), // 간격 추가
-                  TextButton(
-                    onPressed: () => _selectDate(context, false),
-                    child: Text("선택"),
+                  GestureDetector(
+                    onTap: () => _selectDate(context, false), // 텍스트 클릭 시 동작
+                    child: Text(
+                      _endDate != null
+                          ? '${_endDate!.toLocal().toString().split(' ')[0]}'
+                          : '날짜 선택',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color.fromARGB(255, 126, 113, 159),
+                      ),
+                    ),
                   ),
+                  SizedBox(width: 16), // 간격 유지
                 ],
               ),
               SizedBox(height: 16),
@@ -334,15 +376,6 @@ class _AddBookState extends State<AddBook> {
                 decoration: BoxDecoration(
                   color: Colors.white, // 배경색
                   borderRadius: BorderRadius.circular(10), // 둥근 모서리 설정
-                  boxShadow: [
-                    // 그림자 추가
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 3,
-                      offset: Offset(0, 3), // 그림자의 방향
-                    ),
-                  ],
                 ),
                 child: ExpansionTile(
                   title: Text(

@@ -7,8 +7,8 @@ import 'myHome.dart';
 import 'bookSearch.dart';
 
 class BookshelfPage extends StatefulWidget {
-  final String username;
-  BookshelfPage({required this.username});
+  final String nickname;
+  BookshelfPage({required this.nickname});
   @override
   _BookshelfPageState createState() => _BookshelfPageState();
 }
@@ -40,7 +40,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
       "collection": "인생책",
       "review": "",
       "bookReport":
-          "이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린 시절부터 시작해, 어떻게 경제적 자유를 얻었는지, 그리고 그 과정에서 얻은 중요한 삶의 교훈을 담고 있다.  그의 솔직한 이야기가 인상적인 부분이었다. 다음번에도 이 저자의 책이 나오면 구매해야겠다고 생각했다. 굿굿!~~~~~~🤓이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린Kkkk",
+          "",
       "rating": 4,
       "isStored": true,
     },
@@ -83,28 +83,28 @@ class _BookshelfPageState extends State<BookshelfPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(username: widget.username)),
+            builder: (context) => HomePage(nickname: widget.nickname)),
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => BookshelfPage(
-                  username: widget.username,
+                  nickname: widget.nickname,
                 )),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(username: widget.username)),
+            builder: (context) => AllBooksPage(nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => MyPage(
-                  username: widget.username,
+                  nickname: widget.nickname,
                 )),
       );
     }
@@ -404,7 +404,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.username}의 책장',
+        title: Text('${widget.nickname}의 책장',
             style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
