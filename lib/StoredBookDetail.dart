@@ -9,13 +9,15 @@ class StoredBookDetail extends StatefulWidget {
   final String startDay;
   final String endDay;
   final String publisher;
-  final int publishYear;
-  final int publishMonth;
+  final String publishYear;
+  final String publishMonth;
   final int totalPages;
   final int readPages;
   final String collection;
   final String review;
   final String bookReport;
+  final int rating;
+  final bool isStored;
 
   StoredBookDetail({
     required this.title,
@@ -33,6 +35,8 @@ class StoredBookDetail extends StatefulWidget {
     required this.collection,
     required this.review,
     required this.bookReport,
+    required this.rating,
+    required this.isStored,
   });
 
   @override
