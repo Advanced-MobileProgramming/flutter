@@ -14,7 +14,7 @@ class UnstoredBookDetail extends StatefulWidget {
     required this.title,
     required this.image,
     required this.author,
-    required this.description, 
+    required this.description,
     required this.publisher,
     required this.publishYear,
     required this.publishMonth,

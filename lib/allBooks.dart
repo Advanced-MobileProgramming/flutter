@@ -189,22 +189,23 @@ class _AllBooksPageState extends State<AllBooksPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          
-
                           builder: (context) {
                             final timestamp = book["publication_date"];
                             String publishYear = "0000";
                             String publishMonth = "00";
 
-                            if(timestamp != null && timestamp is int) {
-                              final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+                            if (timestamp != null && timestamp is int) {
+                              final date = DateTime.fromMillisecondsSinceEpoch(
+                                  timestamp * 1000);
                               publishYear = date.year.toString();
-                              publishMonth = date.month.toString().padLeft(2, '0');
+                              publishMonth =
+                                  date.month.toString().padLeft(2, '0');
                             }
 
                             return UnstoredBookDetail(
                               title: book["title"] ?? "제목 없음",
-                              image: book["image_path"] ?? "image/book_image_1.jpg",
+                              image: book["image_path"] ??
+                                  "image/book_image_1.jpg",
                               author: book["author"] ?? "저자 없음",
                               description: book["description"] ?? "설명 없음",
                               publisher: book["publisher"] ?? "출판사 없음",
@@ -215,54 +216,55 @@ class _AllBooksPageState extends State<AllBooksPage> {
                         ),
                       );
                     },
-                      child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
-                            child: Image.asset(
-                              book["image_path"] ?? "image/book_image_1.jpg", // 이미지 경로
-                              fit: BoxFit.cover, // 이미지가 영역을 꽉 채우도록 설정
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.image_not_supported,
-                                  size: 50,
-                                  color: Colors.grey,
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
+                      child: Image.asset(
+                        book["image_path"] ??
+                            "image/book_image_1.jpg", // 이미지 경로
+                        fit: BoxFit.cover, // 이미지가 영역을 꽉 채우도록 설정
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.image_not_supported,
+                            size: 50,
+                            color: Colors.grey,
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: '홈',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.folder_open),
-              label: '책장',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.format_list_bulleted),
-              label: '도서',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle),
-              label: '마이페이지',
-            ),
-          ],
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.black,
-          selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-        ),
-      );
-    }
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '홈',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.folder_open),
+            label: '책장',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.format_list_bulleted),
+            label: '도서',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: '마이페이지',
+          ),
+        ],
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.black,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+      ),
+    );
   }
+}
