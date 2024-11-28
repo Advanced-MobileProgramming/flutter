@@ -189,6 +189,8 @@ class _AllBooksPageState extends State<AllBooksPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
+                          
+
                           builder: (context) {
                             final timestamp = book["publication_date"];
                             String publishYear = "0000";
@@ -205,24 +207,9 @@ class _AllBooksPageState extends State<AllBooksPage> {
                               image: book["image_path"] ?? "image/book_image_1.jpg",
                               author: book["author"] ?? "저자 없음",
                               description: book["description"] ?? "설명 없음",
-                              status: "",
-                              progress: 0.0,
-                              startDay: "",
-                              endDay: "",
                               publisher: book["publisher"] ?? "출판사 없음",
                               publishYear: publishYear,
                               publishMonth: publishMonth,
-                            // title: filteredBooks[index]["title"]!,
-                            // image: filteredBooks[index]["image"]!,
-                            // author: filteredBooks[index]["author"]!,
-                            // description: filteredBooks[index]["description"]!,
-                            // status: filteredBooks[index]["status"]!,
-                            // progress: filteredBooks[index]["progress"]!,
-                            // startDay: '',
-                            // endDay: '',
-                            // publisher: '한빛미디어',
-                            // publishYear: '2023',
-                            // publishMonth: '3',
                             );
                           },
                         ),

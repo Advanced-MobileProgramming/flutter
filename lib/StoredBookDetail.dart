@@ -6,14 +6,16 @@ class StoredBookDetail extends StatefulWidget {
   final String author;
   final String description;
   final String status;
-  final double progress;
   final String startDay;
   final String endDay;
   final String publisher;
-  final String publishYear;
-  final String publishMonth;
+  final int publishYear;
+  final int publishMonth;
   final int totalPages;
   final int readPages;
+  final String collection;
+  final String review;
+  final String bookReport;
 
   StoredBookDetail({
     required this.title,
@@ -21,7 +23,6 @@ class StoredBookDetail extends StatefulWidget {
     required this.author,
     required this.description,
     required this.status,
-    required this.progress,
     required this.startDay,
     required this.endDay,
     required this.publisher,
@@ -29,6 +30,9 @@ class StoredBookDetail extends StatefulWidget {
     required this.publishMonth,
     required this.totalPages,
     required this.readPages,
+    required this.collection,
+    required this.review,
+    required this.bookReport,
   });
 
   @override
@@ -37,6 +41,7 @@ class StoredBookDetail extends StatefulWidget {
 
 class _StoredBookDetailState extends State<StoredBookDetail> {
   int _currentTabIndex = 0; // 세그먼트 바 초기값
+  bool _isExpanded = false; // 텍스트가 부모를 초과했는지 여부
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +134,7 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
                               fontSize: 14
                             ),
                           ),
-                          SizedBox(height: 45),
+                          SizedBox(height: 60),
                           Row(
                             children: [
                               Text(
@@ -155,78 +160,80 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
               SizedBox(height: 16),
 
               // 시작일과 종료일 및 독서량 표시
-Padding(
-  padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "시작일              ${widget.startDay.isNotEmpty ? widget.startDay : ' - '}",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 126, 113, 159),
-              fontSize: 16,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            "종료일              ${widget.endDay.isNotEmpty ? widget.endDay : ' - '}",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 126, 113, 159),
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-      // 독서량 표시 (CircularProgressIndicator)
-      Column(
-        children: [
-Center(
-  child: Stack(
-    alignment: Alignment.center,
-    children: [
-      CircularProgressIndicator(
-        value: widget.totalPages > 0 
-            ? (widget.readPages / widget.totalPages).clamp(0.0, 1.0) // 진행률 계산
-            : 0.0, // 페이지 수가 0일 경우 0으로 설정
-        valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 126, 113, 159)), // 진행 색상
-        backgroundColor: Colors.grey[300], // 배경 색상
-        strokeWidth: 5.0, // 원형 바의 두께
-      ),
-      Text(
-        "${widget.totalPages > 0 ? ((widget.readPages / widget.totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-    ],
-  ),
-),
-          SizedBox(height: 8),
-          // 추가된 텍스트
-          Text(
-            "${widget.readPages}/${widget.totalPages}p",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
-),
-
-
-              SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "시작일                         ${widget.startDay.isNotEmpty ? widget.startDay : ' - '}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 126, 113, 159),
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "종료일                         ${widget.endDay.isNotEmpty ? widget.endDay : ' - '}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 126, 113, 159),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // 독서량 표시 (CircularProgressIndicator)
+                    Column(
+                      children: [
+                        Center(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // 크기 키우기
+                              SizedBox(
+                                width: 65, // 원의 너비
+                                height: 65, // 원의 높이
+                                child: CircularProgressIndicator(
+                                  value: widget.totalPages > 0 
+                                          ? (widget.readPages / widget.totalPages).clamp(0.0, 1.0) // 진행률 계산valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 126, 113, 159)), // 진행 색상
+                                          : 0.0, // 페이지 수가 0일 경우 0으로 설정
+                                  backgroundColor: Color.fromARGB(255, 214, 208, 232), // 배경 색상
+                                  strokeWidth: 5.0, // 원형 바의 두께 증가
+                                ),
+                              ),
+                              Text(
+                                "${widget.totalPages > 0 ? ((widget.readPages / widget.totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 126, 113, 159),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        // 추가된 텍스트
+                        Text(
+                          "${widget.readPages}/${widget.totalPages}p",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 126, 113, 159),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 5),
 
               // 세그먼트 바
               Container(
@@ -311,22 +318,61 @@ Center(
           ),
         );
       case 1: // 독후감 탭
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            "여기에 독후감을 표시합니다.",
-            style: TextStyle(
-              fontWeight: FontWeight.bold, 
-              fontSize: 16,
-              color: Color.fromARGB(255, 126, 113, 159)
-            ),
+        return Container(
+          width: 600,  // 고정된 가로 크기
+          height: 330, // 고정된 세로 크기
+          padding: const EdgeInsets.only(left: 22.0, right: 20.0, top: 50.0,), // 안쪽 여백
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 226, 224, 231),  // 배경색
+            borderRadius: BorderRadius.circular(30),  // 둥근 모서리
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.2),
+                offset: Offset(4, 4),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.bookReport,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color.fromARGB(255, 126, 113, 159),
+                ),
+                overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis, // 확장된 경우... 없앰
+                maxLines: _isExpanded ? null : 9,  // 최대 9줄까지만 보이게 함
+              ),
+              if (!_isExpanded && widget.bookReport.length > 272)  // 텍스트가 길면 + 더보기 버튼을 보여줌
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,  // 버튼을 오른쪽으로 정렬
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // 여기에서 아무 동작도 하지 않도록 남겨두기만 합니다.
+                        print("더보기 버튼 클릭됨 ");  // 현재는 아무 일도 일어나지 않음
+                      },
+                      child: Text(
+                        "+ 더보기",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 126, 113, 159),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
           ),
         );
       case 2: // 리뷰 탭
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            "여기에 책 리뷰를 표시합니다.",
+            "${widget.review}",
             style: TextStyle(
               fontWeight: FontWeight.bold, 
               fontSize: 16,

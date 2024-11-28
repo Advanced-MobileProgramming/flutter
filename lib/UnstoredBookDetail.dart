@@ -6,10 +6,6 @@ class UnstoredBookDetail extends StatefulWidget {
   final String image;
   final String author;
   final String description;
-  final String status;
-  final double progress;
-  final String startDay;
-  final String endDay;
   final String publisher;
   final String publishYear;
   final String publishMonth;
@@ -18,11 +14,7 @@ class UnstoredBookDetail extends StatefulWidget {
     required this.title,
     required this.image,
     required this.author,
-    required this.description,
-    required this.status,
-    required this.progress,
-    required this.startDay,
-    required this.endDay,
+    required this.description, 
     required this.publisher,
     required this.publishYear,
     required this.publishMonth,
@@ -200,7 +192,7 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "시작일                         ${widget.startDay.isNotEmpty ? widget.startDay : ' - '}",
+                          "시작일                         -",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 126, 113, 159),
@@ -209,7 +201,7 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          "종료일                         ${widget.endDay.isNotEmpty ? widget.endDay : ' - '}",
+                          "종료일                         -",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 126, 113, 159),
