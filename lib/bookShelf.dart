@@ -21,29 +21,30 @@ class _BookshelfPageState extends State<BookshelfPage> {
 
   // 책 리스트
   final List<Map<String, dynamic>> books = List.generate(
-  10,
-  (index) => {
-    "title": "Book $index",
-    "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
-    "author": "Author $index", // 책 저자
-    "description": "책에 대한 간단한 설명입니다.", // 책 설명
-    "status": 
-        index % 2 == 0
-        ? "reading"  // 읽는 중
-        : "completed", // 완료
-    "startDay": '2024.10.08',
-    "endDay": '2024.10.08',
-    "publisher": "한빛미디어",
-    "publishYear": "2023",
-    "publishMonth": "3",
-    "totalPages": 736,
-    "readPages": 220,
-    "collection": "인생책",
-    "review": "",
-    "bookReport": "이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린 시절부터 시작해, 어떻게 경제적 자유를 얻었는지, 그리고 그 과정에서 얻은 중요한 삶의 교훈을 담고 있다.  그의 솔직한 이야기가 인상적인 부분이었다. 다음번에도 이 저자의 책이 나오면 구매해야겠다고 생각했다. 굿굿!~~~~~~🤓이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린Kkkk",
-    "rating": 4,
-    "isStored": true,
-  },);
+    10,
+    (index) => {
+      "title": "Book $index",
+      "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+      "author": "Author $index", // 책 저자
+      "description": "책에 대한 간단한 설명입니다.", // 책 설명
+      "status": index % 2 == 0
+          ? "reading" // 읽는 중
+          : "completed", // 완료
+      "startDay": '2024.10.08',
+      "endDay": '2024.10.08',
+      "publisher": "한빛미디어",
+      "publishYear": "2023",
+      "publishMonth": "3",
+      "totalPages": 736,
+      "readPages": 220,
+      "collection": "인생책",
+      "review": "",
+      "bookReport":
+          "이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린 시절부터 시작해, 어떻게 경제적 자유를 얻었는지, 그리고 그 과정에서 얻은 중요한 삶의 교훈을 담고 있다.  그의 솔직한 이야기가 인상적인 부분이었다. 다음번에도 이 저자의 책이 나오면 구매해야겠다고 생각했다. 굿굿!~~~~~~🤓이 책은 일본의 유명 투자자이자 경제 평론가인 세이노 다카시가 자신의 경험과 지식을 바탕으로 작성한 책이다. 책은 저자의 어린Kkkk",
+      "rating": 4,
+      "isStored": true,
+    },
+  );
 
   String searchQuery = '';
 
@@ -60,7 +61,9 @@ class _BookshelfPageState extends State<BookshelfPage> {
 
   // 현재 선택된 컬렉션에 담긴 책 리스트 반환
   List<Map<String, dynamic>> getFilteredCollectionBooks() {
-    return books.where((book) => book["collection"] == _selectedCollection).toList();
+    return books
+        .where((book) => book["collection"] == _selectedCollection)
+        .toList();
   }
 
   // 컬렉션 추가 함수
@@ -118,7 +121,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
   }
 
   // 컬렉션 추가 다이얼로그를 띄우는 함수
-  void showAddCollectionDialog(BuildContext context, Function(String) onAddCollection) {
+  void showAddCollectionDialog(
+      BuildContext context, Function(String) onAddCollection) {
     TextEditingController _controller = TextEditingController();
 
     showDialog(
@@ -226,12 +230,14 @@ class _BookshelfPageState extends State<BookshelfPage> {
             ),
             TextButton(
               onPressed: () {
-                String newCollectionName = _collectionNameController.text.trim();
+                String newCollectionName =
+                    _collectionNameController.text.trim();
 
                 // 중복 확인 로직 추가
                 if (newCollectionName.isEmpty) {
                   showMessageDialog(context, "이름을 입력해주세요.");
-                } else if (collections.contains(newCollectionName) && newCollectionName != collections[index]) {
+                } else if (collections.contains(newCollectionName) &&
+                    newCollectionName != collections[index]) {
                   showMessageDialog(context, "이미 존재하는 이름입니다.");
                 } else {
                   setState(() {
@@ -284,32 +290,34 @@ class _BookshelfPageState extends State<BookshelfPage> {
           content: SizedBox(
             height: 100,
             child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // 세로 중심 정렬
-            crossAxisAlignment: CrossAxisAlignment.center, // 가로 중심 정렬
-            children: [
-              SizedBox(height: 10.0,),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color.fromARGB(255, 109, 109, 109),
-                  fontSize: 16,
+              mainAxisAlignment: MainAxisAlignment.center, // 세로 중심 정렬
+              crossAxisAlignment: CrossAxisAlignment.center, // 가로 중심 정렬
+              children: [
+                SizedBox(
+                  height: 10.0,
                 ),
-              ),
-              SizedBox(height: 13), // 버튼과 메시지 간 간격
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // 다이얼로그 닫기
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 126, 113, 159), // 배경색
-                  foregroundColor: Colors.white, // 글자색
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 109, 109, 109),
+                    fontSize: 16,
+                  ),
                 ),
-                child: Text('확인'),
-              ),
-            ],
+                SizedBox(height: 13), // 버튼과 메시지 간 간격
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // 다이얼로그 닫기
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 126, 113, 159), // 배경색
+                    foregroundColor: Colors.white, // 글자색
+                  ),
+                  child: Text('확인'),
+                ),
+              ],
+            ),
           ),
-        ),
         );
       },
     );
@@ -626,11 +634,14 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 description: filteredBooks[index]
                                     ["description"]!,
                                 status: filteredBooks[index]["status"]!,
-                                startDay: filteredBooks[index]["startDay"]!, // 임시 데이터 전송
+                                startDay: filteredBooks[index]
+                                    ["startDay"]!, // 임시 데이터 전송
                                 endDay: filteredBooks[index]["endDay"]!,
                                 publisher: filteredBooks[index]["publisher"]!,
-                                publishYear: filteredBooks[index]["publishYear"]!,
-                                publishMonth: filteredBooks[index]["publishMonth"]!,
+                                publishYear: filteredBooks[index]
+                                    ["publishYear"]!,
+                                publishMonth: filteredBooks[index]
+                                    ["publishMonth"]!,
                                 totalPages: filteredBooks[index]["totalPages"]!,
                                 readPages: filteredBooks[index]["readPages"]!,
                                 collection: filteredBooks[index]["collection"],
@@ -694,24 +705,33 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => BookDetail(
-                                        title: filteredBooks[index]["title"]!,
-                                        image: filteredBooks[index]["image"]!,
-                                        author: filteredBooks[index]["author"]!,
-                                        description: filteredBooks[index]["description"]!,
-                                        status: filteredBooks[index]["status"]!,
-                                        startDay: filteredBooks[index]["startDay"]!, // 임시 데이터 전송
-                                        endDay: filteredBooks[index]["endDay"]!,
-                                        publisher: filteredBooks[index]["publisher"]!,
-                                        publishYear: filteredBooks[index]["publishYear"]!,
-                                        publishMonth: filteredBooks[index]["publishMonth"]!,
-                                        totalPages: filteredBooks[index]["totalPages"]!,
-                                        readPages: filteredBooks[index]["readPages"]!,
-                                        collection: filteredBooks[index]["collection"],
-                                        review: filteredBooks[index]["review"],
-                                        bookReport: filteredBooks[index]["bookReport"],
-                                        rating: filteredBooks[index]["rating"],
-                                        isStored: filteredBooks[index]["isStored"],
-                                      ),
+                                    title: filteredBooks[index]["title"]!,
+                                    image: filteredBooks[index]["image"]!,
+                                    author: filteredBooks[index]["author"]!,
+                                    description: filteredBooks[index]
+                                        ["description"]!,
+                                    status: filteredBooks[index]["status"]!,
+                                    startDay: filteredBooks[index]
+                                        ["startDay"]!, // 임시 데이터 전송
+                                    endDay: filteredBooks[index]["endDay"]!,
+                                    publisher: filteredBooks[index]
+                                        ["publisher"]!,
+                                    publishYear: filteredBooks[index]
+                                        ["publishYear"]!,
+                                    publishMonth: filteredBooks[index]
+                                        ["publishMonth"]!,
+                                    totalPages: filteredBooks[index]
+                                        ["totalPages"]!,
+                                    readPages: filteredBooks[index]
+                                        ["readPages"]!,
+                                    collection: filteredBooks[index]
+                                        ["collection"],
+                                    review: filteredBooks[index]["review"],
+                                    bookReport: filteredBooks[index]
+                                        ["bookReport"],
+                                    rating: filteredBooks[index]["rating"],
+                                    isStored: filteredBooks[index]["isStored"],
+                                  ),
                                 ),
                               );
                             },
@@ -722,7 +742,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               ),
                               elevation: 4,
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10), // 카드 둥근 모서리
+                                borderRadius:
+                                    BorderRadius.circular(10), // 카드 둥근 모서리
                                 child: Image.asset(
                                   filteredBooks[index]["image"]!,
                                   fit: BoxFit.cover, // 이미지를 카드에 꽉 차게
@@ -736,13 +757,17 @@ class _BookshelfPageState extends State<BookshelfPage> {
                         SizedBox(
                           width: 110, // 진행 바의 너비
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
+                            borderRadius:
+                                BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
                             child: LinearProgressIndicator(
                               value: filteredBooks[index]["totalPages"] > 0
-                                  ? (filteredBooks[index]["readPages"] / filteredBooks[index]["totalPages"]).clamp(0.0, 1.0) // 진행 상태 계산
+                                  ? (filteredBooks[index]["readPages"] /
+                                          filteredBooks[index]["totalPages"])
+                                      .clamp(0.0, 1.0) // 진행 상태 계산
                                   : 0.0, // 페이지가 0일 경우 0
                               backgroundColor: Colors.grey[200], // 배경색
-                              valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 126, 113, 200)), // 진행 색상
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color.fromARGB(255, 126, 113, 200)), // 진행 색상
                             ),
                           ),
                         ),
@@ -806,7 +831,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       return GestureDetector(
                         onTap: () {
                           // 카드를 눌렀을 때 동작
-                          print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                          print(
+                              '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -814,13 +840,17 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 title: filteredBooks[index]["title"]!,
                                 image: filteredBooks[index]["image"]!,
                                 author: filteredBooks[index]["author"]!,
-                                description: filteredBooks[index]["description"]!,
+                                description: filteredBooks[index]
+                                    ["description"]!,
                                 status: filteredBooks[index]["status"]!,
-                                startDay: filteredBooks[index]["startDay"]!, // 임시 데이터 전송
+                                startDay: filteredBooks[index]
+                                    ["startDay"]!, // 임시 데이터 전송
                                 endDay: filteredBooks[index]["endDay"]!,
                                 publisher: filteredBooks[index]["publisher"]!,
-                                publishYear: filteredBooks[index]["publishYear"]!,
-                                publishMonth: filteredBooks[index]["publishMonth"]!,
+                                publishYear: filteredBooks[index]
+                                    ["publishYear"]!,
+                                publishMonth: filteredBooks[index]
+                                    ["publishMonth"]!,
                                 totalPages: filteredBooks[index]["totalPages"]!,
                                 readPages: filteredBooks[index]["readPages"]!,
                                 collection: filteredBooks[index]["collection"],
@@ -855,7 +885,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
           ),
         );
       case 3: // 컬렉션
-        if (!_enterCollection) { // 컬렉션 리스트
+        if (!_enterCollection) {
+          // 컬렉션 리스트
           return Padding(
             padding: const EdgeInsets.all(16.0), // 외부 여백 추가
             child: GridView.builder(
@@ -883,7 +914,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       child: Center(
                         child: IconButton(
                           onPressed: () {
-                            showAddCollectionDialog(context, addCollection);                        },
+                            showAddCollectionDialog(context, addCollection);
+                          },
                           icon: Icon(
                             Icons.add, // '+' 아이콘
                             color: Color.fromARGB(255, 126, 113, 159),
@@ -893,14 +925,15 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       ),
                     ),
                   );
-                } else {  // 해당 컬렉션의 책 리스트
+                } else {
+                  // 해당 컬렉션의 책 리스트
                   // 컬렉션 카드
                   return GestureDetector(
                     onTap: () {
                       // 현재 컬렉션 이름
                       String currentCollectionName = collections[index - 1];
                       print("${currentCollectionName} collection card clicked");
-                      
+
                       setState(() {
                         _enterCollection = true;
                         _selectedCollection = currentCollectionName;
@@ -955,16 +988,17 @@ class _BookshelfPageState extends State<BookshelfPage> {
               },
             ),
           );
-        } 
-        else {
+        } else {
           final filteredBooks = getFilteredCollectionBooks();
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
+            padding:
+                const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
             child: Column(
               children: [
                 // 드롭다운 버튼
                 Padding(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+                  padding:
+                      const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     decoration: BoxDecoration(
@@ -979,20 +1013,24 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       value: _selectedCollection,
                       isExpanded: true,
                       underline: SizedBox(),
-                      icon: Icon(Icons.arrow_drop_down, color: Color.fromARGB(255, 126, 113, 159)),
-                      dropdownColor: Colors.grey[200], // 드롭다운 배경색 설정 (여기서 색상을 설정)
+                      icon: Icon(Icons.arrow_drop_down,
+                          color: Color.fromARGB(255, 126, 113, 159)),
+                      dropdownColor:
+                          Colors.grey[200], // 드롭다운 배경색 설정 (여기서 색상을 설정)
                       onChanged: (String? newValue) {
                         setState(() {
                           _selectedCollection = newValue!;
                           print('선택된 컬렉션: $_selectedCollection');
                         });
                       },
-                      items: collections.map<DropdownMenuItem<String>>((String value) {
+                      items: collections
+                          .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Container(
                             color: Colors.grey[200], // 각 항목 배경 색상
-                            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 16.0),
                             child: Text(
                               value,
                               style: TextStyle(
@@ -1008,16 +1046,15 @@ class _BookshelfPageState extends State<BookshelfPage> {
                 ),
                 // 편집 텍스트 버튼
                 Align(
-                  alignment: Alignment.topRight,  // 오른쪽 상단에 버튼을 배치
+                  alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
                   child: TextButton(
-                    onPressed: () {
-                    },
+                    onPressed: () {},
                     child: Text(
-                      "편집",  // 텍스트 버튼의 내용
+                      "편집", // 텍스트 버튼의 내용
                       style: TextStyle(
-                        color: Color.fromARGB(255, 126, 113, 159),  // 버튼 텍스트 색상
-                        decoration: TextDecoration.underline
-                      ),
+                          color:
+                              Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
+                          decoration: TextDecoration.underline),
                     ),
                   ),
                 ),
@@ -1037,7 +1074,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                         return GestureDetector(
                           onTap: () {
                             // 카드를 눌렀을 때 동작
-                            print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                            print(
+                                '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -1045,18 +1083,25 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                   title: filteredBooks[index]["title"]!,
                                   image: filteredBooks[index]["image"]!,
                                   author: filteredBooks[index]["author"]!,
-                                  description: filteredBooks[index]["description"]!,
+                                  description: filteredBooks[index]
+                                      ["description"]!,
                                   status: filteredBooks[index]["status"]!,
-                                  startDay: filteredBooks[index]["startDay"]!, // 임시 데이터 전송
+                                  startDay: filteredBooks[index]
+                                      ["startDay"]!, // 임시 데이터 전송
                                   endDay: filteredBooks[index]["endDay"]!,
                                   publisher: filteredBooks[index]["publisher"]!,
-                                  publishYear: filteredBooks[index]["publishYear"]!,
-                                  publishMonth: filteredBooks[index]["publishMonth"]!,
-                                  totalPages: filteredBooks[index]["totalPages"]!,
+                                  publishYear: filteredBooks[index]
+                                      ["publishYear"]!,
+                                  publishMonth: filteredBooks[index]
+                                      ["publishMonth"]!,
+                                  totalPages: filteredBooks[index]
+                                      ["totalPages"]!,
                                   readPages: filteredBooks[index]["readPages"]!,
-                                  collection: filteredBooks[index]["collection"],
+                                  collection: filteredBooks[index]
+                                      ["collection"],
                                   review: filteredBooks[index]["review"],
-                                  bookReport: filteredBooks[index]["bookReport"],
+                                  bookReport: filteredBooks[index]
+                                      ["bookReport"],
                                   rating: filteredBooks[index]["rating"],
                                   isStored: filteredBooks[index]["isStored"],
                                 ),
@@ -1085,7 +1130,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ],
             ),
           );
-      }
+        }
       default:
         return Center(child: Text("전체 책들 목록"));
     }
