@@ -6,18 +6,38 @@ class UnstoredBookDetail extends StatefulWidget {
   final String image;
   final String author;
   final String description;
+  final String status;
+  final String startDay;
+  final String endDay;
   final String publisher;
   final String publishYear;
   final String publishMonth;
+  final int totalPages;
+  final int readPages;
+  final String collection;
+  final String review;
+  final String bookReport;
+  final int rating;
+  final bool isStored;
 
   UnstoredBookDetail({
     required this.title,
     required this.image,
     required this.author,
     required this.description,
+    required this.status,
+    required this.startDay,
+    required this.endDay,
     required this.publisher,
     required this.publishYear,
     required this.publishMonth,
+    required this.totalPages,
+    required this.readPages,
+    required this.collection,
+    required this.review,
+    required this.bookReport,
+    required this.rating,
+    required this.isStored,
   });
 
   @override
