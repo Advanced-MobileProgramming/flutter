@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:soobook/bookDetail.dart';
 import 'allBooks.dart';
 import 'myPage.dart';
 import 'myHome.dart';
 import 'bookSearch.dart';
-import 'StoredBookDetail.dart';
 
 class BookshelfPage extends StatefulWidget {
   final String username;
@@ -619,7 +619,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => StoredBookDetail(
+                              builder: (context) => BookDetail(
                                 title: filteredBooks[index]["title"]!,
                                 image: filteredBooks[index]["image"]!,
                                 author: filteredBooks[index]["author"]!,
@@ -693,7 +693,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => StoredBookDetail(
+                                  builder: (context) => BookDetail(
                                         title: filteredBooks[index]["title"]!,
                                         image: filteredBooks[index]["image"]!,
                                         author: filteredBooks[index]["author"]!,
@@ -810,7 +810,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => StoredBookDetail(
+                              builder: (context) => BookDetail(
                                 title: filteredBooks[index]["title"]!,
                                 image: filteredBooks[index]["image"]!,
                                 author: filteredBooks[index]["author"]!,
@@ -1041,7 +1041,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => StoredBookDetail(
+                                builder: (context) => BookDetail(
                                   title: filteredBooks[index]["title"]!,
                                   image: filteredBooks[index]["image"]!,
                                   author: filteredBooks[index]["author"]!,
