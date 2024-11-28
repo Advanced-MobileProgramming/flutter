@@ -1,4 +1,3 @@
-//프로필 수정 페이지
 import 'package:flutter/material.dart';
 import 'package:soobook/allBooks.dart';
 import 'package:soobook/bookShelf.dart';
@@ -20,11 +19,61 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
   // _username을 상태로 관리
   String _username = "";
+  String _profileImagePath = 'image/DefaultProfile.png'; // 기본 프로필 사진
 
   @override
   void initState() {
     super.initState();
     _username = widget.username; // 초기값 설정
+  }
+
+  void _showProfileImageChangeDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('프로필 사진 변경'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // DefaultProfile.png 부터 Profile5.png까지 이미지 선택
+                for (int i = 0; i <= 5; i++) // 0부터 5까지 반복
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        // 이미지 선택시 해당 경로로 변경
+                        _profileImagePath = i == 0
+                            ? 'image/DefaultProfile.png' // DefaultProfile.png 선택
+                            : 'image/Profile$i.png'; // Profile1.png부터 Profile5.png까지 선택
+                      });
+                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: Image.asset(
+                        i == 0
+                            ? 'image/DefaultProfile.png' // DefaultProfile.png 이미지 표시
+                            : 'image/Profile$i.png', // Profile1.png부터 Profile5.png까지 이미지 표시
+                        width: 100,
+                        height: 100,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+              child: Text('취소'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // 닉네임 변경을 위한 다이얼로그 표시 함수
@@ -202,7 +251,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       // 프로필 사진
                       CircleAvatar(
                         radius: 50, // 이미지 크기
-                        backgroundImage: AssetImage('image/DefaultProfile.png'),
+                        backgroundImage:
+                            AssetImage(_profileImagePath), // 변경된 이미지 경로 사용
                         backgroundColor: Colors.transparent, // 배경색 제거
                       ),
                       SizedBox(width: 10), // 프로필 사진과 텍스트 사이의 간격
@@ -213,7 +263,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         children: [
                           // 유저 닉네임
                           Text(
-                            '${widget.username}', // 여기에 실제 유저 닉네임을 넣으세요
+                            '${_username}', // 여기에 실제 유저 닉네임을 넣으세요
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -223,7 +273,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '@${widget.username}', // 여기에 실제 유저 id를 넣으세요
+                            '@${_username}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -251,9 +301,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('독후감 페이지로 이동')),
-                      );
+                      _showProfileImageChangeDialog(); // 프로필 사진 변경 다이얼로그 호출
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
