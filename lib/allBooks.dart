@@ -1,10 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:soobook/bookDetail.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myPage.dart';
 import 'myHome.dart';
 import 'bookSearch.dart';
-import 'UnstoredBookDetail.dart';
 
 class AllBooksPage extends StatefulWidget {
   final String username;
@@ -202,7 +202,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
                                   date.month.toString().padLeft(2, '0');
                             }
 
-                            return UnstoredBookDetail(
+                            return BookDetail(
                               title: book["title"] ?? "제목 없음",
                               image: book["image_path"] ??
                                   "image/book_image_1.jpg",
