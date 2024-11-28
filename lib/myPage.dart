@@ -77,8 +77,13 @@ class _MyPageState extends State<MyPage> {
                 height: 180, // 원하는 높이
                 child: FloatingActionButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('프로필 수정 페이지로 이동')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileEditPage(
+                          username: widget.username,
+                        ),
+                      ),
                     );
                   },
                   child: Row(
