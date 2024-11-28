@@ -15,22 +15,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    HomePage(username: 'example'), // 여기에 아이디 값 넘겨주기
-    // BookshelfPage(),
-    // LibraryPage(),
-    // MyPage(),
-  ];
+
   final PageController _pageController =
       PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
-  final List<Map<String, String>> books = List.generate(
+
+  // 책 리스트
+  final List<Map<String, dynamic>> books = List.generate(
     10,
     (index) => {
       "title": "Book $index",
-      "image": 'image/book_image_1.jpg', // 실제 책 이미지 경로로 변경
-      //"description": "책에 대한 간단한 설명입니다.",
+      "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
+      "author": "Author $index", // 책 저자
+      "description": "책에 대한 간단한 설명입니다.", // 책 설명
+      "status": index % 2 == 0
+          ? "reading" // 읽는 중
+          : "completed", // 완료
+      "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
     },
   );
+
   final List<String> reviews = [
     "재미있는 책이었어요.",
     "유익한 내용이 많았어요.",
@@ -47,19 +50,22 @@ class _HomePageState extends State<HomePage> {
       // 책장 탭 클릭 시 BookShelfPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage()),
+        MaterialPageRoute(
+            builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage()),
+        MaterialPageRoute(
+            builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => MyPage()),
+        MaterialPageRoute(
+            builder: (context) => MyPage(username: widget.username)),
       );
     }
     _pageController.jumpToPage(index); // 애니메이션 없이 페이지 전환
@@ -77,7 +83,7 @@ class _HomePageState extends State<HomePage> {
               // 홈 텍스트와 로고 배치
               Padding(
                 padding:
-                    const EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0),
+                    const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -99,14 +105,16 @@ class _HomePageState extends State<HomePage> {
                     // 검색 페이지로 이동
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const BookSearchPage()),
                     );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
-                      color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+                      color:
+                          const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
                     ),
                     child: Row(
                       children: [
@@ -119,19 +127,23 @@ class _HomePageState extends State<HomePage> {
                                 color: Color.fromARGB(255, 109, 109, 109),
                               ),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8), // 패딩 설정
                             ),
                             onTap: () {
                               // 검색 바를 탭하면 페이지로 이동
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const BookSearchPage()),
                               );
                             },
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
+                          icon: const Icon(Icons.search,
+                              color: Color.fromARGB(255, 109, 109, 109)),
                           onPressed: () {
                             // 추가적인 검색 동작 처리 가능
                           },
@@ -211,8 +223,10 @@ class _HomePageState extends State<HomePage> {
                                 children: [
                                   Image.asset(
                                     books[index]["image"]!, // 동적으로 이미지 변경
-                                    height: 150,
-                                    width: 150,
+                                    height: Curves.easeOut.transform(1.0) *
+                                        150, // 기본 이미지 크기
+                                    width: Curves.easeOut.transform(1.0) *
+                                        150, // 기본 이미지 크기
                                   ),
                                   SizedBox(height: 10),
                                   Text(

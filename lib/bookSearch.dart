@@ -15,25 +15,44 @@ class BookSearchApp extends StatelessWidget {
   }
 }
 
-class BookSearchPage extends StatelessWidget {
+class BookSearchPage extends StatefulWidget {
   const BookSearchPage({Key? key}) : super(key: key);
+
+  @override
+  _BookSearchPageState createState() => _BookSearchPageState();
+}
+
+class _BookSearchPageState extends State<BookSearchPage> {
+  final FocusNode _focusNode = FocusNode(); // FocusNode 생성
+
+  @override
+  void initState() {
+    super.initState();
+    // 화면 로딩 후 자동으로 포커스를 텍스트 필드로 맞춥니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode); // 포커스 주기
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose(); // FocusNode를 사용한 후에는 반드시 dispose해야 합니다.
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '책 검색',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 126, 113, 159),
-          ),
-        ),
+        title: Text('책 검색',
+            style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 126, 113, 159))),
         backgroundColor: Colors.white,
-        automaticallyImplyLeading: false, // 기본 뒤로가기 버튼 비활성화
-        toolbarHeight: 120.0, // AppBar 높이 조정
-        titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 간격 조정
+        automaticallyImplyLeading: false, // 뒤로 가기 버튼 비활성화
+        toolbarHeight: 120.0, // AppBar 높이를 조정하여 더 많은 패딩 추가
+        titleSpacing: 20.0, // 타이틀과 왼쪽 모서리 사이의 간격을 늘림
         leading: IconButton(
           icon:
               Icon(Icons.arrow_back, color: Color.fromARGB(255, 126, 113, 159)),
@@ -43,14 +62,18 @@ class BookSearchPage extends StatelessWidget {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 검색 바
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: InkWell(
+              onTap: () {
+                // 검색 페이지로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BookSearchPage()),
+                );
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
@@ -61,6 +84,7 @@ class BookSearchPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: TextField(
+                        focusNode: _focusNode, // TextField에 focusNode 지정
                         decoration: InputDecoration(
                           hintText: '도서명이나 저자를 입력하세요.',
                           hintStyle: const TextStyle(
@@ -68,28 +92,25 @@ class BookSearchPage extends StatelessWidget {
                             color: Color.fromARGB(255, 109, 109, 109),
                           ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8), // 패딩 설정
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩 설정
                         ),
                         onTap: () {
-                          // 페이지 이동 동작을 제거했습니다. 필요시 여기에 다른 동작을 넣을 수 있습니다.
+                          // 텍스트 필드 클릭 시 다른 동작을 할 수 있습니다.
                         },
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.search,
-                          color: Color.fromARGB(255, 109, 109, 109)),
+                      icon: const Icon(Icons.search, color: Color.fromARGB(255, 109, 109, 109)),
                       onPressed: () {
-                        // 검색 버튼 클릭 시 동작을 여기에서 처리합니다.
-                        // 예: 입력된 검색어를 사용하여 검색 동작을 수행
+                        // 추가적인 검색 동작 처리 가능
                       },
                     ),
                   ],
                 ),
               ),
-            )
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

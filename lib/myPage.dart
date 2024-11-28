@@ -3,8 +3,13 @@ import 'package:soobook/allBooks.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
 import 'package:soobook/login.dart'; // 로그인 페이지 임포트
+import 'package:soobook/profileEdit.dart';
+import 'package:soobook/bookReport.dart';
+import 'package:soobook/myReview.dart';
 
 class MyPage extends StatefulWidget {
+  final String username;
+  MyPage({required this.username});
   @override
   _MyPageState createState() => _MyPageState();
 }
@@ -21,22 +26,27 @@ class _MyPageState extends State<MyPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(username: 'username')), // 수정 필요
+            builder: (context) => HomePage(username: widget.username)), // 수정 필요
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => BookshelfPage()),
+        MaterialPageRoute(
+            builder: (context) => BookshelfPage(username: widget.username)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AllBooksPage()),
+        MaterialPageRoute(
+            builder: (context) => AllBooksPage(username: widget.username)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MyPage()),
+        MaterialPageRoute(
+            builder: (context) => MyPage(
+                  username: widget.username,
+                )),
       );
     }
   }
@@ -45,7 +55,7 @@ class _MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('마이 페이지',
+        title: Text('마이페이지',
             style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -89,7 +99,7 @@ class _MyPageState extends State<MyPage> {
                         children: [
                           // 유저 닉네임
                           Text(
-                            '유저 닉네임', // 여기에 실제 유저 닉네임을 넣으세요
+                            '${widget.username}', // 여기에 실제 유저 닉네임을 넣으세요
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -99,7 +109,7 @@ class _MyPageState extends State<MyPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '유저 id', // 여기에 실제 유저 id를 넣으세요
+                            '@${widget.username}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -113,8 +123,13 @@ class _MyPageState extends State<MyPage> {
                       IconButton(
                         icon: Icon(Icons.arrow_forward_ios),
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('화살표 버튼 클릭됨')),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileEditPage(
+                                username: widget.username,
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -136,20 +151,28 @@ class _MyPageState extends State<MyPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('독후감 페이지로 이동')),
+                      // 독후감 관리 버튼 클릭 시 bookReport.dart로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookReportPage(),
+                        ),
                       );
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
                   ListTile(
                     leading: Icon(Icons.rate_review, color: Colors.black),
-                    title: Text('내가 쓴 리뷰',
+                    title: Text('나의 리뷰',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('리뷰 페이지로 이동')),
+                      // 내가 쓴 리뷰 버튼 클릭 시 myReview.dart로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyReviewPage(),
+                        ),
                       );
                     },
                   ),
