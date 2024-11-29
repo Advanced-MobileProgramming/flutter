@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:soobook/bookReportDetail.dart';
@@ -5,61 +6,134 @@ import 'package:soobook/reviewList.dart';
 import 'package:soobook/addBook.dart';
 
 class BookDetail extends StatefulWidget {
-  final String title;
-  final String image;
-  final String author;
-  final String description;
-  final String status;
-  final String startDay;
-  final String endDay;
-  final String publisher;
-  final String publishYear;
-  final String publishMonth;
-  final int totalPages;
-  final int readPages;
-  final String collection;
-  final String review;
-  final String bookReport;
-  final int rating;
-  final bool isStored;
+  final String userId;
+  final int bookId;
 
-  BookDetail({
-    required this.title,
-    required this.image,
-    required this.author,
-    required this.description,
-    required this.status,
-    required this.startDay,
-    required this.endDay,
-    required this.publisher,
-    required this.publishYear,
-    required this.publishMonth,
-    required this.totalPages,
-    required this.readPages,
-    required this.collection,
-    required this.review,
-    required this.bookReport,
-    required this.rating,
-    required this.isStored,
-  });
+  BookDetail({required this.userId, required this.bookId});
 
   @override
-  State<BookDetail> createState() {
-    if (isStored) {
-      return _StoredBookDetailState();
-    } else {
-      return _UnstoredBookDetailState();
+  _BookDetailState createState() => _BookDetailState();
+}
+
+class _BookDetailState extends State<BookDetail> {
+  Map<String, dynamic> book = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBookState(); // 비동기 작업 시작
+    fetchBook();
+  }
+
+  // Firebase에서 책 데이터 가져오기
+  Future<void> fetchBook() async {
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases");
+
+    try {
+      // `id` 기준으로 데이터를 가져옴
+      final snapshot = await bookcasesRef
+          .orderByChild("user_id")
+          .equalTo(widget.userId)
+          .get();
+
+      if (snapshot.exists) {
+        final Map? snapshotMap = snapshot.value as Map?;
+        if (snapshotMap != null) {
+          final matchingEntry = snapshotMap.entries.firstWhere(
+            (entry) => entry.value["id"] == widget.bookId,
+            orElse: () => MapEntry(null, null), // 기본값 반환
+          );
+
+          if (matchingEntry.key != null && matchingEntry.value != null) {
+            setState(() {
+              book = Map<String, dynamic>.from(matchingEntry.value as Map);
+
+              // TimeStamp를 DateTime으로 변환
+              if (book.containsKey("publication_date")) {
+                final int timestamp = book["publication_date"];
+                final publicationDate =
+                    DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+
+                book["publication_year"] = publicationDate.year;
+                book["publication_month"] = publicationDate.month;
+              }
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print("Firebase 데이터 가져오기 오류: $e");
     }
+  }
+
+  Future<void> _checkBookState() async {
+    final isStored = await isItStored(widget.userId, widget.bookId);
+    if (isStored) {
+      // 저장된 책 상태로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              StoredBookDetail(userId: widget.userId, book: book),
+        ),
+      );
+    } else {
+      // 저장되지 않은 책 상태로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              UnstoredBookDetail(userId: widget.userId, book: book),
+        ),
+      );
+    }
+  }
+
+  Future<bool> isItStored(String userId, int bookId) async {
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases");
+
+    final snapshot =
+        await bookcasesRef.orderByChild("id").equalTo(userId).get();
+
+    if (snapshot.exists) {
+      final Map? data = snapshot.value as Map?;
+      if (data != null) {
+        return data.values.any((value) => value["id"] == bookId);
+      }
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 로딩 화면
+    return Scaffold(
+      appBar: AppBar(title: Text("책 상세 정보")),
+      body: Center(
+        child: CircularProgressIndicator(), // 데이터 로딩 중 표시
+      ),
+    );
   }
 }
 
-class _UnstoredBookDetailState extends State<BookDetail> {
+// 저장되지 않은 책 상태
+class UnstoredBookDetail extends StatefulWidget {
+  final String userId;
+  final Map<String, dynamic> book;
+
+  UnstoredBookDetail({required this.userId, required this.book});
+
+  @override
+  _UnstoredBookDetailState createState() => _UnstoredBookDetailState();
+}
+
+class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
   int _currentTabIndex = 0; // 세그먼트 바 초기값
 
-  // 샘플 리뷰 데이터
-  final List<Map<String, dynamic>> reviews = [
-    
-  ];
+  // 리뷰 데이터
+  final List<Map<String, dynamic>> reviews = [];
 
   // 새로운 리뷰를 위한 상태 변수
   final TextEditingController _reviewController = TextEditingController();
@@ -123,7 +197,7 @@ class _UnstoredBookDetailState extends State<BookDetail> {
                         ],
                       ),
                       child: Image.asset(
-                        widget.image,
+                        widget.book["image_path"],
                         width: 120,
                         height: 160,
                         fit: BoxFit.cover,
@@ -140,7 +214,7 @@ class _UnstoredBookDetailState extends State<BookDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.title,
+                            widget.book["title"],
                             style: TextStyle(
                               color: Color.fromARGB(255, 126, 113, 159),
                               fontSize: 26,
@@ -151,7 +225,7 @@ class _UnstoredBookDetailState extends State<BookDetail> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            "저자 | ${widget.author}",
+                            "저자 | ${widget.book["author"]}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 126, 113, 159),
@@ -162,7 +236,7 @@ class _UnstoredBookDetailState extends State<BookDetail> {
                           Row(
                             children: [
                               Text(
-                                "${widget.publisher} | ${widget.publishYear}년 ${widget.publishMonth}월",
+                                "${widget.book["publisher"]} | ${widget.book["publication_year"]}년 ${widget.book["publication_month"]}월",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFFB9AFD4),
@@ -305,7 +379,7 @@ class _UnstoredBookDetailState extends State<BookDetail> {
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            "${widget.description}",
+            "${widget.book["description"]}",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -330,7 +404,18 @@ class _UnstoredBookDetailState extends State<BookDetail> {
   }
 }
 
-class _StoredBookDetailState extends State<BookDetail> {
+// 저장된 책 상태
+class StoredBookDetail extends StatefulWidget {
+  final String userId;
+  final Map<String, dynamic> book;
+
+  StoredBookDetail({required this.userId, required this.book});
+
+  @override
+  _StoredBookDetailState createState() => _StoredBookDetailState();
+}
+
+class _StoredBookDetailState extends State<StoredBookDetail> {
   int _currentTabIndex = 0; // 세그먼트 바 초기값
 
   // 독후감 탭 변수
@@ -341,7 +426,7 @@ class _StoredBookDetailState extends State<BookDetail> {
 
   void initState() {
     super.initState();
-    _currentReport = widget.bookReport; // 초기 값 설정
+    _currentReport = ""; // 초기 값 설정 (리포트 데베에서 가져와야함 연동해서)
   }
 
   // 샘플 리뷰 데이터
@@ -424,7 +509,7 @@ class _StoredBookDetailState extends State<BookDetail> {
                         ],
                       ),
                       child: Image.asset(
-                        widget.image,
+                        widget.book["image"],
                         width: 120,
                         height: 160,
                         fit: BoxFit.cover,
@@ -441,7 +526,7 @@ class _StoredBookDetailState extends State<BookDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.title,
+                            widget.book["title"],
                             style: TextStyle(
                               color: Color.fromARGB(255, 126, 113, 159),
                               fontSize: 26,
@@ -452,7 +537,7 @@ class _StoredBookDetailState extends State<BookDetail> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            "저자 | ${widget.author}",
+                            "저자 | ${widget.book["author"]}",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 126, 113, 159),
@@ -462,7 +547,7 @@ class _StoredBookDetailState extends State<BookDetail> {
                           Row(
                             children: [
                               Text(
-                                "${widget.publisher} | ${widget.publishYear}년 ${widget.publishMonth}월",
+                                "${widget.book["publisher"]} | ${widget.book["publishYear"]}년 ${widget.book["publishMonth"]}월",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFFB9AFD4),
@@ -524,8 +609,8 @@ class _StoredBookDetailState extends State<BookDetail> {
                                 width: 65, // 원의 너비
                                 height: 65, // 원의 높이
                                 child: CircularProgressIndicator(
-                                  value: widget.totalPages > 0
-                                      ? (widget.readPages / widget.totalPages)
+                                  value: widget.book["page"] > 0
+                                      ? (widget.readPages / widget.book["page"])
                                           .clamp(0.0,
                                               1.0) // 진행률 계산valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 126, 113, 159)), // 진행 색상
                                       : 0.0, // 페이지 수가 0일 경우 0으로 설정
@@ -535,7 +620,7 @@ class _StoredBookDetailState extends State<BookDetail> {
                                 ),
                               ),
                               Text(
-                                "${widget.totalPages > 0 ? ((widget.readPages / widget.totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
+                                "${widget.book["page"] > 0 ? ((widget.readPages / widget.book["page"]) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -548,7 +633,7 @@ class _StoredBookDetailState extends State<BookDetail> {
                         SizedBox(height: 8),
                         // 추가된 텍스트
                         Text(
-                          "${widget.readPages}/${widget.totalPages}p",
+                          "${widget.readPages}/${widget.book["page"]}p",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
@@ -638,7 +723,7 @@ class _StoredBookDetailState extends State<BookDetail> {
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            "${widget.description}",
+            "${widget.book["description"]}",
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -650,10 +735,10 @@ class _StoredBookDetailState extends State<BookDetail> {
           width: 600, // 고정된 너비
           height: 330, // 고정된 높이
           padding: const EdgeInsets.only(
-                left: 22.0,
-                right: 20.0,
-                top: 50.0,
-              ), // 안쪽 여백
+            left: 22.0,
+            right: 20.0,
+            top: 50.0,
+          ), // 안쪽 여백
           decoration: BoxDecoration(
             color: Color.fromARGB(255, 247, 241, 250),
             borderRadius: BorderRadius.circular(30),
@@ -676,8 +761,7 @@ class _StoredBookDetailState extends State<BookDetail> {
               else if (!_isEditing)
                 _buildReportDisplayUI(),
               // 독후감 작성 상태일 때
-              if (_isEditing) 
-                _buildWriteReportUI(),
+              if (_isEditing) _buildWriteReportUI(),
             ],
           ),
         );
@@ -689,7 +773,7 @@ class _StoredBookDetailState extends State<BookDetail> {
         return Center(child: Text("잘못된 탭입니다."));
     }
   }
-  
+
   // 독후감이 없을 때 "작성된 독후감이 없습니다." 메시지와 편집 버튼
   Widget _buildEmptyReportUI() {
     return Column(
@@ -711,7 +795,9 @@ class _StoredBookDetailState extends State<BookDetail> {
           ),
         ),
         // 텍스트 중앙 배치
-        SizedBox(height: 50,),
+        SizedBox(
+          height: 50,
+        ),
         Center(
           child: Text(
             '작성된 독후감이 없습니다.',
@@ -787,7 +873,8 @@ class _StoredBookDetailState extends State<BookDetail> {
       textAlign: TextAlign.start,
       textDirection: TextDirection.ltr,
     );
-    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 32); // 최대 너비 설정
+    textPainter.layout(
+        maxWidth: MediaQuery.of(context).size.width - 32); // 최대 너비 설정
 
     int lineCount = textPainter.computeLineMetrics().length; // 텍스트가 차지하는 줄 수 계산
 
@@ -815,13 +902,8 @@ class _StoredBookDetailState extends State<BookDetail> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => BookReportDetailPage(
-                        title: widget.title,
-                        image: widget.image,
-                        author: widget.author,
-                        publisher: widget.publisher,
-                        publishYear: widget.publishYear,
-                        publishMonth: widget.publishMonth,
-                        bookReport: _currentReport,
+                        userId: widget.userId,
+                        bookId: widget.book["id"],
                       ),
                     ),
                   );

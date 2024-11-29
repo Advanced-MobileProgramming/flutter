@@ -5,9 +5,10 @@ import 'allBooks.dart';
 import 'bookSearch.dart';
 
 class HomePage extends StatefulWidget {
+  final String userId;
   final String nickname;
 
-  HomePage({required this.nickname});
+  HomePage({required this.userId, required this.nickname});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -51,21 +52,24 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(nickname: widget.nickname)),
+            builder: (context) => BookshelfPage(
+                userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 2) {
       // 도서 탭 클릭 시 AllBooksPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(nickname: widget.nickname)),
+            builder: (context) =>
+                AllBooksPage(userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 3) {
       // 마이페이지 탭 클릭 시 MyPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(nickname: widget.nickname)),
+            builder: (context) =>
+                MyPage(userId: widget.userId, nickname: widget.nickname)),
       );
     }
     _pageController.jumpToPage(index); // 애니메이션 없이 페이지 전환

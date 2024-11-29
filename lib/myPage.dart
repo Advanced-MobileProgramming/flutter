@@ -8,8 +8,9 @@ import 'package:soobook/mybookReport.dart';
 import 'package:soobook/myReview.dart';
 
 class MyPage extends StatefulWidget {
+  final String userId;
   final String nickname;
-  MyPage({required this.nickname});
+  MyPage({required this.userId, required this.nickname});
   @override
   _MyPageState createState() => _MyPageState();
 }
@@ -26,27 +27,29 @@ class _MyPageState extends State<MyPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(nickname: widget.nickname)), // 수정 필요
+            builder: (context) => HomePage(
+                userId: widget.userId, nickname: widget.nickname)), // 수정 필요
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(nickname: widget.nickname)),
+            builder: (context) => BookshelfPage(
+                userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(nickname: widget.nickname)),
+            builder: (context) =>
+                AllBooksPage(userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(
-                  nickname: widget.nickname,
-                )),
+            builder: (context) =>
+                MyPage(userId: widget.userId, nickname: widget.nickname)),
       );
     }
   }
@@ -81,8 +84,7 @@ class _MyPageState extends State<MyPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProfileEditPage(
-                          nickname: widget.nickname,
-                        ),
+                            userId: widget.userId, nickname: widget.nickname),
                       ),
                     );
                   },
@@ -114,7 +116,7 @@ class _MyPageState extends State<MyPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '@${widget.nickname}', // 여기에 실제 유저 id를 넣으세요
+                            '@${widget.userId}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -132,8 +134,8 @@ class _MyPageState extends State<MyPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProfileEditPage(
-                                nickname: widget.nickname,
-                              ),
+                                  userId: widget.userId,
+                                  nickname: widget.nickname),
                             ),
                           );
                         },

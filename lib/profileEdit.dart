@@ -6,8 +6,9 @@ import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 import 'package:soobook/myPage.dart';
 
 class ProfileEditPage extends StatefulWidget {
+  final String userId;
   final String nickname;
-  ProfileEditPage({required this.nickname});
+  ProfileEditPage({required this.userId, required this.nickname});
   @override
   _ProfileEditPageState createState() => _ProfileEditPageState();
 }
@@ -126,27 +127,29 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(nickname: widget.nickname)), // 수정 필요
+            builder: (context) => HomePage(
+                userId: widget.userId, nickname: widget.nickname)), // 수정 필요
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(nickname: widget.nickname)),
+            builder: (context) => BookshelfPage(
+                userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(nickname: widget.nickname)),
+            builder: (context) =>
+                AllBooksPage(userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(
-                  nickname: widget.nickname,
-                )),
+            builder: (context) =>
+                MyPage(userId: widget.userId, nickname: widget.nickname)),
       );
     }
   }

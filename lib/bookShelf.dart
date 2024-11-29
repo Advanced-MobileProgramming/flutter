@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:soobook/bookDetail.dart';
 import 'allBooks.dart';
@@ -7,8 +9,9 @@ import 'myHome.dart';
 import 'bookSearch.dart';
 
 class BookshelfPage extends StatefulWidget {
+  final String userId;
   final String nickname;
-  BookshelfPage({required this.nickname});
+  BookshelfPage({required this.userId, required this.nickname});
   @override
   _BookshelfPageState createState() => _BookshelfPageState();
 }
@@ -19,58 +22,104 @@ class _BookshelfPageState extends State<BookshelfPage> {
 
   final PageController _pageController = PageController(viewportFraction: 1.0);
 
-  // 책 리스트
-  final List<Map<String, dynamic>> books = List.generate(
-    10,
-    (index) => {
-      "title": "Book $index",
-      "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
-      "author": "Author $index", // 책 저자
-      "description": "책에 대한 간단한 설명입니다.", // 책 설명
-      "status": index % 2 == 0
-          ? "reading" // 읽는 중
-          : "completed", // 완료
-      "startDay": '2024.10.08',
-      "endDay": '2024.10.08',
-      "publisher": "한빛미디어",
-      "publishYear": "2023",
-      "publishMonth": "3",
-      "totalPages": 736,
-      "readPages": 220,
-      "collection": "인생책",
-      "review": "",
-      "bookReport":
-          "",
-      "rating": 4,
-      "isStored": true,
-    },
-  );
-
+  List<Map<String, dynamic>> bookcase = [];
+  List<Map<String, dynamic>> collection = [];
+  bool isLoading = true;
   String searchQuery = '';
 
-  // 컬렉션 목록 (임시 데이터)
-  final collections = [
-    "인생책",
-    "시집",
-    "에세이",
-    "소설",
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchBookcases(); // Firebase에서 책장 데이터 가져오기
+    fetchCollections();
+  }
+
+  // Firebase에서 책장 데이터 가져오기
+  Future<void> fetchBookcases() async {
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases");
+
+    try {
+      final snapshot = await bookcasesRef
+          .orderByChild("user_id")
+          .equalTo(widget.userId)
+          .get();
+      if (snapshot.exists) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        setState(() {
+          bookcase = data.entries
+              .map((entry) => Map<String, dynamic>.from(entry.value))
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          bookcase = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Firebase 데이터 가져오기 오류: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Firebase에서 콜렉션 데이터 가져오기
+  Future<void> fetchCollections() async {
+    final DatabaseReference collectionsRef =
+        FirebaseDatabase.instance.ref("collections");
+
+    try {
+      final snapshot = await collectionsRef.child(widget.userId).get();
+      if (snapshot.exists) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        setState(() {
+          collection = data.entries
+              .map((entry) => Map<String, dynamic>.from(entry.value))
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          collection = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Firebase 데이터 가져오기 오류: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   String? _selectedCollection; // 선택된 컬렉션 이름
   bool _enterCollection = false;
 
   // 현재 선택된 컬렉션에 담긴 책 리스트 반환
   List<Map<String, dynamic>> getFilteredCollectionBooks() {
-    return books
+    return bookcase
         .where((book) => book["collection"] == _selectedCollection)
         .toList();
   }
 
   // 컬렉션 추가 함수
-  void addCollection(String collectionName) {
-    setState(() {
-      collections.add(collectionName);
-    });
+  Future<void> addCollection(
+      {required String userId, required String collectionName}) async {
+    final DatabaseReference collectionsRef =
+        FirebaseDatabase.instance.ref("collections");
+    final String? collectionId = collectionsRef.child(userId).push().key;
+
+    final collectionData = {
+      "user_id": userId,
+      "collection_id": collectionId,
+      "collection_name": collectionName
+    };
+
+    // collectionId를 키로 사용하여 데이터 저장
+    await collectionsRef.child(userId).child(collectionId!).set(collectionData);
   }
 
   // 탭을 눌렀을 때 페이지 변경
@@ -83,36 +132,31 @@ class _BookshelfPageState extends State<BookshelfPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(nickname: widget.nickname)),
+            builder: (context) =>
+                HomePage(userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => BookshelfPage(
-                  nickname: widget.nickname,
-                )),
+                userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(nickname: widget.nickname)),
+            builder: (context) =>
+                AllBooksPage(userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(
-                  nickname: widget.nickname,
-                )),
+            builder: (context) =>
+                MyPage(userId: widget.userId, nickname: widget.nickname)),
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -167,7 +211,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                   // 이름이 비어 있는 경우 경고 메시지 출력
                   Navigator.of(context).pop();
                   showMessageDialog(context, '이름을 입력해주세요.');
-                } else if (collections.contains(newCollection)) {
+                } else if (collection.contains(newCollection)) {
                   // 이름이 중복된 경우 경고 메시지 출력
                   Navigator.of(context).pop();
                   showMessageDialog(context, '이미 존재하는 이름입니다.');
@@ -175,6 +219,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                   // 새로운 컬렉션 추가
                   onAddCollection(newCollection);
                   Navigator.of(context).pop(); // 다이얼로그 닫기
+                  fetchCollections();
                 }
               },
               style: TextButton.styleFrom(
@@ -192,7 +237,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
   // 컬렉션 수정/삭제 다이얼로그를 띄우는 함수
   void _showEditCollectionDialog(BuildContext context, int index) {
     TextEditingController _collectionNameController = TextEditingController();
-    _collectionNameController.text = collections[index];
+    _collectionNameController.text = collection[index]["collection_name"];
 
     showDialog(
       context: context,
@@ -236,13 +281,13 @@ class _BookshelfPageState extends State<BookshelfPage> {
                 // 중복 확인 로직 추가
                 if (newCollectionName.isEmpty) {
                   showMessageDialog(context, "이름을 입력해주세요.");
-                } else if (collections.contains(newCollectionName) &&
-                    newCollectionName != collections[index]) {
+                } else if (collection.contains(newCollectionName) &&
+                    newCollectionName != collection[index]["collection_name"]) {
                   showMessageDialog(context, "이미 존재하는 이름입니다.");
                 } else {
                   setState(() {
                     // 수정된 컬렉션 이름 저장
-                    collections[index] = newCollectionName;
+                    collection[index]["collection_name"] = newCollectionName;
                   });
                   Navigator.pop(context); // 수정 완료 후 다이얼로그 닫기
                 }
@@ -263,7 +308,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                   onConfirm: () {
                     setState(() {
                       // 컬렉션 삭제 로직
-                      collections.removeAt(index);
+                      collection.removeAt(index);
                     });
                     Navigator.pop(context);
                   },
@@ -572,23 +617,23 @@ class _BookshelfPageState extends State<BookshelfPage> {
   }
 
   // 탭에 맞는 책 목록을 필터링하여 반환하는 메소드
-  List<Map<String, dynamic>> getFilteredBooks(String status) {
+  List<Map<String, dynamic>> getFilteredBookcase(String status) {
     if (status == "reading") {
       // 읽는 중(reading)
-      return books.where((book) => book["status"] == "reading").toList();
+      return bookcase.where((book) => book["status"] == "reading").toList();
     } else if (status == "completed") {
       // 완료 (completed)
-      return books.where((book) => book["status"] == "completed").toList();
+      return bookcase.where((book) => book["status"] == "completed").toList();
     }
     // 전체 목록(all)
-    return books;
+    return bookcase;
   }
 
   // 선택된 탭에 해당하는 콘텐츠를 반환하는 메소드
   Widget _getTabContent(int index) {
     switch (index) {
       case 0: // 전체
-        final filteredBooks = getFilteredBooks("all");
+        final filteredBooks = getFilteredBookcase("all");
         return Padding(
           padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
           child: Column(
@@ -628,27 +673,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => BookDetail(
-                                title: filteredBooks[index]["title"]!,
-                                image: filteredBooks[index]["image"]!,
-                                author: filteredBooks[index]["author"]!,
-                                description: filteredBooks[index]
-                                    ["description"]!,
-                                status: filteredBooks[index]["status"]!,
-                                startDay: filteredBooks[index]
-                                    ["startDay"]!, // 임시 데이터 전송
-                                endDay: filteredBooks[index]["endDay"]!,
-                                publisher: filteredBooks[index]["publisher"]!,
-                                publishYear: filteredBooks[index]
-                                    ["publishYear"]!,
-                                publishMonth: filteredBooks[index]
-                                    ["publishMonth"]!,
-                                totalPages: filteredBooks[index]["totalPages"]!,
-                                readPages: filteredBooks[index]["readPages"]!,
-                                collection: filteredBooks[index]["collection"],
-                                review: filteredBooks[index]["review"],
-                                bookReport: filteredBooks[index]["bookReport"],
-                                rating: filteredBooks[index]["rating"],
-                                isStored: filteredBooks[index]["isStored"],
+                                userId: widget.userId,
+                                bookId: filteredBooks[index]["id"]!,
                               ),
                             ),
                           );
@@ -662,7 +688,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
-                              filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                              filteredBooks[index]
+                                  ["image_path"]!, // 동적으로 이미지 변경
                               fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
                             ),
                           ),
@@ -676,7 +703,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
           ),
         );
       case 1: // 읽는 중
-        final filteredBooks = getFilteredBooks("reading");
+        final filteredBooks = getFilteredBookcase("reading");
         return Padding(
           padding: const EdgeInsets.only(
               bottom: 16.0, right: 16.0, left: 16.0), // 외부 여백
@@ -705,32 +732,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => BookDetail(
-                                    title: filteredBooks[index]["title"]!,
-                                    image: filteredBooks[index]["image"]!,
-                                    author: filteredBooks[index]["author"]!,
-                                    description: filteredBooks[index]
-                                        ["description"]!,
-                                    status: filteredBooks[index]["status"]!,
-                                    startDay: filteredBooks[index]
-                                        ["startDay"]!, // 임시 데이터 전송
-                                    endDay: filteredBooks[index]["endDay"]!,
-                                    publisher: filteredBooks[index]
-                                        ["publisher"]!,
-                                    publishYear: filteredBooks[index]
-                                        ["publishYear"]!,
-                                    publishMonth: filteredBooks[index]
-                                        ["publishMonth"]!,
-                                    totalPages: filteredBooks[index]
-                                        ["totalPages"]!,
-                                    readPages: filteredBooks[index]
-                                        ["readPages"]!,
-                                    collection: filteredBooks[index]
-                                        ["collection"],
-                                    review: filteredBooks[index]["review"],
-                                    bookReport: filteredBooks[index]
-                                        ["bookReport"],
-                                    rating: filteredBooks[index]["rating"],
-                                    isStored: filteredBooks[index]["isStored"],
+                                    userId: widget.userId,
+                                    bookId: filteredBooks[index]["id"]!,
                                   ),
                                 ),
                               );
@@ -745,7 +748,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                                 borderRadius:
                                     BorderRadius.circular(10), // 카드 둥근 모서리
                                 child: Image.asset(
-                                  filteredBooks[index]["image"]!,
+                                  filteredBooks[index]["image_path"]!,
                                   fit: BoxFit.cover, // 이미지를 카드에 꽉 차게
                                 ),
                               ),
@@ -797,7 +800,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
           ),
         );
       case 2: // 완료
-        final filteredBooks = getFilteredBooks("completed");
+        final filteredBooks = getFilteredBookcase("completed");
         return Padding(
           padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
           child: Column(
@@ -837,27 +840,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => BookDetail(
-                                title: filteredBooks[index]["title"]!,
-                                image: filteredBooks[index]["image"]!,
-                                author: filteredBooks[index]["author"]!,
-                                description: filteredBooks[index]
-                                    ["description"]!,
-                                status: filteredBooks[index]["status"]!,
-                                startDay: filteredBooks[index]
-                                    ["startDay"]!, // 임시 데이터 전송
-                                endDay: filteredBooks[index]["endDay"]!,
-                                publisher: filteredBooks[index]["publisher"]!,
-                                publishYear: filteredBooks[index]
-                                    ["publishYear"]!,
-                                publishMonth: filteredBooks[index]
-                                    ["publishMonth"]!,
-                                totalPages: filteredBooks[index]["totalPages"]!,
-                                readPages: filteredBooks[index]["readPages"]!,
-                                collection: filteredBooks[index]["collection"],
-                                review: filteredBooks[index]["review"],
-                                bookReport: filteredBooks[index]["bookReport"],
-                                rating: filteredBooks[index]["rating"],
-                                isStored: filteredBooks[index]["isStored"],
+                                userId: widget.userId,
+                                bookId: filteredBooks[index]["id"]!,
                               ),
                             ),
                           );
@@ -871,7 +855,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
-                              filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                              filteredBooks[index]
+                                  ["image_path"]!, // 동적으로 이미지 변경
                               fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
                             ),
                           ),
@@ -896,14 +881,18 @@ class _BookshelfPageState extends State<BookshelfPage> {
                 mainAxisSpacing: 23, // 행 간 간격
                 childAspectRatio: 1, // 카드의 가로 세로 비율
               ),
-              itemCount: collections.length + 1, // 첫 번째 카드(+) 포함하여 개수 설정
+              itemCount: collection.length + 1, // 첫 번째 카드(+) 포함하여 개수 설정
               itemBuilder: (context, index) {
                 if (index == 0) {
                   // 첫 번째 카드 - 컬렉션 추가
                   return GestureDetector(
                     onTap: () {
                       // 다이얼로그 호출
-                      showAddCollectionDialog(context, addCollection);
+                      showAddCollectionDialog(context, (collectionName) async {
+                        await addCollection(
+                            userId: widget.userId,
+                            collectionName: collectionName);
+                      });
                     },
                     child: Card(
                       elevation: 4,
@@ -914,7 +903,12 @@ class _BookshelfPageState extends State<BookshelfPage> {
                       child: Center(
                         child: IconButton(
                           onPressed: () {
-                            showAddCollectionDialog(context, addCollection);
+                            showAddCollectionDialog(context,
+                                (collectionName) async {
+                              await addCollection(
+                                  userId: widget.userId,
+                                  collectionName: collectionName);
+                            });
                           },
                           icon: Icon(
                             Icons.add, // '+' 아이콘
@@ -931,7 +925,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                   return GestureDetector(
                     onTap: () {
                       // 현재 컬렉션 이름
-                      String currentCollectionName = collections[index - 1];
+                      String currentCollectionName =
+                          collection[index - 1]["collection_name"];
                       print("${currentCollectionName} collection card clicked");
 
                       setState(() {
@@ -952,7 +947,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             top: 50, // 텍스트의 상단 위치
                             left: 45, // 텍스트의 왼쪽 위치
                             child: Text(
-                              formatCollectionName(collections[index - 1]),
+                              formatCollectionName(
+                                  collection[index - 1]["collection_name"]),
                               style: const TextStyle(
                                 fontSize: 23,
                                 color: Color.fromARGB(255, 126, 113, 159),
@@ -1023,16 +1019,16 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           print('선택된 컬렉션: $_selectedCollection');
                         });
                       },
-                      items: collections
-                          .map<DropdownMenuItem<String>>((String value) {
+                      items: collection.map<DropdownMenuItem<String>>(
+                          (Map<String, dynamic> value) {
                         return DropdownMenuItem<String>(
-                          value: value,
+                          value: value["collection_name"],
                           child: Container(
                             color: Colors.grey[200], // 각 항목 배경 색상
                             padding: EdgeInsets.symmetric(
                                 vertical: 10.0, horizontal: 16.0),
                             child: Text(
-                              value,
+                              value["collection_name"],
                               style: TextStyle(
                                 color: Color.fromARGB(255, 126, 113, 159),
                                 fontSize: 16.0,
@@ -1080,31 +1076,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => BookDetail(
-                                  title: filteredBooks[index]["title"]!,
-                                  image: filteredBooks[index]["image"]!,
-                                  author: filteredBooks[index]["author"]!,
-                                  description: filteredBooks[index]
-                                      ["description"]!,
-                                  status: filteredBooks[index]["status"]!,
-                                  startDay: filteredBooks[index]
-                                      ["startDay"]!, // 임시 데이터 전송
-                                  endDay: filteredBooks[index]["endDay"]!,
-                                  publisher: filteredBooks[index]["publisher"]!,
-                                  publishYear: filteredBooks[index]
-                                      ["publishYear"]!,
-                                  publishMonth: filteredBooks[index]
-                                      ["publishMonth"]!,
-                                  totalPages: filteredBooks[index]
-                                      ["totalPages"]!,
-                                  readPages: filteredBooks[index]["readPages"]!,
-                                  collection: filteredBooks[index]
-                                      ["collection"],
-                                  review: filteredBooks[index]["review"],
-                                  bookReport: filteredBooks[index]
-                                      ["bookReport"],
-                                  rating: filteredBooks[index]["rating"],
-                                  isStored: filteredBooks[index]["isStored"],
-                                ),
+                                    userId: widget.userId,
+                                    bookId: filteredBooks[index]["id"]!),
                               ),
                             );
                           },
@@ -1117,7 +1090,8 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.asset(
-                                filteredBooks[index]["image"]!, // 동적으로 이미지 변경
+                                filteredBooks[index]
+                                    ["image_path"]!, // 동적으로 이미지 변경
                                 fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
                               ),
                             ),
