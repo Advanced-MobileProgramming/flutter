@@ -27,32 +27,27 @@ class _BookDetailState extends State<BookDetail> {
 
   // Firebase에서 책 데이터 가져오기 
 Future<void> fetchBook() async {
+  final adjustedBookId = (widget.bookId - 1).toString(); // ID 변환
   final DatabaseReference booksRef =
-      FirebaseDatabase.instance.ref("books").child(widget.bookId.toString());
+      FirebaseDatabase.instance.ref("books").child(adjustedBookId);
 
   try {
     final snapshot = await booksRef.get();
 
     if (snapshot.exists) {
-      // Firebase에서 가져온 데이터를 Map으로 변환
       final bookData = Map<String, dynamic>.from(snapshot.value as Map);
 
-      // 로그로 확인
-      print("Fetched Data for Book ID: ${widget.bookId}");
-      print("Full Data: $bookData"); // 전체 데이터 확인
-      
-      // 각 필드 로그 출력
+      print("Fetched Data for Book ID: $adjustedBookId"); // 변환된 ID 로그
+      print("Full Data: $bookData"); // 전체 데이터 로그
       print("Title: ${bookData['title'] ?? 'Not Found'}");
       print("Author: ${bookData['author'] ?? 'Not Found'}");
       print("Image Path: ${bookData['image_path'] ?? 'Not Found'}");
       print("Publisher: ${bookData['publisher'] ?? 'Not Found'}");
       print("Publication Date: ${bookData['publication_date'] ?? 'Not Found'}");
 
-      // 상태 업데이트
       setState(() {
         book = bookData;
 
-        // 타임스탬프 변환 처리
         if (book.containsKey("publication_date")) {
           final int timestamp = book["publication_date"];
           final publicationDate =
@@ -63,15 +58,12 @@ Future<void> fetchBook() async {
         }
       });
     } else {
-      // 데이터가 없는 경우
-      print("No data found for Book ID: ${widget.bookId}");
+      print("No data found for Book ID: $adjustedBookId");
     }
   } catch (e) {
-    // 에러가 발생한 경우
     print("Error fetching book data: $e");
   }
 }
-
 
 
 void addToBookcases() async {
@@ -114,25 +106,28 @@ Future<void> _checkBookState() async {
 
 
 
-  Future<bool> isItStored(String userId, int bookId) async {
-  final adjustedBookId = (bookId - 1).toString(); // ID를 조정
+Future<bool> isItStored(String userId, int bookId) async {
+  final adjustedBookId = (bookId - 1).toString(); // ID 변환
   final DatabaseReference bookRef =
       FirebaseDatabase.instance.ref("bookcases/$userId/$adjustedBookId");
+
+  print("Checking if Book ID $adjustedBookId is stored in bookcases."); // 로그 추가
 
   try {
     final snapshot = await bookRef.get();
     if (snapshot.exists) {
-      print("Book ID $adjustedBookId is stored in bookcases.");
+      print("Book ID $adjustedBookId is stored in bookcases."); // 저장된 경우 로그
       return true;
     } else {
-      print("Book ID $adjustedBookId is not stored in bookcases.");
+      print("Book ID $adjustedBookId is not stored in bookcases."); // 저장되지 않은 경우 로그
       return false;
     }
   } catch (e) {
-    print("Error checking book storage: $e");
+    print("Error checking book storage for Book ID $adjustedBookId: $e");
     return false;
   }
 }
+
 
 
 
