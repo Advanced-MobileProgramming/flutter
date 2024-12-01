@@ -25,111 +25,111 @@ class _BookDetailState extends State<BookDetail> {
     fetchBook();
   }
 
-  // Firebase에서 책 데이터 가져오기 
-Future<void> fetchBook() async {
-  final adjustedBookId = (widget.bookId - 1).toString(); // ID 변환
-  final DatabaseReference booksRef =
-      FirebaseDatabase.instance.ref("books").child(adjustedBookId);
+  // Firebase에서 책 데이터 가져오기
+  Future<void> fetchBook() async {
+    final adjustedBookId = (widget.bookId - 1).toString(); // ID 변환
+    final DatabaseReference booksRef =
+        FirebaseDatabase.instance.ref("books").child(adjustedBookId);
 
-  try {
-    final snapshot = await booksRef.get();
+    try {
+      final snapshot = await booksRef.get();
 
-    if (snapshot.exists) {
-      final bookData = Map<String, dynamic>.from(snapshot.value as Map);
+      if (snapshot.exists) {
+        final bookData = Map<String, dynamic>.from(snapshot.value as Map);
 
-      print("Fetched Data for Book ID: $adjustedBookId"); // 변환된 ID 로그
-      print("Full Data: $bookData"); // 전체 데이터 로그
-      print("Title: ${bookData['title'] ?? 'Not Found'}");
-      print("Author: ${bookData['author'] ?? 'Not Found'}");
-      print("Image Path: ${bookData['image_path'] ?? 'Not Found'}");
-      print("Publisher: ${bookData['publisher'] ?? 'Not Found'}");
-      print("Publication Date: ${bookData['publication_date'] ?? 'Not Found'}");
+        print("Fetched Data for Book ID: $adjustedBookId"); // 변환된 ID 로그
+        print("Full Data: $bookData"); // 전체 데이터 로그
+        print("Title: ${bookData['title'] ?? 'Not Found'}");
+        print("Author: ${bookData['author'] ?? 'Not Found'}");
+        print("Image Path: ${bookData['image_path'] ?? 'Not Found'}");
+        print("Publisher: ${bookData['publisher'] ?? 'Not Found'}");
+        print(
+            "Publication Date: ${bookData['publication_date'] ?? 'Not Found'}");
 
-      setState(() {
-        book = bookData;
+        setState(() {
+          book = bookData;
 
-        if (book.containsKey("publication_date")) {
-          final int timestamp = book["publication_date"];
-          final publicationDate =
-              DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+          if (book.containsKey("publication_date")) {
+            final int timestamp = book["publication_date"];
+            final publicationDate =
+                DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
 
-          book["publication_year"] = publicationDate.year;
-          book["publication_month"] = publicationDate.month;
-        }
-      });
-    } else {
-      print("No data found for Book ID: $adjustedBookId");
+            book["publication_year"] = publicationDate.year;
+            book["publication_month"] = publicationDate.month;
+          }
+        });
+      } else {
+        print("No data found for Book ID: $adjustedBookId");
+      }
+    } catch (e) {
+      print("Error fetching book data: $e");
     }
-  } catch (e) {
-    print("Error fetching book data: $e");
   }
-}
 
+  void addToBookcases() async {
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases");
 
-void addToBookcases() async {
-  final DatabaseReference bookcasesRef = FirebaseDatabase.instance.ref("bookcases");
-
-  try {
-    await bookcasesRef.child(widget.userId).child(widget.bookId.toString()).set(book);
-    print("책을 책장에 추가했습니다.");
-  } catch (e) {
-    print("책 추가 오류: $e");
+    try {
+      await bookcasesRef
+          .child(widget.userId)
+          .child(widget.bookId.toString())
+          .set(book);
+      print("책을 책장에 추가했습니다.");
+    } catch (e) {
+      print("책 추가 오류: $e");
+    }
   }
-}
 
+  Future<void> _checkBookState() async {
+    print("Checking book state for ID: ${widget.bookId}"); // bookId 확인
 
-
-Future<void> _checkBookState() async {
-  print("Checking book state for ID: ${widget.bookId}"); // bookId 확인
-
-  final isStored = await isItStored(widget.userId, widget.bookId);
-  if (isStored) {
-    print("Book ID ${widget.bookId} is stored in bookcases."); // 저장된 상태
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            StoredBookDetail(userId: widget.userId, book: book),
-      ),
-    );
-  } else {
-    print("Book ID ${widget.bookId} is not stored in bookcases."); // 저장되지 않은 상태
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            UnstoredBookDetail(userId: widget.userId, book: book, bookId: widget.bookId),
-      ),
-    );
-  }
-}
-
-
-
-Future<bool> isItStored(String userId, int bookId) async {
-  final adjustedBookId = (bookId - 1).toString(); // ID 변환
-  final DatabaseReference bookRef =
-      FirebaseDatabase.instance.ref("bookcases/$userId/$adjustedBookId");
-
-  print("Checking if Book ID $adjustedBookId is stored in bookcases."); // 로그 추가
-
-  try {
-    final snapshot = await bookRef.get();
-    if (snapshot.exists) {
-      print("Book ID $adjustedBookId is stored in bookcases."); // 저장된 경우 로그
-      return true;
+    final isStored = await isItStored(widget.userId, widget.bookId);
+    if (isStored) {
+      print("Book ID ${widget.bookId} is stored in bookcases."); // 저장된 상태
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              StoredBookDetail(userId: widget.userId, book: book),
+        ),
+      );
     } else {
-      print("Book ID $adjustedBookId is not stored in bookcases."); // 저장되지 않은 경우 로그
+      print(
+          "Book ID ${widget.bookId} is not stored in bookcases."); // 저장되지 않은 상태
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UnstoredBookDetail(
+              userId: widget.userId, book: book, bookId: widget.bookId),
+        ),
+      );
+    }
+  }
+
+  Future<bool> isItStored(String userId, int bookId) async {
+    final adjustedBookId = (bookId - 1).toString(); // ID 변환
+    final DatabaseReference bookRef =
+        FirebaseDatabase.instance.ref("bookcases/$userId/$adjustedBookId");
+
+    print(
+        "Checking if Book ID $adjustedBookId is stored in bookcases."); // 로그 추가
+
+    try {
+      final snapshot = await bookRef.get();
+      if (snapshot.exists) {
+        print("Book ID $adjustedBookId is stored in bookcases."); // 저장된 경우 로그
+        return true;
+      } else {
+        print(
+            "Book ID $adjustedBookId is not stored in bookcases."); // 저장되지 않은 경우 로그
+        return false;
+      }
+    } catch (e) {
+      print("Error checking book storage for Book ID $adjustedBookId: $e");
       return false;
     }
-  } catch (e) {
-    print("Error checking book storage for Book ID $adjustedBookId: $e");
-    return false;
   }
-}
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +147,10 @@ Future<bool> isItStored(String userId, int bookId) async {
 class UnstoredBookDetail extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> book;
-  final int bookId;  // bookId를 추가합니다.
+  final int bookId; // bookId를 추가합니다.
 
-  UnstoredBookDetail({required this.userId, required this.book, required this.bookId});
+  UnstoredBookDetail(
+      {required this.userId, required this.book, required this.bookId});
 
   @override
   _UnstoredBookDetailState createState() => _UnstoredBookDetailState();
@@ -166,10 +167,14 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
   double _currentRating = 0.0;
 
   void addToBookcases() async {
-    final DatabaseReference bookcasesRef = FirebaseDatabase.instance.ref("bookcases");
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases");
 
     try {
-      await bookcasesRef.child(widget.userId).child(widget.bookId.toString()).set(widget.book);
+      await bookcasesRef
+          .child(widget.userId)
+          .child(widget.bookId.toString())
+          .set(widget.book);
       print("책을 책장에 추가했습니다.");
     } catch (e) {
       print("책 추가 오류: $e");
@@ -234,7 +239,8 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                         ],
                       ),
                       child: Image.asset(
-                        widget.book["image_path"] ?? 'assets/images/books/3부작.jpg', // 하도 image_path에서 오류나길래 추가함
+                        widget.book["image_path"] ??
+                            'assets/images/books/3부작.jpg', // 하도 image_path에서 오류나길래 추가함
                         width: 120,
                         height: 160,
                         fit: BoxFit.cover,
@@ -292,7 +298,10 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                                   showModalBottomSheet(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      return AddBook(); // AddBook 위젯을 호출하여 모달에 띄움
+                                      return AddBook(
+                                          userId: widget.userId,
+                                          book: widget
+                                              .book); // AddBook 위젯을 호출하여 모달에 띄움
                                     },
                                   );
                                 },
@@ -462,8 +471,11 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
   //String get endDay => widget.book["end_day"] ?? ''; // end_day가 없으면 빈 문자열 반환
 
   // readPages가 book 객체에 포함되어 있다고 가정
-  int get readPages => widget.book.containsKey("readPages") ? widget.book["readPages"] : 0;  // readPages가 없으면 0으로 처리
-  int get totalPages => widget.book.containsKey("page") ? widget.book["page"] : 0; 
+  int get readPages => widget.book.containsKey("readPages")
+      ? widget.book["readPages"]
+      : 0; // readPages가 없으면 0으로 처리
+  int get totalPages =>
+      widget.book.containsKey("page") ? widget.book["page"] : 0;
 
   // 독후감 탭 변수
   bool _isWriting = false;
