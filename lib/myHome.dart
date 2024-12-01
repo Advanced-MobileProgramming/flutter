@@ -110,8 +110,9 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const BookSearchPage()),
-                    );
+                        builder: (context) => BookSearchPage(
+                            userId: widget.userId)), // BookSearchPage로 이동
+                  );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -140,18 +141,23 @@ class _HomePageState extends State<HomePage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const BookSearchPage()),
+                                        const BookSearchPage(userId: '',)),
                               );
                             },
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.search,
-                              color: Color.fromARGB(255, 109, 109, 109)),
-                          onPressed: () {
-                            // 추가적인 검색 동작 처리 가능
-                          },
-                        ),
+  icon: const Icon(Icons.search,
+      color: Color.fromARGB(255, 109, 109, 109)),
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookSearchPage(userId: widget.userId),
+      ),
+    );
+  },
+),
                       ],
                     ),
                   ),

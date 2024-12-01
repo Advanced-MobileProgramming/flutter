@@ -145,10 +145,18 @@ class _AllBooksPageState extends State<AllBooksPage> {
 
   @override
   Widget build(BuildContext context) {
+    // final filteredBooks = books.where((book) {
+    //   return book["title"]!.toLowerCase().contains(searchQuery.toLowerCase()) ||
+    //       book["author"]!.toLowerCase().contains(searchQuery.toLowerCase());
+    // }).toList();
+
     final filteredBooks = books.where((book) {
-      return book["title"]!.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          book["author"]!.toLowerCase().contains(searchQuery.toLowerCase());
-    }).toList();
+  final title = book["title"] ?? ''; // title이 null이면 빈 문자열로 대체
+  final author = book["author"] ?? ''; // author가 null이면 빈 문자열로 대체
+  return title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+         author.toLowerCase().contains(searchQuery.toLowerCase());
+}).toList();
+
 
     return Scaffold(
       appBar: AppBar(

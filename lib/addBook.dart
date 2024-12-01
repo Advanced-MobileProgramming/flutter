@@ -54,19 +54,48 @@ class _AddBookState extends State<AddBook> {
       String? pagesRead}) async {
     final DatabaseReference bookcasesRef =
         FirebaseDatabase.instance.ref("bookcases");
+        final DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections");
+
+      // 선택한 컬렉션 ID 찾기
+  String? selectedCollectionId;
+  if (_selectCollection != "선택 안 함") {
+    selectedCollectionId = collection.firstWhere(
+      (col) => col["collection_name"] == _selectCollection,
+      orElse: () => {"collection_id": null},
+    )["collection_id"];
+  }
+
 
     final bookcaseData = {
       "user_id": userId,
       "book_id": book["id"],
       "book_image": book["image_path"],
       "collection_name": _selectCollection,
+      "collection_id": selectedCollectionId, // 컬렉션 ID 추가
       "reading_status": readingStatus,
       "pages_read": pagesRead ?? 0,
       "start_date": _startDate,
       "end_date": _endDate
     };
 
-    await bookcasesRef.child(userId).child(book["id"]).set(bookcaseData);
+    //await bookcasesRef.child(userId).child(book["id"]).set(bookcaseData);
+    await bookcasesRef
+    .child(userId)
+    .child(book["id"].toString()) // int -> String 변환
+    .set(bookcaseData);
+
+
+    // 선택된 컬렉션에 책 추가
+  if (selectedCollectionId != null) {
+    await collectionsRef
+        .child(userId)
+        .child(selectedCollectionId)
+        .child("books")
+        .child(book["id"].toString())
+        .set(book);
+  }
+
+  print("책이 성공적으로 저장되었습니다.");
   }
 
   // 세그먼트 탭을 만들기 위한 메소드
@@ -130,95 +159,186 @@ class _AddBookState extends State<AddBook> {
   Widget _getTabContent(int index) {
     switch (index) {
       case 0: // 읽기 전
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white, // 배경색
+            borderRadius: BorderRadius.circular(10), // 둥근 모서리 설정
+          ),
+          child: ExpansionTile(
+            key: UniqueKey(),
+            onExpansionChanged: (expanded) {
+              setState(() {
+                _isExpanded = expanded; // 펼침/접힘 상태 업데이트
+              });
+            },
+            initiallyExpanded: _isExpanded, // 초기 상태 설정
+            title: Text(
+              _selectCollection,
+              style: TextStyle(fontSize: 16, color: Colors.black),
+            ),
+            backgroundColor: Colors.white,
+            collapsedBackgroundColor: Colors.white,
             children: [
-              // ExpansionTile을 감싸는 Container에 borderRadius 설정
               Container(
-                decoration: BoxDecoration(
-                  color: Colors.white, // 배경색
-                  borderRadius: BorderRadius.circular(10), // 둥근 모서리 설정
-                ),
-                child: ExpansionTile(
-                  key: UniqueKey(),
-                  onExpansionChanged: (expanded) {
-                    setState(() {
-                      _isExpanded = expanded; // 펼침/접힘 상태 업데이트
-                    });
-                  },
-                  initiallyExpanded: _isExpanded, // 초기 상태 설정
-                  title: Text(
-                    _selectCollection,
-                    style:
-                        TextStyle(fontSize: 16, color: Colors.black), // 텍스트 색상
-                  ),
-                  backgroundColor: Colors.white, // 열렸을 때 배경 색상
-                  collapsedBackgroundColor: Colors.white, // 닫혔을 때 배경 색상
-                  children: [
-                    // ListView를 Container로 감싸서 최대 높이 설정
-                    Container(
-                      height: 170, // 최대 높이 설정
-                      child: ListView.builder(
-                        shrinkWrap: true, // ListView가 무한히 확장되지 않도록 설정
-                        physics: BouncingScrollPhysics(), // 리스트만 스크롤되도록 설정
-                        itemCount: collection.length + 1, // 리스트 항목 수
-                        itemBuilder: (context, index) {
-                          // "컬렉션 선택 안 함" 항목 처리
-                          if (index == 0) {
-                            return Column(
-                              children: [
-                                ListTile(
-                                  title: Text('선택 안 함'),
-                                  onTap: () {
-                                    print("선택 안 함을 클릭했습니다.");
-                                    setState(() {
-                                      _selectCollection = "선택 안 함";
-                                      _isExpanded = false;
-                                    });
-                                  },
-                                ),
-                                Divider(
-                                  height: 1, // 보더라인 위아래 간격 설정
-                                  thickness: 1, // 보더라인 두께 설정
-                                ),
-                              ],
-                            );
-                          }
+                height: 170, // 최대 높이 설정
+                child: ListView.builder(
+                  shrinkWrap: true, // ListView가 무한히 확장되지 않도록 설정
+                  physics: BouncingScrollPhysics(),
+                  itemCount: collection.length + 1, // 리스트 항목 수
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Text('선택 안 함'),
+                            onTap: () {
+                              print("선택 안 함을 클릭했습니다.");
+                              setState(() {
+                                _selectCollection = "선택 안 함";
+                                _isExpanded = false;
+                              });
+                            },
+                          ),
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                          ),
+                        ],
+                      );
+                    }
 
-                          // 컬렉션 항목 처리
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(
-                                    '${collection[index - 1]["collection_name"]}'),
-                                onTap: () {
-                                  print(
-                                      "컬렉션 ${collection[index - 1]["collection_name"]}을 클릭했습니다.");
-                                  setState(() {
-                                    _selectCollection = collection[index - 1]
-                                        ["collection_name"];
-                                    _isExpanded = false;
-                                  });
-                                },
-                              ),
-                              // 보더라인 추가 (마지막 항목 이후에는 보더라인 추가 안 함)
-                              if (index < 4)
-                                Divider(
-                                  height: 1, // 보더라인 위아래 간격 설정
-                                  thickness: 1, // 보더라인 두께 설정
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                    // 컬렉션 항목 처리
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Text('${collection[index - 1]["collection_name"]}'),
+                          onTap: () async {
+                            print("컬렉션 ${collection[index - 1]["collection_name"]}을 선택했습니다.");
+
+                            setState(() {
+                              _selectCollection = collection[index - 1]["collection_name"];
+                              _isExpanded = false;
+                            });
+
+                            // 책을 선택한 컬렉션에 저장
+                            await addBookcase(
+                              userId: widget.userId,
+                              readingStatus: "읽기 전",
+                              book: widget.book,
+                            );
+                          },
+                        ),
+                        if (index < collection.length)
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                          ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
           ),
-        );
+        ),
+      ],
+    ),
+  );
+
+      // case 0: // 읽기 전
+      //   return Padding(
+      //     padding: const EdgeInsets.all(16.0),
+      //     child: Column(
+      //       children: [
+      //         // ExpansionTile을 감싸는 Container에 borderRadius 설정
+      //         Container(
+      //           decoration: BoxDecoration(
+      //             color: Colors.white, // 배경색
+      //             borderRadius: BorderRadius.circular(10), // 둥근 모서리 설정
+      //           ),
+      //           child: ExpansionTile(
+      //             key: UniqueKey(),
+      //             onExpansionChanged: (expanded) {
+      //               setState(() {
+      //                 _isExpanded = expanded; // 펼침/접힘 상태 업데이트
+      //               });
+      //             },
+      //             initiallyExpanded: _isExpanded, // 초기 상태 설정
+      //             title: Text(
+      //               _selectCollection,
+      //               style:
+      //                   TextStyle(fontSize: 16, color: Colors.black), // 텍스트 색상
+      //             ),
+      //             backgroundColor: Colors.white, // 열렸을 때 배경 색상
+      //             collapsedBackgroundColor: Colors.white, // 닫혔을 때 배경 색상
+      //             children: [
+      //               // ListView를 Container로 감싸서 최대 높이 설정
+      //               Container(
+      //                 height: 170, // 최대 높이 설정
+      //                 child: ListView.builder(
+      //                   shrinkWrap: true, // ListView가 무한히 확장되지 않도록 설정
+      //                   physics: BouncingScrollPhysics(), // 리스트만 스크롤되도록 설정
+      //                   itemCount: collection.length + 1, // 리스트 항목 수
+      //                   itemBuilder: (context, index) {
+      //                     // "컬렉션 선택 안 함" 항목 처리
+      //                     if (index == 0) {
+      //                       return Column(
+      //                         children: [
+      //                           ListTile(
+      //                             title: Text('선택 안 함'),
+      //                             onTap: () {
+      //                               print("선택 안 함을 클릭했습니다.");
+      //                               setState(() {
+      //                                 _selectCollection = "선택 안 함";
+      //                                 _isExpanded = false;
+      //                               });
+      //                             },
+      //                           ),
+      //                           Divider(
+      //                             height: 1, // 보더라인 위아래 간격 설정
+      //                             thickness: 1, // 보더라인 두께 설정
+      //                           ),
+      //                         ],
+      //                       );
+      //                     }
+
+      //                     // 컬렉션 항목 처리
+      //                     return Column(
+      //                       children: [
+      //                         ListTile(
+      //                           title: Text(
+      //                               '${collection[index - 1]["collection_name"]}'),
+      //                           onTap: () {
+      //                             print(
+      //                                 "컬렉션 ${collection[index - 1]["collection_name"]}을 클릭했습니다.");
+      //                             setState(() {
+      //                               _selectCollection = collection[index - 1]
+      //                                   ["collection_name"];
+      //                               _isExpanded = false;
+      //                             });
+      //                           },
+      //                         ),
+      //                         // 보더라인 추가 (마지막 항목 이후에는 보더라인 추가 안 함)
+      //                         if (index < 4)
+      //                           Divider(
+      //                             height: 1, // 보더라인 위아래 간격 설정
+      //                             thickness: 1, // 보더라인 두께 설정
+      //                           ),
+      //                       ],
+      //                     );
+      //                   },
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   );
       case 1: // 읽는 중
         return Padding(
           padding: const EdgeInsets.all(16.0),

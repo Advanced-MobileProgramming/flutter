@@ -17,6 +17,7 @@ class BookDetail extends StatefulWidget {
 
 class _BookDetailState extends State<BookDetail> {
   Map<String, dynamic> book = {};
+  bool _isLoading = true; // 로딩 상태를 관리하는 변수 추가
 
   @override
   void initState() {
@@ -30,6 +31,11 @@ class _BookDetailState extends State<BookDetail> {
     final adjustedBookId = (widget.bookId - 1).toString(); // ID 변환
     final DatabaseReference booksRef =
         FirebaseDatabase.instance.ref("books").child(adjustedBookId);
+
+        setState(() {
+    _isLoading = true; // 로딩 시작
+    book = {}; // book 초기화 (비어 있는 상태로 설정)
+  });
 
     try {
       final snapshot = await booksRef.get();
@@ -57,12 +63,19 @@ class _BookDetailState extends State<BookDetail> {
             book["publication_year"] = publicationDate.year;
             book["publication_month"] = publicationDate.month;
           }
+          _isLoading = false; // 로딩 상태 해제
         });
       } else {
         print("No data found for Book ID: $adjustedBookId");
+        setState(() {
+          _isLoading = false; // 로딩 상태 해제
+        });
       }
     } catch (e) {
       print("Error fetching book data: $e");
+      setState(() {
+        _isLoading = false; // 로딩 상태 해제
+      });
     }
   }
 
@@ -82,30 +95,35 @@ class _BookDetailState extends State<BookDetail> {
   }
 
   Future<void> _checkBookState() async {
-    print("Checking book state for ID: ${widget.bookId}"); // bookId 확인
-
+  try {
     final isStored = await isItStored(widget.userId, widget.bookId);
+
     if (isStored) {
-      print("Book ID ${widget.bookId} is stored in bookcases."); // 저장된 상태
+      // 저장된 책의 상세 화면으로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              StoredBookDetail(userId: widget.userId, book: book),
+          builder: (context) => StoredBookDetail(userId: widget.userId, book: book),
         ),
       );
     } else {
-      print(
-          "Book ID ${widget.bookId} is not stored in bookcases."); // 저장되지 않은 상태
+      // 저장되지 않은 책의 상세 화면으로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => UnstoredBookDetail(
-              userId: widget.userId, book: book, bookId: widget.bookId),
+            userId: widget.userId,
+            book: book,
+            bookId: widget.bookId,
+          ),
         ),
       );
     }
+  } catch (e) {
+    print("Error checking book state: $e");
+    // 오류 처리
   }
+}
 
   Future<bool> isItStored(String userId, int bookId) async {
     final adjustedBookId = (bookId - 1).toString(); // ID 변환
@@ -132,15 +150,29 @@ class _BookDetailState extends State<BookDetail> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // 로딩 화면
-    return Scaffold(
-      appBar: AppBar(title: Text("책 상세 정보")),
-      body: Center(
-        child: CircularProgressIndicator(), // 데이터 로딩 중 표시
-      ),
-    );
-  }
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: Text("책 상세 정보")),
+    body: _isLoading
+        ? Center(
+            child: CircularProgressIndicator(), // 로딩 중 표시
+          )
+        : (book.isNotEmpty
+            ? Center(
+                child: Text(
+                  "책 데이터가 로드되었습니다.", // 실제 UI로 대체하세요.
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+            : Center(
+                child: Text(
+                  "책 데이터를 불러올 수 없습니다.", // 데이터가 없는 경우 처리
+                  style: TextStyle(fontSize: 16),
+                ),
+              )),
+  );
+}
+
 }
 
 // 저장되지 않은 책 상태
@@ -258,7 +290,8 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.book["title"],
+                            //widget.book["title"],
+                            widget.book["title"] ?? 'No Title',
                             style: TextStyle(
                               color: Color.fromARGB(255, 126, 113, 159),
                               fontSize: 26,
@@ -568,7 +601,7 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
                         ],
                       ),
                       child: Image.asset(
-                        widget.book["image"],
+                        widget.book["Image"],
                         width: 120,
                         height: 160,
                         fit: BoxFit.cover,
