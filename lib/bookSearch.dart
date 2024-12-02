@@ -48,7 +48,7 @@ class _BookSearchPageState extends State<BookSearchPage> {
     super.dispose();
   }
 
-  Future<void> searchBooks(String query) async {
+  Future<void> searchBooks(String query) async { // 검색 미완성
     setState(() {
       _isLoading = true;
       _searchResult = "";

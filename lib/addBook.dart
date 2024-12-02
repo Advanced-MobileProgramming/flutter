@@ -5,19 +5,28 @@ class AddBook extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> book;
 
-  const AddBook({required this.userId, required this.book});
+  //const AddBook({required this.userId, required this.book});
+  const AddBook({Key? key, required this.userId, required this.book}) : super(key: key);
 
   @override
   _AddBookState createState() => _AddBookState();
 }
 
 class _AddBookState extends State<AddBook> {
-  int _currentTabIndex = 0; // 세그먼트 바 초기값
+  // int _currentTabIndex = 0; // 세그먼트 바 초기값
+  // DateTime? _startDate;
+  // DateTime? _endDate;
+  // List<Map<String, dynamic>> collection = [];
+  // String _selectCollection = "선택 안 함";
+  // bool _isExpanded = false; // 리스트가 펼쳐져 있는지 여부
+  int _currentTabIndex = 0;
   DateTime? _startDate;
   DateTime? _endDate;
   List<Map<String, dynamic>> collection = [];
   String _selectCollection = "선택 안 함";
-  bool _isExpanded = false; // 리스트가 펼쳐져 있는지 여부
+  bool _isExpanded = false;
+  TextEditingController _pagesReadController = TextEditingController();
+
 
   @override
   void initState() {
@@ -25,77 +34,182 @@ class _AddBookState extends State<AddBook> {
     fetchCollections();
   }
 
-  // Firebase에서 콜렉션 데이터 가져오기
-  Future<void> fetchCollections() async {
-    final DatabaseReference collectionsRef =
-        FirebaseDatabase.instance.ref("collections");
 
+
+  // Firebase에서 콜렉션 데이터 가져오기
+  // Future<void> fetchCollections() async {
+  //   final DatabaseReference collectionsRef =
+  //       FirebaseDatabase.instance.ref("collections");
+
+  //   try {
+  //     final snapshot = await collectionsRef.child(widget.userId).get();
+  //     if (snapshot.exists) {
+  //       final data = Map<String, dynamic>.from(snapshot.value as Map);
+  //       setState(() {
+  //         collection = data.entries
+  //             .map((entry) => Map<String, dynamic>.from(entry.value))
+  //             .toList();
+  //       });
+  //       print("collection 개수:${collection.length}");
+  //     }
+  //   } catch (e) {
+  //     throw ("Firebase 데이터 가져오기 오류: $e");
+  //   }
+  // }
+  // Future<void> fetchCollections() async {
+  //   final DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections");
+
+  //   try {
+  //     final snapshot = await collectionsRef.child(widget.userId).get();
+  //     if (snapshot.exists) {
+  //       final data = Map<String, dynamic>.from(snapshot.value as Map);
+  //       setState(() {
+  //         collection = data.entries.map((entry) => Map<String, dynamic>.from(entry.value)).toList();
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print("Firebase 데이터 가져오기 오류: $e");
+  //   }
+  // }
+  // Firebase에서 컬렉션 데이터 가져오기
+Future<void> fetchCollections() async {
+    DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections/${widget.userId}");
     try {
-      final snapshot = await collectionsRef.child(widget.userId).get();
+      DataSnapshot snapshot = await collectionsRef.get();
       if (snapshot.exists) {
         final data = Map<String, dynamic>.from(snapshot.value as Map);
         setState(() {
-          collection = data.entries
-              .map((entry) => Map<String, dynamic>.from(entry.value))
-              .toList();
+          collection = data.entries.map((entry) => {
+            "collection_id": entry.key,
+            "collection_name": entry.value["collection_name"]
+          }).toList();
         });
-        print("collection 개수:${collection.length}");
       }
     } catch (e) {
-      throw ("Firebase 데이터 가져오기 오류: $e");
+      print("Firebase 데이터 가져오기 오류: $e");
     }
   }
 
+// 선택한 컬렉션 ID 저장 및 UI에 표시
+// void selectCollection(String collectionName) {
+//   setState(() {
+//     _selectCollection = collectionName;
+//   });
+// }
+void selectCollection(String collectionName) async {
+  setState(() {
+    _selectCollection = collectionName; // UI 업데이트
+  });
+
+  // Firebase 업데이트
+  final DatabaseReference bookcasesRef =
+      FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"]}");
+
+  try {
+    await bookcasesRef.update({
+      "collection_name": collectionName, // 선택된 컬렉션 이름 저장
+    });
+    print("컬렉션 $collectionName이 성공적으로 저장되었습니다.");
+  } catch (e) {
+    print("컬렉션 저장 오류: $e");
+  }
+}
+
+
   // 책장에 책 추가 함수
-  Future<void> addBookcase(
-      {required String userId,
-      required String readingStatus,
-      required Map<String, dynamic> book,
-      String? pagesRead}) async {
-    final DatabaseReference bookcasesRef =
-        FirebaseDatabase.instance.ref("bookcases");
-        final DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections");
+  // Future<void> addBookcase(
+  //     {required String userId,
+  //     required String readingStatus,
+  //     required Map<String, dynamic> book,
+  //     String? pagesRead}) async {
+  //   final DatabaseReference bookcasesRef =
+  //       FirebaseDatabase.instance.ref("bookcases");
+  //       final DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections");
 
-      // 선택한 컬렉션 ID 찾기
-  String? selectedCollectionId;
-  if (_selectCollection != "선택 안 함") {
-    selectedCollectionId = collection.firstWhere(
-      (col) => col["collection_name"] == _selectCollection,
-      orElse: () => {"collection_id": null},
-    )["collection_id"];
-  }
-
-
-    final bookcaseData = {
-      "user_id": userId,
-      "book_id": book["id"],
-      "book_image": book["image_path"],
-      "collection_name": _selectCollection,
-      "collection_id": selectedCollectionId, // 컬렉션 ID 추가
-      "reading_status": readingStatus,
-      "pages_read": pagesRead ?? 0,
-      "start_date": _startDate,
-      "end_date": _endDate
-    };
-
-    //await bookcasesRef.child(userId).child(book["id"]).set(bookcaseData);
-    await bookcasesRef
-    .child(userId)
-    .child(book["id"].toString()) // int -> String 변환
-    .set(bookcaseData);
+  //     // 선택한 컬렉션 ID 찾기
+  // String? selectedCollectionId;
+  // if (_selectCollection != "선택 안 함") {
+  //   selectedCollectionId = collection.firstWhere(
+  //     (col) => col["collection_name"] == _selectCollection,
+  //     orElse: () => {"collection_id": null},
+  //   )["collection_id"];
+  // }
 
 
-    // 선택된 컬렉션에 책 추가
-  if (selectedCollectionId != null) {
-    await collectionsRef
-        .child(userId)
-        .child(selectedCollectionId)
-        .child("books")
-        .child(book["id"].toString())
-        .set(book);
-  }
+  //   final bookcaseData = {
+  //     "user_id": userId,
+  //     "book_id": book["id"],
+  //     "book_image": book["image_path"],
+  //     "collection_name": _selectCollection,
+  //     "collection_id": selectedCollectionId, // 컬렉션 ID 추가
+  //     "reading_status": readingStatus,
+  //     "pages_read": pagesRead ?? 0,
+  //     "start_date": _startDate,
+  //     "end_date": _endDate
+  //   };
 
-  print("책이 성공적으로 저장되었습니다.");
+  //   //await bookcasesRef.child(userId).child(book["id"]).set(bookcaseData);
+  //   await bookcasesRef
+  //   .child(userId)
+  //   .child(book["id"].toString()) // int -> String 변환
+  //   .set(bookcaseData);
+
+
+  //   // 선택된 컬렉션에 책 추가
+  // if (selectedCollectionId != null) {
+  //   await collectionsRef
+  //       .child(userId)
+  //       .child(selectedCollectionId)
+  //       .child("books")
+  //       .child(book["id"].toString())
+  //       .set(book);
+  // }
+
+  // print("책이 성공적으로 저장되었습니다.");
+  // }
+
+  // Future<void> addBookToBookcase() async {
+  //   DatabaseReference bookcasesRef = FirebaseDatabase.instance.ref("bookcases/${widget.userId}");
+  //   String? selectedCollectionId = collection.firstWhere(
+  //     (col) => col["collection_name"] == _selectCollection,
+  //     orElse: () => {"collection_id": null}
+  //   )["collection_id"];
+
+  //   final bookcaseData = {
+  //     "user_id": widget.userId,
+  //     "book_id": widget.book["id"],
+  //     "book_image": widget.book["image_path"],
+  //     "reading_status": _currentTabIndex == 0 ? "읽기 전" : (_currentTabIndex == 1 ? "읽는 중" : "완료"),
+  //     "start_date": _startDate?.toIso8601String(),
+  //     "end_date": _endDate?.toIso8601String(),
+  //     "pages_read": _pagesReadController.text,
+  //     "collection_id": selectedCollectionId,
+  //     "collection_name": _selectCollection
+  //   };
+
+  //   await bookcasesRef.child(widget.book["id"].toString()).set(bookcaseData);
+  //   print("책이 성공적으로 저장되었습니다.");
+  // }
+  
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime initialDate = isStartDate ? _startDate ?? DateTime.now() : _endDate ?? DateTime.now();
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        if (isStartDate) {
+          _startDate = pickedDate;
+        } else {
+          _endDate = pickedDate;
+        }
+      });
+    }
   }
 
   // 세그먼트 탭을 만들기 위한 메소드
@@ -134,26 +248,26 @@ class _AddBookState extends State<AddBook> {
   }
 
   // 날짜 선택 함수
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    DateTime initialDate =
-        isStartDate ? _startDate ?? DateTime.now() : _endDate ?? DateTime.now();
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
+  // Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+  //   DateTime initialDate =
+  //       isStartDate ? _startDate ?? DateTime.now() : _endDate ?? DateTime.now();
+  //   DateTime? selectedDate = await showDatePicker(
+  //     context: context,
+  //     initialDate: initialDate,
+  //     firstDate: DateTime(2000),
+  //     lastDate: DateTime(2101),
+  //   );
 
-    if (selectedDate != null) {
-      setState(() {
-        if (isStartDate) {
-          _startDate = selectedDate;
-        } else {
-          _endDate = selectedDate;
-        }
-      });
-    }
-  }
+  //   if (selectedDate != null) {
+  //     setState(() {
+  //       if (isStartDate) {
+  //         _startDate = selectedDate;
+  //       } else {
+  //         _endDate = selectedDate;
+  //       }
+  //     });
+  //   }
+  // }
 
   // 선택된 탭에 해당하는 콘텐츠를 반환하는 메소드
   Widget _getTabContent(int index) {
@@ -224,19 +338,21 @@ class _AddBookState extends State<AddBook> {
                               _isExpanded = false;
                             });
 
-                            // 책을 선택한 컬렉션에 저장
-                            await addBookcase(
-                              userId: widget.userId,
-                              readingStatus: "읽기 전",
-                              book: widget.book,
-                            );
+                            // // 책을 선택한 컬렉션에 저장
+                            // await addBookcase(
+                            //   userId: widget.userId,
+                            //   readingStatus: "읽기 전",
+                            //   book: widget.book,
+                            // );
                           },
                         ),
+                        // if (index < collection.length)
+                        //   Divider(
+                        //     height: 1,
+                        //     thickness: 1,
+                        //   ),
                         if (index < collection.length)
-                          Divider(
-                            height: 1,
-                            thickness: 1,
-                          ),
+                                Divider(height: 1, thickness: 1),
                       ],
                     );
                   },
@@ -429,8 +545,15 @@ class _AddBookState extends State<AddBook> {
                     ),
                   ), // 구분자
                   SizedBox(width: 16),
+                  // Text(
+                  //   widget.book["page"] != null ? 'widget.book["page"]' : '0',
+                  //   style: TextStyle(
+                  //     fontSize: 20,
+                  //     color: Color.fromARGB(255, 126, 113, 159),
+                  //   ),
+                  // ),
                   Text(
-                    widget.book["page"] != null ? 'widget.book["page"]' : '0',
+                    widget.book["page"] != null ? '${widget.book["page"]}' : '0',
                     style: TextStyle(
                       fontSize: 20,
                       color: Color.fromARGB(255, 126, 113, 159),
@@ -464,21 +587,31 @@ class _AddBookState extends State<AddBook> {
                       child: ListView.builder(
                         shrinkWrap: true,
                         physics: BouncingScrollPhysics(),
-                        itemCount: 5,
+                        //itemCount: 5,
+                        itemCount: collection.length, // 실제 컬렉션 데이터 길이 사용
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
+                              // ListTile(
+                              //   title: Text('컬렉션 ${index + 1}'),
+                              //   onTap: () {
+                              //     print("컬렉션 ${index + 1}을 클릭했습니다.");
+                              //   },
+                              // ),
                               ListTile(
-                                title: Text('컬렉션 ${index + 1}'),
-                                onTap: () {
-                                  print("컬렉션 ${index + 1}을 클릭했습니다.");
-                                },
-                              ),
-                              if (index < 4)
-                                Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                ),
+                title: Text(collection[index]["collection_name"]),
+                onTap: () {
+                  print("${collection[index]["collection_name"]} 컬렉션을 클릭했습니다.");
+                  selectCollection(collection[index]["collection_name"]);
+                },
+              ),
+                              // if (index < 4)
+                              //   Divider(
+                              //     height: 1,
+                              //     thickness: 1,
+                              //   ),
+                              if (index < collection.length - 1) // 마지막 요소 아래에는 구분선 없음
+                Divider(),
                             ],
                           );
                         },

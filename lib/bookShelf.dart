@@ -141,49 +141,74 @@ class _BookshelfPageState extends State<BookshelfPage> {
 
   // Firebase에서 콜렉션 데이터 가져오기
   Future<void> fetchCollections() async {
-    final DatabaseReference collectionsRef =
-        FirebaseDatabase.instance.ref("collections");
+  final DatabaseReference collectionsRef =
+      FirebaseDatabase.instance.ref("collections");
 
-    try {
-      final snapshot = await collectionsRef.child(widget.userId).get();
-      if (snapshot.exists) {
-        final data = Map<String, dynamic>.from(snapshot.value as Map);
-        setState(() {
-          collection = data.entries
-              .map((entry) => Map<String, dynamic>.from(entry.value))
-              .toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          collection = [];
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Firebase 데이터 가져오기 오류: $e");
+  try {
+    final snapshot = await collectionsRef.child(widget.userId).get();
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      print("Fetched Collections: $data");  // 데이터 확인 로그 추가
       setState(() {
+        collection = data.entries
+            .map((entry) => Map<String, dynamic>.from(entry.value))
+            .toList();
+        isLoading = false;
+      });
+    } else {
+      print("No collections found for user: ${widget.userId}"); // 데이터 없을 때 로그
+      setState(() {
+        collection = [];
         isLoading = false;
       });
     }
+  } catch (e) {
+    print("Firebase data fetch error: $e");  // 오류 로그 추가
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   String? _selectedCollection; // 선택된 컬렉션 이름
   bool _enterCollection = false;
 
-  // 현재 선택된 컬렉션에 담긴 책 리스트 반환
-  // List<Map<String, dynamic>> getFilteredCollectionBooks() {
-  //   return bookcase
-  //       .where((book) => book["collection"] == _selectedCollection)
-  //       .toList();
-  // }
-
   List<Map<String, dynamic>> getFilteredCollectionBooks() {
-  return bookcase.where((book) {
-    // 선택된 컬렉션 이름과 책 데이터의 `collection_name`을 비교
+  if (_selectedCollection == null) {
+    print("No collection selected.");
+    return []; // 컬렉션이 선택되지 않았을 경우 빈 리스트 반환
+  }
+
+  print("Fetching filtered books for collection: $_selectedCollection");
+  List<Map<String, dynamic>> filteredBooks = bookcase.where((book) {
     return book["collection_name"] == _selectedCollection;
   }).toList();
+
+  print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
+  return filteredBooks;
 }
+
+
+//   List<Map<String, dynamic>> getFilteredCollectionBooks() {
+//   // 선택된 컬렉션이 없을 때 모든 컬렉션을 반환
+//   if (_selectedCollection == null) {
+//     print("No collection selected.");
+//     return []; // 컬렉션이 선택되지 않았을 경우 빈 리스트 반환
+//   }
+
+//   // 필터링된 책을 가져오는 부분
+//   print("Fetching filtered books for collection: $_selectedCollection");
+
+//   // 해당 컬렉션에 해당하는 책들을 필터링
+//   List<Map<String, dynamic>> filteredBooks = bookcase.where((book) {
+//     return book["collection_name"] == _selectedCollection;
+//   }).toList();
+
+//   print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
+//   return filteredBooks;
+// }
+
+
 
 
   // 컬렉션 추가 함수
@@ -713,83 +738,148 @@ class _BookshelfPageState extends State<BookshelfPage> {
   // 선택된 탭에 해당하는 콘텐츠를 반환하는 메소드
   Widget _getTabContent(int index) {
     switch (index) {
+      // case 0: // 전체
+      //   final filteredBooks = getFilteredBookcase("all");
+      //   return Padding(
+      //     padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
+      //     child: Column(
+      //       children: [
+      //         // 편집 텍스트 버튼
+      //         Align(
+      //           alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
+      //           child: TextButton(
+      //             onPressed: () {},
+      //             child: Text(
+      //               "편집", // 텍스트 버튼의 내용
+      //               style: TextStyle(
+      //                   color: Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
+      //                   decoration: TextDecoration.underline),
+      //             ),
+      //           ),
+      //         ),
+      //         // 그리드 뷰
+      //         Expanded(
+      //           child: Padding(
+      //             padding: const EdgeInsets.all(0), // 외부와의 패딩 값
+      //             child: GridView.builder(
+      //               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      //                 crossAxisCount: 3, // 3개의 열
+      //                 crossAxisSpacing: 8, // 열 간 간격
+      //                 mainAxisSpacing: 8, // 행 간 간격
+      //                 childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
+      //               ),
+      //               itemCount: filteredBooks.length,
+      //               itemBuilder: (context, index) {
+      //                 return GestureDetector(
+      //                   onTap: () {
+      //                     // 카드를 눌렀을 때 동작
+      //                     print(
+      //                         '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+      //                     Navigator.push(
+      //                       context,
+      //                       MaterialPageRoute(
+      //                         builder: (context) => BookDetail(
+      //                           userId: widget.userId,
+      //                           //bookId: filteredBooks[index]["id"]!,
+      //                           bookId: filteredBooks[index]["id"] is int
+      //     ? filteredBooks[index]["id"] as int
+      //     : int.tryParse(filteredBooks[index]["id"]?.toString() ?? '') ??
+      //         (filteredBooks[index]["book_id"] is int
+      //             ? filteredBooks[index]["book_id"] as int
+      //             : int.tryParse(filteredBooks[index]["book_id"]?.toString() ?? '') ?? 0),
+      //                         ),
+      //                       ),
+      //                     );
+      //                   },
+      //                   child: Card(
+      //                     color: Colors.white,
+      //                     shape: RoundedRectangleBorder(
+      //                       borderRadius: BorderRadius.circular(10),
+      //                     ),
+      //                     elevation: 4,
+      //                     child: ClipRRect(
+      //                       borderRadius: BorderRadius.circular(10),
+      //                       child: Image.asset(
+      //                         // filteredBooks[index]
+      //                         //     ["image_path"]!, // 동적으로 이미지 변경
+      //                         bookcase[index]["book_image"] ?? bookcase[index]["image_path"]!, // `book_image` 사용
+      //                         fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+      //                       ),
+      //                     ),
+      //                   ),
+      //                 );
+      //               },
+      //             ),
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   );
       case 0: // 전체
-        final filteredBooks = getFilteredBookcase("all");
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
-          child: Column(
-            children: [
-              // 편집 텍스트 버튼
-              Align(
-                alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "편집", // 텍스트 버튼의 내용
-                    style: TextStyle(
-                        color: Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
-                        decoration: TextDecoration.underline),
+  final filteredBooks = getFilteredBookcase("all");
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
+    child: Column(
+      children: [
+        // 그리드 뷰
+        Expanded(
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3, // 3개의 열
+              crossAxisSpacing: 8, // 열 간 간격
+              mainAxisSpacing: 8, // 행 간 간격
+              childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
+            ),
+            itemCount: filteredBooks.length,
+            itemBuilder: (context, index) {
+              final bookInfo = filteredBooks[index]["book_info"];
+              final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
+
+              if (bookImagePath == null || bookImagePath.isEmpty) {
+                return Card(
+                  child: Center(
+                    child: Icon(Icons.error, size: 50, color: Colors.red),
                   ),
-                ),
-              ),
-              // 그리드 뷰
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(0), // 외부와의 패딩 값
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // 3개의 열
-                      crossAxisSpacing: 8, // 열 간 간격
-                      mainAxisSpacing: 8, // 행 간 간격
-                      childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
+                );
+              }
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookDetail(
+                        userId: widget.userId,
+                        bookId: int.tryParse(filteredBooks[index]["book_id"]?.toString() ?? "0") ?? 0,
+                      ),
                     ),
-                    itemCount: filteredBooks.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          // 카드를 눌렀을 때 동작
-                          print(
-                              '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BookDetail(
-                                userId: widget.userId,
-                                //bookId: filteredBooks[index]["id"]!,
-                                bookId: filteredBooks[index]["id"] is int
-          ? filteredBooks[index]["id"] as int
-          : int.tryParse(filteredBooks[index]["id"]?.toString() ?? '') ??
-              (filteredBooks[index]["book_id"] is int
-                  ? filteredBooks[index]["book_id"] as int
-                  : int.tryParse(filteredBooks[index]["book_id"]?.toString() ?? '') ?? 0),
-                              ),
-                            ),
-                          );
-                        },
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 4,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              // filteredBooks[index]
-                              //     ["image_path"]!, // 동적으로 이미지 변경
-                              bookcase[index]["book_image"] ?? bookcase[index]["image_path"]!, // `book_image` 사용
-                              fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                  );
+                },
+                child: Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      bookImagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        );
+        ),
+      ],
+    ),
+  );
+
       case 1: // 읽는 중
         final filteredBooks = getFilteredBookcase("reading");
         return Padding(
@@ -1072,6 +1162,93 @@ class _BookshelfPageState extends State<BookshelfPage> {
               },
             ),
           );
+//         case 3: // 컬렉션
+//   if (!_enterCollection) {
+//     // 컬렉션 리스트
+//     return Padding(
+//       padding: const EdgeInsets.all(16.0), // 외부 여백 추가
+//       child: GridView.builder(
+//         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//           crossAxisCount: 2, // 한 행에 2개의 카드
+//           crossAxisSpacing: 16, // 열 간 간격
+//           mainAxisSpacing: 23, // 행 간 간격
+//           childAspectRatio: 1, // 카드의 가로 세로 비율
+//         ),
+//         itemCount: collection.length + 1, // 첫 번째 카드(+) 포함하여 개수 설정
+//         itemBuilder: (context, index) {
+//   if (index > 0) {
+//     // 컬렉션 내부 이미지 가져오기
+//     final filteredBooks = getFilteredCollectionBooks();
+
+//     // filteredBooks가 비어 있지 않고, index - 1이 유효한 범위인지 체크
+//     if (filteredBooks.isNotEmpty && index - 1 < filteredBooks.length) {
+//       final bookInfo = filteredBooks[index - 1]["book_info"];
+//       final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
+
+//       return GestureDetector(
+//         onTap: () {
+//           setState(() {
+//             _enterCollection = true;
+//             _selectedCollection = collection[index - 1]["collection_name"];
+//           });
+//         },
+//         child: Card(
+//           child: bookImagePath != null
+//               ? Image.asset(bookImagePath, fit: BoxFit.cover)
+//               : Center(child: Text("이미지 없음")),
+//         ),
+//       );
+//     } else {
+//       return Center(child: Text("데이터 없음")); // filteredBooks가 비어 있으면 처리
+//     }
+//   }
+
+//   // 첫 번째 카드(+) 추가 버튼
+//   return Card(
+//     child: Center(
+//       child: Icon(Icons.add, size: 50, color: Colors.blue),
+//     ),
+//   );
+// },
+
+        // itemBuilder: (context, index) {
+        //   if (index > 0) {
+        //     // 컬렉션 내부 이미지 가져오기
+        //     final filteredBooks = getFilteredCollectionBooks();
+        //     final bookInfo = filteredBooks[index - 1]["book_info"];
+        //     final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
+
+        //     return GestureDetector(
+        //       onTap: () {
+        //         setState(() {
+        //           _enterCollection = true;
+        //           _selectedCollection = collection[index - 1]["collection_name"];
+        //         });
+        //       },
+        //       child: Card(
+        //         child: bookImagePath != null
+        //             ? Image.asset(
+        //                 bookImagePath,
+        //                 fit: BoxFit.cover,
+        //                 errorBuilder: (context, error, stackTrace) {
+        //                   return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
+        //                 },
+        //               )
+        //             : Icon(Icons.error, size: 50, color: Colors.red),
+        //       ),
+        //     );
+        //   }
+
+        //   // 첫 번째 카드(+) 추가 버튼
+        //   return Card(
+        //     child: Center(
+        //       child: Icon(Icons.add, size: 50, color: Colors.blue),
+        //     ),
+        //   );
+        // },
+    //   ),
+    // );
+
         } else {
           final filteredBooks = getFilteredCollectionBooks();
           return Padding(
