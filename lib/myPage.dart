@@ -4,12 +4,13 @@ import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
 import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 import 'package:soobook/profileEdit.dart';
-import 'package:soobook/bookReport.dart';
+import 'package:soobook/mybookReport.dart';
 import 'package:soobook/myReview.dart';
 
 class MyPage extends StatefulWidget {
-  final String username;
-  MyPage({required this.username});
+  final String userId;
+  final String nickname;
+  MyPage({required this.userId, required this.nickname});
   @override
   _MyPageState createState() => _MyPageState();
 }
@@ -26,27 +27,29 @@ class _MyPageState extends State<MyPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomePage(username: widget.username)), // 수정 필요
+            builder: (context) => HomePage(
+                userId: widget.userId, nickname: widget.nickname)), // 수정 필요
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => BookshelfPage(username: widget.username)),
+            builder: (context) => BookshelfPage(
+                userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AllBooksPage(username: widget.username)),
+            builder: (context) =>
+                AllBooksPage(userId: widget.userId, nickname: widget.nickname)),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => MyPage(
-                  username: widget.username,
-                )),
+            builder: (context) =>
+                MyPage(userId: widget.userId, nickname: widget.nickname)),
       );
     }
   }
@@ -77,8 +80,12 @@ class _MyPageState extends State<MyPage> {
                 height: 180, // 원하는 높이
                 child: FloatingActionButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('프로필 수정 페이지로 이동')),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileEditPage(
+                            userId: widget.userId, nickname: widget.nickname),
+                      ),
                     );
                   },
                   child: Row(
@@ -99,7 +106,7 @@ class _MyPageState extends State<MyPage> {
                         children: [
                           // 유저 닉네임
                           Text(
-                            '${widget.username}', // 여기에 실제 유저 닉네임을 넣으세요
+                            '${widget.nickname}', // 여기에 실제 유저 닉네임을 넣으세요
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -109,7 +116,7 @@ class _MyPageState extends State<MyPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '@${widget.username}', // 여기에 실제 유저 id를 넣으세요
+                            '@${widget.userId}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -127,8 +134,8 @@ class _MyPageState extends State<MyPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProfileEditPage(
-                                username: widget.username,
-                              ),
+                                  userId: widget.userId,
+                                  nickname: widget.nickname),
                             ),
                           );
                         },
@@ -171,7 +178,8 @@ class _MyPageState extends State<MyPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MyReviewPage(),
+                          builder: (context) =>
+                              MyReviewPage(userId: widget.userId),
                         ),
                       );
                     },

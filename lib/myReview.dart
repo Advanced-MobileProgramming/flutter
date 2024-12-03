@@ -1,44 +1,107 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'reviewDetail.dart'; // Import the new file
 
 class MyReviewPage extends StatefulWidget {
+  final String userId;
+
+  const MyReviewPage({required this.userId});
+
   @override
   _MyReviewPageState createState() => _MyReviewPageState();
 }
 
 class _MyReviewPageState extends State<MyReviewPage> {
-  List<Map<String, dynamic>> reviews = [
-    {
-      'title': '책 제목 1',
-      'author': '저자 1',
-      'rating': 4,
-      'review': '이 책은 정말 훌륭했습니다.'
-    },
-    {
-      'title': '책 제목 2',
-      'author': '저자 2',
-      'rating': 3,
-      'review': '좋은 책이었지만 아쉬운 점이 많았어요.'
-    },
-    {
-      'title': '책 제목 3',
-      'author': '저자 3',
-      'rating': 5,
-      'review': '정말 추천하는 책입니다!'
-    },
-    {
-      'title': '책 제목 4',
-      'author': '저자 4',
-      'rating': 5,
-      'review': '정말 추천하는 책입니다!'
-    },
-    {
-      'title': '책 제목 5',
-      'author': '저자 5',
-      'rating': 5,
-      'review': '정말 추천하는 책입니다!'
-    },
-  ];
+  List<Map<String, dynamic>> reviews = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchReviews();
+  }
+
+  // Firebase에서 리뷰 데이터 가져오기
+  Future<void> fetchReviews() async {
+    final DatabaseReference reviewsRef =
+        FirebaseDatabase.instance.ref("reviews/${widget.userId}");
+
+    try {
+      final snapshot = await reviewsRef.get();
+      if (snapshot.exists) {
+        // snapshot.value의 타입이 Map인 경우 처리
+        if (snapshot.value is Map) {
+          final data = (snapshot.value as Map).entries.map((entry) {
+            return Map<String, dynamic>.from(entry.value as Map);
+          }).toList();
+          setState(() {
+            reviews = data;
+          });
+        }
+        // snapshot.value의 타입이 List인 경우 처리
+        else if (snapshot.value is List) {
+          final data = (snapshot.value as List)
+              .map((item) => Map<String, dynamic>.from(item as Map))
+              .toList();
+          setState(() {
+            reviews = data;
+          });
+        } else {
+          setState(() {
+            reviews = [];
+          });
+        }
+      } else {
+        setState(() {
+          reviews = [];
+        });
+      }
+    } catch (e) {
+      throw ("Firebase 데이터 가져오기 오류: $e");
+    }
+  }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: Text(
+  //         '나의 리뷰',
+  //         style: TextStyle(
+  //           fontSize: 30,
+  //           fontWeight: FontWeight.bold,
+  //           color: Color.fromARGB(255, 126, 113, 159),
+  //         ),
+  //       ),
+  //       backgroundColor: Colors.white,
+  //       automaticallyImplyLeading: true,
+  //       toolbarHeight: 120.0,
+  //       titleSpacing: 20.0,
+  //     ),
+  //     body: SingleChildScrollView(
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.start,
+  //         children: [
+  //           SizedBox(height: 20),
+  //           ...List.generate(reviews.length, (i) {
+  //             return Column(
+  //               children: [
+  //                 _buildBookCard(
+  //                   reviews[i]['title'],
+  //                   reviews[i]['author'],
+  //                   Color.fromARGB(235, 234, 229, 239),
+  //                   Color.fromARGB(255, 126, 113, 159),
+  //                   reviews[i]['rating'],
+  //                   reviews[i]['review'],
+  //                   i,
+  //                 ),
+  //                 if (i < reviews.length - 1) SizedBox(height: 16),
+  //               ],
+  //             );
+  //           }),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -57,50 +120,60 @@ class _MyReviewPageState extends State<MyReviewPage> {
         toolbarHeight: 120.0,
         titleSpacing: 20.0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(height: 20),
-            ...List.generate(reviews.length, (i) {
-              return Column(
+      body: reviews.isEmpty
+          ? Center(
+              child: Text(
+                '리뷰가 없습니다.',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey,
+                ),
+              ),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _buildBookCard(
-                    reviews[i]['title'],
-                    reviews[i]['author'],
-                    Color.fromARGB(235, 234, 229, 239),
-                    Color.fromARGB(255, 126, 113, 159),
-                    reviews[i]['rating'],
-                    reviews[i]['review'],
-                    i,
-                  ),
-                  if (i < reviews.length - 1) SizedBox(height: 16),
+                  SizedBox(height: 20),
+                  ...List.generate(reviews.length, (i) {
+                    return Column(
+                      children: [
+                        _buildBookCard(
+                          reviews[i]['title'],
+                          reviews[i]['author'],
+                          Color.fromARGB(235, 234, 229, 239),
+                          Color.fromARGB(255, 126, 113, 159),
+                          reviews[i]['rating'],
+                          reviews[i]['review'],
+                          i,
+                        ),
+                        if (i < reviews.length - 1) SizedBox(height: 16),
+                      ],
+                    );
+                  }),
                 ],
-              );
-            }),
-          ],
-        ),
-      ),
+              ),
+            ),
     );
   }
 
   Widget _buildBookCard(String title, String author, Color backgroundColor,
       Color textColor, int rating, String review, int index) {
     return GestureDetector(
-      onTap: () {
-        // 카드를 탭하면 전체 리뷰 페이지로 이동
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ReviewDetailPage(
-              title: title,
-              author: author,
-              review: review,
-              rating: rating,
-            ),
-          ),
-        );
-      },
+      // onTap: () {
+      //   // 카드를 탭하면 전체 리뷰 페이지로 이동
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => ReviewDetailPage(
+      //         title: title,
+      //         author: author,
+      //         review: review,
+      //         rating: rating,
+      //       ),
+      //     ),
+      //   );
+      // },
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -185,7 +258,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                 title: Text('수정', style: TextStyle(color: Colors.blue)),
                 onTap: () {
                   Navigator.pop(context);
-                  _showEditReviewDialog(context, index);
+                  _showEditReviewDialog(context, reviews[index], index);
                 },
               ),
               ListTile(
@@ -202,9 +275,10 @@ class _MyReviewPageState extends State<MyReviewPage> {
     );
   }
 
-  void _showEditReviewDialog(BuildContext context, int index) {
+  void _showEditReviewDialog(
+      BuildContext context, Map<String, dynamic> review, int index) {
     TextEditingController _reviewController = TextEditingController();
-    _reviewController.text = reviews[index]['review'];
+    _reviewController.text = review['review'];
 
     showDialog(
       context: context,
@@ -224,7 +298,14 @@ class _MyReviewPageState extends State<MyReviewPage> {
               child: Text('취소'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                final DatabaseReference reviewsRef =
+                    FirebaseDatabase.instance.ref("reviews");
+                // Firebase에 current_page 업데이트
+                await reviewsRef
+                    .child(widget.userId)
+                    .child(review["book_id"].toString())
+                    .update({"review": _reviewController.text});
                 setState(() {
                   reviews[index]['review'] = _reviewController.text;
                 });
