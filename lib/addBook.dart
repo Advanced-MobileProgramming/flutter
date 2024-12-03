@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 class AddBook extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> book;
+  final String readingStatus;
+  final int selectedTabIndex;
+  final int? bookId;
 
   //const AddBook({required this.userId, required this.book});
-  const AddBook({Key? key, required this.userId, required this.book}) : super(key: key);
+  const AddBook({Key? key, required this.userId, required this.book, required this.readingStatus, required this.selectedTabIndex, required this.bookId}) : super(key: key);
 
   @override
   _AddBookState createState() => _AddBookState();
@@ -25,14 +28,42 @@ class _AddBookState extends State<AddBook> {
   List<Map<String, dynamic>> collection = [];
   String _selectCollection = "선택 안 함";
   bool _isExpanded = false;
+  late String readingStatus;
   TextEditingController _pagesReadController = TextEditingController();
 
 
   @override
   void initState() {
     super.initState();
+  
+
+    _pagesReadController.text = widget.book["current_page"] != null
+      ? '${widget.book["current_page"]}' // 페이지 값이 있으면 해당 값으로 초기화
+      : '0'; // 없으면 기본값 '0'
+
+    readingStatus = widget.readingStatus; // 초기값 설정
+    _currentTabIndex = widget.selectedTabIndex; // 초기값 설정
+    fetchStartDate(); // start_date 데이터 로드
     fetchCollections();
   }
+
+  // Firebase에서 데이터 가져오는 코드 예시
+Future<void> fetchStartDate() async {
+  try {
+    DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.bookId}");
+    DataSnapshot snapshot = await bookcasesRef.get();
+    if (snapshot.exists) {
+      final bookData = Map<String, dynamic>.from(snapshot.value as Map);
+      setState(() {
+        _startDate = DateTime.parse(bookData["start_date"]); // start_date를 DateTime으로 변환
+      });
+    }
+  } catch (e) {
+    print("start_date 가져오기 오류: $e");
+  }
+}
+
 
 
 
@@ -101,18 +132,53 @@ void selectCollection(String collectionName) async {
     _selectCollection = collectionName; // UI 업데이트
   });
 
+  // "선택 안 함"일 경우, 저장하지 않고 종료
+  if (collectionName == "선택 안 함") {
+    print("컬렉션 선택 안 함: 저장하지 않습니다.");
+    return;
+  }
+
   // Firebase 업데이트
   final DatabaseReference bookcasesRef =
       FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"]}");
+      //FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"].toString()}"); // 변환 추가
 
-  try {
+//   try {
+//     await bookcasesRef.update({
+//       "collection_name": collectionName, // 선택된 컬렉션 이름 저장
+//     });
+//     print("컬렉션 ${collectionName}이 성공적으로 저장되었습니다.");
+//   } catch (e) {
+//     print("컬렉션 저장 오류: $e");
+//   }
+// }
+
+print("저장 경로: bookcases/${widget.userId}/${widget.book["id"].toString()}");
+print("저장 데이터: collection_name = $collectionName, reading_status = $readingStatus");
+
+
+try {
+    // 읽기 상태 가져오기
+    String readingStatus = _currentTabIndex == 0
+        ? "읽기 전"
+        : (_currentTabIndex == 1 ? "읽는 중" : "완료");
+
     await bookcasesRef.update({
       "collection_name": collectionName, // 선택된 컬렉션 이름 저장
+      "reading_status": readingStatus,   // 현재 읽기 상태도 함께 저장
     });
-    print("컬렉션 $collectionName이 성공적으로 저장되었습니다.");
+    print("컬렉션 ${collectionName}이 성공적으로 저장되었습니다. 읽기 상태: $readingStatus");
   } catch (e) {
     print("컬렉션 저장 오류: $e");
   }
+}
+
+
+String formatDate(DateTime? date) {
+  if (date == null) {
+    return '-';
+  }
+  return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 }
 
 
@@ -305,16 +371,31 @@ void selectCollection(String collectionName) async {
                   itemCount: collection.length + 1, // 리스트 항목 수
                   itemBuilder: (context, index) {
                     if (index == 0) {
+                      // "선택 안 함" 처리
                       return Column(
                         children: [
                           ListTile(
                             title: Text('선택 안 함'),
-                            onTap: () {
+                            onTap: () async {
                               print("선택 안 함을 클릭했습니다.");
                               setState(() {
                                 _selectCollection = "선택 안 함";
                                 _isExpanded = false;
                               });
+
+                              // Firebase에서 "선택 안 함"으로 업데이트
+                              final DatabaseReference bookcasesRef =
+                                  FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"]}");
+
+                              try {
+                                await bookcasesRef.update({
+                                  "collection_name": "선택 안 함",
+                                  "reading_status": "읽기 전", // 읽기 상태 업데이트
+                                });
+                                print("컬렉션 '선택 안 함'으로 성공적으로 업데이트되었습니다.");
+                              } catch (e) {
+                                print("컬렉션 업데이트 오류: $e");
+                              }
                             },
                           ),
                           Divider(
@@ -338,21 +419,29 @@ void selectCollection(String collectionName) async {
                               _isExpanded = false;
                             });
 
-                            // // 책을 선택한 컬렉션에 저장
-                            // await addBookcase(
-                            //   userId: widget.userId,
-                            //   readingStatus: "읽기 전",
-                            //   book: widget.book,
-                            // );
+                            // 책을 선택한 컬렉션에 저장
+                            final selectedCollectionId =
+                                collection[index - 1]["collection_id"];
+
+                            final DatabaseReference bookcasesRef =
+                                FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"]}");
+
+                            try {
+                              await bookcasesRef.update({
+                                "collection_name": collection[index - 1]["collection_name"], // 선택된 컬렉션 이름 저장
+                                "reading_status": "읽기 전", // 읽기 상태도 함께 저장
+                              });
+                              print("컬렉션 ${collection[index - 1]["collection_name"]}으로 성공적으로 업데이트되었습니다.");
+                            } catch (e) {
+                              print("컬렉션 저장 오류: $e");
+                            }
                           },
                         ),
-                        // if (index < collection.length)
-                        //   Divider(
-                        //     height: 1,
-                        //     thickness: 1,
-                        //   ),
                         if (index < collection.length)
-                                Divider(height: 1, thickness: 1),
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                          ),
                       ],
                     );
                   },
@@ -474,7 +563,8 @@ void selectCollection(String collectionName) async {
                         _selectDate(context, true), // 텍스트 클릭 시 날짜 선택 동작
                     child: Text(
                       _startDate != null
-                          ? '${_startDate!.toLocal().toString().split(' ')[0]}'
+                          //? '${_startDate!.toLocal().toString().split(' ')[0]}'
+                          ? '${formatDate(_startDate!)}' // formatDate를 사용하여 포맷된 날짜 출력
                           : '날짜 선택',
                       style: TextStyle(
                         fontSize: 20,
@@ -495,37 +585,97 @@ void selectCollection(String collectionName) async {
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 126, 113, 159))),
                   SizedBox(width: 16),
-                  Container(
-                    width: 100, // 현재 페이지 입력 필드
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) async {
-    int newPage = int.tryParse(value) ?? 0;
+    //               Container(
+    //                 width: 100, // 현재 페이지 입력 필드
+    //                 child: TextField(
+    //                   keyboardType: TextInputType.number,
+    //                   onChanged: (value) async {
+    // int newPage = int.tryParse(value) ?? 0;
+    Container(
+      width: 100, 
+      child: TextField(
+        keyboardType: TextInputType.number,
+        controller: _pagesReadController,
+        onChanged: (value) async {
+          int newPage = int.tryParse(value) ?? 0;
+  //       controller: TextEditingController(
+  //                         text: '${widget.book["current_page"]}'),
+  //                     keyboardType: TextInputType.number,
+  //                     onChanged: (value) async {
+  //                       int newPage = int.tryParse(value) ?? 0;
+
+              
 
     // Firebase 업데이트 로직
     final DatabaseReference bookcasesRef =
         FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"]}");
 
     try {
-      String newStatus = newPage > 0 ? "읽는 중" : "읽기 전";
+      // 전체 페이지 수 가져오기
+      int totalPages = widget.book["page"] ?? 0;
 
+      // 읽기 상태 결정
+      String newStatus;
+      if (newPage == 0) {
+        newStatus = "읽기 전";
+      } else if (newPage > 0 && newPage < totalPages) {
+        newStatus = "읽는 중";
+      } else if (newPage >= totalPages) {
+        newStatus = "완료";
+      } else {
+        newStatus = "읽기 전";
+      }
+
+      // Firebase 업데이트
       await bookcasesRef.update({
-        "current_page": newPage,
-        "reading_status": newStatus,
+        "current_page": newPage, // 새로운 페이지 값
+        "reading_status": newStatus, // 새로운 읽기 상태
       });
 
+      // 로컬 상태 업데이트
       setState(() {
         widget.book["current_page"] = newPage;
         widget.book["reading_status"] = newStatus;
       });
 
-      print("페이지와 상태가 업데이트되었습니다.");
+      print("페이지와 읽기 상태가 업데이트되었습니다.");
     } catch (e) {
       print("페이지 업데이트 오류: $e");
     }
   },
+
+//   controller: TextEditingController(
+//   text: widget.book["current_page"] != null ? '${widget.book["current_page"]}' : '0',
+// ),
+// keyboardType: TextInputType.number,
+// onChanged: (value) async {
+//   int newPage = int.tryParse(value) ?? 0;
+
+//   // 수정된 값 로그 출력
+//   print("현재 페이지 값: ${widget.book["current_page"]}");
+//   print("변경된 페이지: $newPage");  // 새 페이지가 제대로 반영되는지 확인
+
+//   final DatabaseReference bookcasesRef =
+//       FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.bookId}");
+
+//   try {
+//     await bookcasesRef.update({
+//       "current_page": newPage,  // 새로운 페이지 값 업데이트
+//     });
+//     print("페이지 값이 Firebase에 업데이트되었습니다.");
+
+//     setState(() {
+//       widget.book["current_page"] = newPage; // widget의 book 정보에 반영
+//     });
+//   } catch (e) {
+//     print("페이지 업데이트 오류: $e");
+//   }
+// },
                       decoration: InputDecoration(
-                        hintText: '현재 페이지',
+                        //hintText: '현재 페이지',
+                        hintText: widget.book["current_page"] != null && widget.book["current_page"].toString().isNotEmpty
+          ? '${widget.book["current_page"]}'
+          : '0', // 페이지가 없으면 '0' 기본값
                         filled: true, // 배경색 활성화
                         fillColor: Color.fromARGB(255, 250, 248, 240), // 배경색 설정
                         border: OutlineInputBorder(

@@ -18,12 +18,14 @@ class BookDetail extends StatefulWidget {
 class _BookDetailState extends State<BookDetail> {
   Map<String, dynamic> book = {};
   bool _isLoading = true; // 로딩 상태를 관리하는 변수 추가
+  int currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _checkBookState(); // 비동기 작업 시작
     fetchBook();
+    fetchCurrentPage();  // current_page 가져오기
   }
 
   // Firebase에서 책 데이터 가져오기
@@ -32,90 +34,6 @@ class _BookDetailState extends State<BookDetail> {
     final DatabaseReference booksRef =
         FirebaseDatabase.instance.ref("books").child(adjustedBookId);
 
-  //       setState(() {
-  //   _isLoading = true; // 로딩 시작
-  //   book = {}; // book 초기화 (비어 있는 상태로 설정)
-  // });
-
-  //   try {
-  //     final snapshot = await booksRef.get();
-
-  //     if (snapshot.exists) {
-  //       final bookData = Map<String, dynamic>.from(snapshot.value as Map);
-
-  //       print("Fetched Data for Book ID: $adjustedBookId"); // 변환된 ID 로그
-  //       print("Full Data: $bookData"); // 전체 데이터 로그
-  //       print("Title: ${bookData['title'] ?? 'Not Found'}");
-  //       print("Author: ${bookData['author'] ?? 'Not Found'}");
-  //       print("Image Path: ${bookData['image_path'] ?? 'Not Found'}");
-  //       print("Publisher: ${bookData['publisher'] ?? 'Not Found'}");
-  //       print(
-  //           "Publication Date: ${bookData['publication_date'] ?? 'Not Found'}");
-
-  //       setState(() {
-  //         book = bookData;
-
-  //         if (book.containsKey("publication_date")) {
-  //           final int timestamp = book["publication_date"];
-  //           final publicationDate =
-  //               DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-
-  //           book["publication_year"] = publicationDate.year;
-  //           book["publication_month"] = publicationDate.month;
-  //         }
-  //         _isLoading = false; // 로딩 상태 해제
-  //       });
-  //     } else {
-  //       print("No data found for Book ID: $adjustedBookId");
-  //       setState(() {
-  //         _isLoading = false; // 로딩 상태 해제
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching book data: $e");
-  //     setState(() {
-  //       _isLoading = false; // 로딩 상태 해제
-  //     });
-  //   }
-//   setState(() {
-//   _isLoading = true; // 로딩 시작
-//   book = {}; // book 초기화 (비어 있는 상태로 설정)
-// });
-
-
-// try {
-//   final snapshot = await booksRef.get();
-
-//   if (snapshot.exists) {
-//     final bookData = Map<String, dynamic>.from(snapshot.value as Map);
-
-//     setState(() {
-//       book = bookData;
-
-//       // publication_date 변환 로직 추가
-//       if (book.containsKey("publication_date")) {
-//         final int timestamp = book["publication_date"];
-//         final publicationDate =
-//             DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-
-//         book["publication_year"] = publicationDate.year;
-//         book["publication_month"] = publicationDate.month;
-//       }
-//       _isLoading = false; // 로딩 상태 해제
-//     });
-//   } else {
-//     setState(() {
-//       _isLoading = false; // 로딩 상태 해제
-//     });
-//   }
-// } catch (e) {
-//   print("Error fetching book data: $e");
-//   setState(() {
-//     _isLoading = false; // 로딩 상태 해제
-//   });
-// }
-
-//   }
 try {
     final snapshot = await booksRef.get();
 
@@ -128,6 +46,12 @@ try {
         // start_date와 end_date 로그 찍기
         print("start_date: ${book['start_date']}");
         print("end_date: ${book['end_date']}");
+
+        // current_page 업데이트
+        // if (book.containsKey("current_page")) {
+        //   currentPage = book["current_page"];
+        // }
+
 
         // publication_date 변환 로직
         if (book.containsKey("publication_date")) {
@@ -152,21 +76,6 @@ try {
     });
   }
 }
-
-  // void addToBookcases() async {
-  //   final DatabaseReference bookcasesRef =
-  //       FirebaseDatabase.instance.ref("bookcases");
-
-  //   try {
-  //     await bookcasesRef
-  //         .child(widget.userId)
-  //         .child(widget.bookId.toString())
-  //         .set(book);
-  //     print("책을 책장에 추가했습니다.");
-  //   } catch (e) {
-  //     print("책 추가 오류: $e");
-  //   }
-  // }
 
   void addToBookcases({
   required String userId,
@@ -199,48 +108,56 @@ try {
   }
 }
 
+Future<void> fetchCurrentPage() async {
+  try {
+    final bookRef = FirebaseDatabase.instance
+        .ref("bookcases/${widget.userId}/${widget.bookId}");
+    print("Fetching current page from path: bookcases/${widget.userId}/${widget.bookId}");
+
+    final snapshot = await bookRef.get();
+
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      print("Data fetched from bookcases: $data");
+
+      if (data.containsKey("current_page")) {
+        setState(() {
+          currentPage = data["current_page"];
+        });
+      } else {
+        setState(() {
+          //currentPage = 0; // current_page 값이 없을 경우 0으로 설정
+        });
+      }
+    } else {
+      print("No data found in bookcases for current page.");
+      setState(() {
+        currentPage = 0; // 데이터가 없을 경우 0으로 설정
+      });
+    }
+  } catch (error) {
+    print("Error fetching current page: $error");
+    setState(() {
+      currentPage = 0; // 오류 발생 시 0으로 설정
+    });
+  }
+}
 
 
-//   Future<void> _checkBookState() async {
-//   try {
-//     final isStored = await isItStored(widget.userId, widget.bookId);
 
-//     if (isStored) {
-//       // 저장된 책의 상세 화면으로 이동
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => StoredBookDetail(userId: widget.userId, book: book),
-//         ),
-//       );
-//     } else {
-//       // 저장되지 않은 책의 상세 화면으로 이동
-//       Navigator.pushReplacement(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => UnstoredBookDetail(
-//             userId: widget.userId,
-//             book: book,
-//             bookId: widget.bookId,
-//           ),
-//         ),
-//       );
-//     }
-//   } catch (e) {
-//     print("Error checking book state: $e");
-//     // 오류 처리
-//   }
-// }
+
 
 Future<void> _checkBookState() async {
   try {
+     print("Checking if book is stored for user: ${widget.userId}, bookId: ${widget.bookId}");
     final isStored = await isItStored(widget.userId, widget.bookId);
 
     if (isStored) {
+      print("Book is already stored. Navigating to StoredBookDetail.");
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => StoredBookDetail(userId: widget.userId, book: book, bookId: null,),
+          builder: (context) => StoredBookDetail(userId: widget.userId, book: book, bookId: widget.bookId,),
         ),
       );
     } else {
@@ -334,28 +251,13 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
   final TextEditingController _reviewController = TextEditingController();
   double _currentRating = 0.0;
 
-  // void addToBookcases({required String userId, required int bookId, required Map<String, dynamic> bookInfo, required DateTime startDate, required DateTime endDate, required int currentPage, required String readingStatus, required String collectionName}) async {
-  //   final DatabaseReference bookcasesRef =
-  //       FirebaseDatabase.instance.ref("bookcases");
-
-  //   try {
-  //     await bookcasesRef
-  //         .child(widget.userId)
-  //         .child(widget.bookId.toString())
-  //         .set(widget.book);
-  //     print("책을 책장에 추가했습니다.");
-  //   } catch (e) {
-  //     print("책 추가 오류: $e");
-  //   }
-  // }
-
   void addToBookcases({
   required String userId,
   required int bookId,
   required Map<String, dynamic> bookInfo,
   required DateTime? startDate,
   required DateTime? endDate,
-  required int currentPage,
+  //required int currentPage,
   required String readingStatus,
   required String collectionName,
 }) async {
@@ -368,7 +270,7 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
       "book_info": bookInfo, // 책 정보 전체 저장
       "start_date": startDate?.toIso8601String() ?? "", // null인 경우 빈 문자열 처리
       "end_date": endDate?.toIso8601String() ?? "",   // null인 경우 빈 문자열 처리
-      "current_page": currentPage, // 현재 페이지 저장
+      //"current_page": currentPage, // 현재 페이지 저장
       "reading_status": readingStatus, // 읽기 상태 저장
       "collection_name": collectionName, // 선택한 컬렉션 이름 저장
     };
@@ -489,24 +391,7 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                                 ),
                               ),
                               Spacer(),
-                              // IconButton(
-                              //   icon: Icon(Icons.add_circle,
-                              //       color: Color.fromARGB(255, 126, 113, 159),
-                              //       size: 45),
-                              //   onPressed: () {
-                              //     addToBookcases(); // 책을 bookcases에 추가하는 함수 호출
-                              //     // AddBook 모달 띄우기
-                              //     showModalBottomSheet(
-                              //       context: context,
-                              //       builder: (BuildContext context) {
-                              //         return AddBook(
-                              //             userId: widget.userId,
-                              //             book: widget
-                              //                 .book); // AddBook 위젯을 호출하여 모달에 띄움
-                              //       },
-                              //     );
-                              //   },
-                              // )
+                          
                               IconButton(
   icon: Icon(Icons.add_circle, color: Color.fromARGB(255, 126, 113, 159), size: 45),
   onPressed: () {
@@ -523,8 +408,9 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
       bookId: widget.bookId,
       bookInfo: widget.book,
       startDate: startDate ?? DateTime.now(), // null이면 현재 시간 사용
-      endDate: endDate ?? DateTime.now().add(Duration(days: 7)), // null이면 7일 후로 설정
-      currentPage: currentPage,
+      //endDate: endDate ?? DateTime.now().add(Duration(days: 7)), // null이면 7일 후로 설정
+      endDate: null, // 종료일 기본값 제거
+      //currentPage: currentPage,
       readingStatus: readingStatus,
       collectionName: collectionName,
     );
@@ -538,7 +424,27 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return AddBook(userId: widget.userId, book: widget.book);
+        //return AddBook(userId: widget.userId, book: widget.book,);
+        // Fetch the readingStatus from the book data
+    String readingStatus = widget.book["reading_status"] ?? "읽기 전";
+    //int currentPage = widget.book["book_info"]["current_page"] ?? 0;
+    //int totalPages = widget.book["total_pages"] ?? 0;
+
+    // Set the selectedTabIndex based on the readingStatus
+    int selectedTabIndex = 0;
+    if (readingStatus == "읽는 중") {
+      selectedTabIndex = 1;
+    } else if (readingStatus == "완료") {
+      selectedTabIndex = 2;
+    }
+
+    // Return the AddBook widget with the required parameters
+    return AddBook(
+      userId: widget.userId,
+      book: widget.book,
+      readingStatus: readingStatus,
+      selectedTabIndex: selectedTabIndex, bookId: widget.bookId,  // Pass the selectedTabIndex
+    );
       },
     );
   },
@@ -706,6 +612,143 @@ class StoredBookDetail extends StatefulWidget {
 
 class _StoredBookDetailState extends State<StoredBookDetail> {
   int _currentTabIndex = 0; // 세그먼트 바 초기값
+  int currentPage = 0; // 현재 페이지 상태 변수
+  int totalPages = 0; // 전체 페이지 상태 변수
+  bool isLoading = true; // 데이터 로딩 상태
+  DateTime? startDate; // 시작일 상태 변수
+  DateTime? endDate; // 종료일 상태 변수
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrentPage(); // 화면 로드 시 Firebase에서 데이터 로드
+  }
+  
+
+  Future<void> fetchCurrentPage() async {
+  try {
+    // Firebase 경로 확인
+    final bookRef = FirebaseDatabase.instance
+        .ref("bookcases/${widget.userId}/${widget.bookId}");
+    print("Fetching data from path: bookcases/${widget.userId}/${widget.bookId}");
+
+    final snapshot = await bookRef.get();
+
+    if (snapshot.exists) {
+      // 데이터 확인
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      print("Data fetched: $data");
+
+      if (data.containsKey("book_info")) {
+        final bookInfo = Map<String, dynamic>.from(data["book_info"]);
+        print("book_info: $bookInfo");
+
+        setState(() {
+          currentPage = data.containsKey("current_page") ? data["current_page"] : 0; // 현재 페이지
+          totalPages = bookInfo.containsKey("page") ? bookInfo["page"] : 0; // 전체 페이지
+          startDate = data.containsKey("start_date") && data["start_date"] != null
+              ? DateTime.parse(data["start_date"])
+              : null;
+          endDate = data.containsKey("end_date") && data["end_date"] != null
+              ? DateTime.parse(data["end_date"])
+              : null;
+          isLoading = false; // 로딩 상태 해제
+        });
+      } else {
+        print("No book_info found in data.");
+        setState(() {
+          totalPages = 0;
+          isLoading = false;
+        });
+      }
+
+//       // 날짜 관련 추가
+// startDate = data.containsKey("start_date") && data["start_date"] != null
+//     ? DateTime.parse(data["start_date"])
+//     : null;
+
+// endDate = data.containsKey("end_date") && data["end_date"] != null
+//     ? DateTime.parse(data["end_date"])
+//     : null;
+
+//     // 로그 출력
+//     print("Start Date: ${startDate?.toIso8601String() ?? '-'}");
+//     print("End Date: ${endDate?.toIso8601String() ?? '-'}");
+
+
+    } else {
+      print("No data found for this book.");
+      setState(() {
+        totalPages = 0;
+        isLoading = false;
+      });
+    }
+  } catch (error) {
+    print("Error fetching current page: $error");
+    setState(() {
+      isLoading = false; // 로딩 상태 해제
+    });
+  }
+}
+
+void updateCurrentPage(int currentPage) async {
+  final DatabaseReference bookcasesRef = FirebaseDatabase.instance.ref("bookcases");
+
+  try {
+    // Firebase에 current_page 업데이트
+    await bookcasesRef
+        .child(widget.userId)
+        .child(widget.bookId.toString())
+        .update({"current_page": currentPage});
+    print("Current page updated in Firebase: $currentPage");
+
+    // Firebase에서 기존 reading_status 가져오기
+    final snapshot = await bookcasesRef
+        .child(widget.userId)
+        .child(widget.bookId.toString())
+        .get();
+
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final String currentStatus = data["reading_status"] ?? "읽기 전";
+      final int totalPages = data["book_info"]?["page"] ?? 0;
+
+      // 읽기 전 -> 읽는 중으로 상태 변경
+      if (currentPage > 0 && currentPage < totalPages && currentStatus != "읽는 중") {
+        await bookcasesRef
+            .child(widget.userId)
+            .child(widget.bookId.toString())
+            .update({"reading_status": "읽는 중"});
+        print("Reading status updated to '읽는 중'.");
+      }
+
+      // 읽는 중 -> 완료로 상태 변경
+      if (currentPage == totalPages && currentStatus != "완료") {
+        await bookcasesRef
+            .child(widget.userId)
+            .child(widget.bookId.toString())
+            .update({"reading_status": "완료"});
+        print("Reading status updated to '완료'.");
+      }
+
+      // current_page가 0이면 읽기 전 상태로 복귀
+      if (currentPage == 0 && currentStatus != "읽기 전") {
+        await bookcasesRef
+            .child(widget.userId)
+            .child(widget.bookId.toString())
+            .update({"reading_status": "읽기 전"});
+        print("Reading status updated to '읽기 전'.");
+      }
+    }
+  } catch (e) {
+    print("Error updating current page or reading status: $e");
+  }
+}
+
+
+
+
+
 
   // book 객체에서 startDay와 endDay 가져오기
   //String get startDay => widget.book["start_day"] ?? ''; // start_day가 없으면 빈 문자열 반환
@@ -717,51 +760,86 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
   //     : 0; // readPages가 없으면 0으로 처리
   // int get totalPages =>
   //     widget.book.containsKey("page") ? widget.book["page"] : 0;
-  int get currentPage {
+//   int get currentPage {
+//   final bookRef = FirebaseDatabase.instance
+//       .ref("bookcases/${widget.userId}/${widget.bookId}"); // Firebase 참조 생성
+
+//   int page = 0; // 기본값
+
+//   bookRef.get().then((snapshot) {
+//     if (snapshot.exists) {
+//       final data = Map<String, dynamic>.from(snapshot.value as Map);
+//       if (data.containsKey("current_page")) {
+//         page = data["current_page"]; // current_page 값을 가져옴
+//         print("Current Page: $page"); // 로그 출력
+//       } else {
+//         print("current_page key not found"); // 키가 없을 경우 로그
+//       }
+//     } else {
+//       print("No data found for this book"); // 데이터가 없을 경우 로그
+//     }
+//   }).catchError((error) {
+//     print("Error fetching current_page: $error"); // 오류 처리
+//   });
+
+//   return page; // 기본값 반환
+// }
+
+Future<int> getCurrentPage() async {
   final bookRef = FirebaseDatabase.instance
       .ref("bookcases/${widget.userId}/${widget.bookId}"); // Firebase 참조 생성
 
-  int page = 0; // 기본값
-
-  bookRef.get().then((snapshot) {
+  try {
+    final snapshot = await bookRef.get(); // 비동기 호출 대기
     if (snapshot.exists) {
       final data = Map<String, dynamic>.from(snapshot.value as Map);
       if (data.containsKey("current_page")) {
-        page = data["current_page"]; // current_page 값을 가져옴
+        final int page = data["current_page"]; // current_page 값을 가져옴
         print("Current Page: $page"); // 로그 출력
+        return page; // 값을 반환
       } else {
         print("current_page key not found"); // 키가 없을 경우 로그
+        return 0; // 기본값 반환
       }
     } else {
       print("No data found for this book"); // 데이터가 없을 경우 로그
+      return 0; // 기본값 반환
     }
-  }).catchError((error) {
+  } catch (error) {
     print("Error fetching current_page: $error"); // 오류 처리
-  });
-
-  return page; // 기본값 반환
+    return 0; // 기본값 반환
+  }
 }
 
 
-int get totalPages =>
-    widget.book.containsKey("page") ? widget.book["page"] : 0;
+
+// int get totalPages =>
+//     widget.book.containsKey("page") ? widget.book["page"] : 0;
 
 
       // 날짜 포맷 함수 (null 또는 빈 값을 처리)
-String formatDate(String? dateStr) {
-  if (dateStr != null && dateStr.isNotEmpty) {
-    try {
-      DateTime date = DateTime.parse(dateStr);
-      print("Formatted Date: ${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}");
-      return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-    } catch (e) {
-      print("Date parsing error: $e");
-      return "-"; // 잘못된 날짜 형식일 경우
-    }
-  } else {
-    return "-"; // 값이 null이거나 빈 값인 경우
+// String formatDate(String? dateStr) {
+//   if (dateStr != null && dateStr.isNotEmpty) {
+//     try {
+//       DateTime date = DateTime.parse(dateStr);
+//       print("Formatted Date: ${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}");
+//       return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+//     } catch (e) {
+//       print("Date parsing error: $e");
+//       return "-"; // 잘못된 날짜 형식일 경우
+//     }
+//   } else {
+//     return "-"; // 값이 null이거나 빈 값인 경우
+//   }
+// }
+
+String formatDate(DateTime? date) {
+  if (date == null) {
+    return '-';
   }
+  return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 }
+
 
 
 
@@ -771,10 +849,10 @@ String formatDate(String? dateStr) {
   bool _isEditing = false;
   final TextEditingController _controller = TextEditingController();
 
-  void initState() {
-    super.initState();
-    _currentReport = ""; // 초기 값 설정 (리포트 데베에서 가져와야함 연동해서)
-  }
+  // void initState() {
+  //   super.initState();
+  //   _currentReport = ""; // 초기 값 설정 (리포트 데베에서 가져와야함 연동해서)
+  // }
 
   // 샘플 리뷰 데이터
   final List<Map<String, dynamic>> reviews = [
@@ -886,6 +964,7 @@ String formatDate(String? dateStr) {
                         children: [
                           Text(
                             widget.book["title"],
+                            //widget.book["book_info"]?["title"] ?? "No Title", // null 체크 및 기본값 설정
                             //widget.book["book_info"]?["title"] ?? 'No Title', // book_info에서 title을 가져오며, 값이 없으면 'No Title'로 처리
                             style: TextStyle(
                               color: Color.fromARGB(255, 126, 113, 159),
@@ -935,49 +1014,161 @@ String formatDate(String? dateStr) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          //"시작일                         ${widget.startDay.isNotEmpty ? widget.startDay : ' - '}",
-                          //"시작일                         ${widget.book.containsKey("start_date") ? widget.book["start_date"] : '-'}",
-                          "시작일                         ${widget.book.containsKey("start_date") && widget.book["start_date"] != null ? formatDate(widget.book["start_date"]) : ' - '}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 126, 113, 159),
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          //"종료일                         ${widget.endDay.isNotEmpty ? widget.endDay : ' - '}",
-                          //"종료일                         ${widget.book.containsKey("end_date") ? widget.book["end_date"] : '-'}",
-                          "종료일                         ${widget.book.containsKey("end_date") && widget.book["end_date"] != null ? formatDate(widget.book["end_date"]) : ' - '}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 126, 113, 159),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
+Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    GestureDetector(
+      onTap: () async {
+        final DateTime? selectedDate = await showDatePicker(
+          context: context,
+          initialDate: startDate ?? DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+        );
+        if (selectedDate != null) {
+          setState(() {
+            startDate = selectedDate;
+          });
+
+          // Firebase 업데이트
+          final DatabaseReference bookRef = FirebaseDatabase.instance
+              .ref("bookcases/${widget.userId}/${widget.bookId}");
+          try {
+            await bookRef.update({
+              "start_date": selectedDate.toIso8601String(),
+            });
+            print("Start date updated in Firebase: ${selectedDate.toIso8601String()}");
+          } catch (e) {
+            print("Error updating start date: $e");
+          }
+        }
+      },
+      child: Text(
+        "시작일                         ${formatDate(startDate)}",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 126, 113, 159),
+          fontSize: 16,
+        ),
+      ),
+    ),
+    SizedBox(height: 8),
+    GestureDetector(
+      onTap: () async {
+        final DateTime? selectedDate = await showDatePicker(
+          context: context,
+          initialDate: endDate ?? DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+        );
+        if (selectedDate != null) {
+          setState(() {
+            endDate = selectedDate;
+          });
+
+          // Firebase 업데이트
+          final DatabaseReference bookRef = FirebaseDatabase.instance
+              .ref("bookcases/${widget.userId}/${widget.bookId}");
+          try {
+            await bookRef.update({
+              "end_date": selectedDate.toIso8601String(),
+            });
+            print("End date updated in Firebase: ${selectedDate.toIso8601String()}");
+          } catch (e) {
+            print("Error updating end date: $e");
+          }
+        }
+      },
+      child: Text(
+        "종료일                         ${formatDate(endDate)}",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 126, 113, 159),
+          fontSize: 16,
+        ),
+      ),
+    ),
+  ],
+),
+
+
+
+                    // Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   children: [
+                    //     Text(
+                    //       //"시작일                         ${widget.startDay.isNotEmpty ? widget.startDay : ' - '}",
+                    //       //"시작일                         ${widget.book.containsKey("start_date") ? widget.book["start_date"] : '-'}",
+                    //       "시작일                         ${formatDate(startDate)}",
+
+                    //       style: TextStyle(
+                    //         fontWeight: FontWeight.bold,
+                    //         color: Color.fromARGB(255, 126, 113, 159),
+                    //         fontSize: 16,
+                    //       ),
+                    //     ),
+                    //     SizedBox(height: 8),
+                    //     Text(
+                    //       //"종료일                         ${widget.endDay.isNotEmpty ? widget.endDay : ' - '}",
+                    //       //"종료일                         ${widget.book.containsKey("end_date") ? widget.book["end_date"] : '-'}",
+                    //       "종료일                         ${formatDate(endDate)}",
+                    //       style: TextStyle(
+                    //         fontWeight: FontWeight.bold,
+                    //         color: Color.fromARGB(255, 126, 113, 159),
+                    //         fontSize: 16,
+                    //       ),
+                    //     ),
+                        
+                    //   ],
+                    // ),
                     // 독서량 표시 (CircularProgressIndicator)
                     Column(
                       children: [
                         Center(
                           child: GestureDetector(
+    // onTap: () {
+    //   // AddBook 모달 띄우기
+    //   showModalBottomSheet(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AddBook(
+    //         userId: widget.userId,
+    //         book: widget.book,
+    //       );
+    //     },
+    //   );
+    // },
     onTap: () {
-      // AddBook 모달 띄우기
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return AddBook(
-            userId: widget.userId,
-            book: widget.book,
-          );
-        },
-      );
+  showModalBottomSheet(
+  context: context,
+  builder: (BuildContext context) {
+    // DB에서 reading_status 가져오기
+    //String readingStatus = widget.book["book_info"]["reading_status"] ?? "읽기 전";
+    String readingStatus = widget.book["reading_status"] ?? "읽기 전";
+
+    int currentPage = widget.book["current_page"] ?? 0;
+    int totalPages = widget.book["total_pages"] ?? 0;
+
+    // reading_status 값에 따라 탭 선택 (읽기 중일 경우 1번 탭 선택)
+    int selectedTabIndex = 0;
+    if (readingStatus == "읽는 중") {
+      selectedTabIndex = 1;
+    } else if (readingStatus == "완료") {
+      selectedTabIndex = 2;
+    }
+
+    // AddBook에 selectedTabIndex와 함께 reading_status를 전달
+    return AddBook(
+      userId: widget.userId,
+      book: widget.book,
+      readingStatus: readingStatus,
+      selectedTabIndex: selectedTabIndex, bookId: widget.bookId, // 탭 인덱스 전달
+    );
+  },
+);
     },
+
+
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -1001,8 +1192,10 @@ String formatDate(String? dateStr) {
                                 ),
                               ),
                               Text(
-                                "${totalPages > 0 ? ((currentPage  / totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
+                                //"${totalPages > 0 ? ((currentPage  / totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
                                 //"${widget.book["page"] > 0 ? ((widget.readPages / widget.book["page"]) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
+                                "${totalPages > 0 ? ((currentPage / totalPages) * 100).toInt() : 0}%", // 진행 퍼센트 표시
+                                //"$currentPage / ${widget.book.containsKey('page') ? widget.book['page'] : 0} p",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -1013,26 +1206,6 @@ String formatDate(String? dateStr) {
     ),
   ),
 ),
-//                         Center(
-//   child: Stack(
-//     alignment: Alignment.center,
-//     children: [
-//       SizedBox(
-//         width: 65,
-//         height: 65,
-//         child: CircularProgressIndicator(
-//           value: totalPages > 0 ? (readPages / totalPages).clamp(0.0, 1.0) : 0.0,
-//           backgroundColor: Color.fromARGB(255, 214, 208, 232),
-//           strokeWidth: 5.0,
-//         ),
-//       ),
-//       Text(
-//         "${totalPages > 0 ? ((readPages / totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%",
-//         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-//       ),
-//     ],
-//   ),
-// ),
                         SizedBox(height: 8),
                         // 추가된 텍스트
                         Text(

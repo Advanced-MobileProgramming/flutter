@@ -121,7 +121,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              BookshelfPage(userId: widget.userId, nickname: widget.nickname),
+              BookshelfPage(userId: widget.userId, nickname: widget.nickname,),
         ),
       );
     } else if (index == 2) {
