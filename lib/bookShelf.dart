@@ -68,109 +68,107 @@ class _BookshelfPageState extends State<BookshelfPage> {
   // }
 
   // 검색 로직 추가
-List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
-  if (searchQuery.isEmpty) {
-    return books; // 검색어가 없으면 모든 책 반환
+  List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
+    if (searchQuery.isEmpty) {
+      return books; // 검색어가 없으면 모든 책 반환
+    }
+    return books.where((book) {
+      // 책 제목, 저자 등을 검색
+      final bookTitle = book["book_info"]?["title"]?.toLowerCase() ?? '';
+      final bookAuthor = book["book_info"]?["author"]?.toLowerCase() ?? '';
+      return bookTitle.contains(searchQuery.toLowerCase()) ||
+          bookAuthor.contains(searchQuery.toLowerCase());
+    }).toList();
   }
-  return books.where((book) {
-    // 책 제목, 저자 등을 검색
-    final bookTitle = book["book_info"]?["title"]?.toLowerCase() ?? '';
-    final bookAuthor = book["book_info"]?["author"]?.toLowerCase() ?? '';
-    return bookTitle.contains(searchQuery.toLowerCase()) ||
-        bookAuthor.contains(searchQuery.toLowerCase());
-  }).toList();
-}
 
   Future<void> fetchBookcases() async {
-  final DatabaseReference bookcasesRef =
-      FirebaseDatabase.instance.ref("bookcases/${widget.userId}");
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases/${widget.userId}");
 
-  try {
-    // Firebase에서 특정 userId의 데이터를 가져오기
-    final snapshot = await bookcasesRef.get();
-    if (snapshot.exists && snapshot.value != null) {
-      if (snapshot.value is Map) {
-        // Map 타입 처리
-        final data = (snapshot.value as Map).entries.map((entry) {
-          final value = Map<String, dynamic>.from(entry.value as Map);
-          // 필요한 데이터 추가
-          final bookInfo = value["book_info"] ?? {};
-          final currentPage = bookInfo["current_page"] ?? 0;
-          final totalPages = bookInfo["totalPages"] ?? 1; // 기본값 1로 설정
-          final progress = (totalPages > 0)
-              ? (currentPage / totalPages).clamp(0.0, 1.0)
-              : 0.0;
-          print(
-              "Book ID: ${entry.key}, Current Page: $currentPage, Total Pages: $totalPages, Progress: ${(progress * 100).toStringAsFixed(2)}%");
+    try {
+      // Firebase에서 특정 userId의 데이터를 가져오기
+      final snapshot = await bookcasesRef.get();
+      if (snapshot.exists && snapshot.value != null) {
+        if (snapshot.value is Map) {
+          // Map 타입 처리
+          final data = (snapshot.value as Map).entries.map((entry) {
+            final value = Map<String, dynamic>.from(entry.value as Map);
+            // 필요한 데이터 추가
+            final bookInfo = value["book_info"] ?? {};
+            final currentPage = bookInfo["current_page"] ?? 0;
+            final totalPages = bookInfo["totalPages"] ?? 1; // 기본값 1로 설정
+            final progress = (totalPages > 0)
+                ? (currentPage / totalPages).clamp(0.0, 1.0)
+                : 0.0;
+            print(
+                "Book ID: ${entry.key}, Current Page: $currentPage, Total Pages: $totalPages, Progress: ${(progress * 100).toStringAsFixed(2)}%");
 
-          return {
-            "id": entry.key, // Firebase 키
-            "image_path": value["image_path"], // 기존 데이터 필드
-            "book_id": value["book_id"], // 추가 데이터 필드
-            "book_image": value["book_image"], // 추가 데이터 필드
-            "current_page": currentPage, // 추가된 데이터
-            "progress": progress, // 추가된 데이터
-            ...value, // 기존 데이터 유지
-          };
-        }).toList();
-        setState(() {
-          bookcase = data;
-          isLoading = false;
-        });
-      } else if (snapshot.value is List) {
-        // List 타입 처리
-        final data = (snapshot.value as List)
-            .where((item) => item != null) // null 필터링
-            .map((item) {
-              final value = Map<String, dynamic>.from(item as Map);
-              // 필요한 데이터 추가
-              final bookInfo = value["book_info"] ?? {};
-              final currentPage = bookInfo["current_page"] ?? 0;
-              final totalPages = bookInfo["totalPages"] ?? 1;
-              final progress = (totalPages > 0)
-                  ? (currentPage / totalPages).clamp(0.0, 1.0)
-                  : 0.0;
-              print(
-                  "Book ID: ${value["id"]}, Current Page: $currentPage, Total Pages: $totalPages, Progress: ${(progress * 100).toStringAsFixed(2)}%");
+            return {
+              "id": entry.key, // Firebase 키
+              "image_path": value["image_path"], // 기존 데이터 필드
+              "book_id": value["book_id"], // 추가 데이터 필드
+              "book_image": value["book_image"], // 추가 데이터 필드
+              "current_page": currentPage, // 추가된 데이터
+              "progress": progress, // 추가된 데이터
+              ...value, // 기존 데이터 유지
+            };
+          }).toList();
+          setState(() {
+            bookcase = data;
+            isLoading = false;
+          });
+        } else if (snapshot.value is List) {
+          // List 타입 처리
+          final data = (snapshot.value as List)
+              .where((item) => item != null) // null 필터링
+              .map((item) {
+            final value = Map<String, dynamic>.from(item as Map);
+            // 필요한 데이터 추가
+            final bookInfo = value["book_info"] ?? {};
+            final currentPage = bookInfo["current_page"] ?? 0;
+            final totalPages = bookInfo["totalPages"] ?? 1;
+            final progress = (totalPages > 0)
+                ? (currentPage / totalPages).clamp(0.0, 1.0)
+                : 0.0;
+            print(
+                "Book ID: ${value["id"]}, Current Page: $currentPage, Total Pages: $totalPages, Progress: ${(progress * 100).toStringAsFixed(2)}%");
 
-              return {
-                "id": value["id"], // Firebase 키
-                "image_path": value["image_path"], // 기존 데이터 필드
-                "book_id": value["book_id"], // 추가 데이터 필드
-                "book_image": value["book_image"], // 추가 데이터 필드
-                "current_page": currentPage, // 추가된 데이터
-                "progress": progress, // 추가된 데이터
-                ...value, // 기존 데이터 유지
-              };
-            })
-            .toList();
-        setState(() {
-          bookcase = data;
-          isLoading = false;
-        });
+            return {
+              "id": value["id"], // Firebase 키
+              "image_path": value["image_path"], // 기존 데이터 필드
+              "book_id": value["book_id"], // 추가 데이터 필드
+              "book_image": value["book_image"], // 추가 데이터 필드
+              "current_page": currentPage, // 추가된 데이터
+              "progress": progress, // 추가된 데이터
+              ...value, // 기존 데이터 유지
+            };
+          }).toList();
+          setState(() {
+            bookcase = data;
+            isLoading = false;
+          });
+        } else {
+          // 데이터가 예상한 타입이 아닌 경우
+          setState(() {
+            bookcase = [];
+            isLoading = false;
+          });
+        }
       } else {
-        // 데이터가 예상한 타입이 아닌 경우
+        // 데이터가 없는 경우
         setState(() {
           bookcase = [];
           isLoading = false;
         });
       }
-    } else {
-      // 데이터가 없는 경우
+    } catch (e) {
+      // 오류 처리
+      print("Firebase 데이터 가져오기 오류: $e");
       setState(() {
-        bookcase = [];
         isLoading = false;
       });
     }
-  } catch (e) {
-    // 오류 처리
-    print("Firebase 데이터 가져오기 오류: $e");
-    setState(() {
-      isLoading = false;
-    });
   }
-}
-
 
 //   Future<void> fetchBookcases() async {
 //   final DatabaseReference bookcasesRef =
@@ -244,57 +242,54 @@ List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
 //   }
 // }
 
-
-
   // Firebase에서 콜렉션 데이터 가져오기
   Future<void> fetchCollections() async {
-  final DatabaseReference collectionsRef =
-      FirebaseDatabase.instance.ref("collections");
+    final DatabaseReference collectionsRef =
+        FirebaseDatabase.instance.ref("collections");
 
-  try {
-    final snapshot = await collectionsRef.child(widget.userId).get();
-    if (snapshot.exists) {
-      final data = Map<String, dynamic>.from(snapshot.value as Map);
-      print("Fetched Collections: $data");  // 데이터 확인 로그 추가
+    try {
+      final snapshot = await collectionsRef.child(widget.userId).get();
+      if (snapshot.exists) {
+        final data = Map<String, dynamic>.from(snapshot.value as Map);
+        print("Fetched Collections: $data"); // 데이터 확인 로그 추가
+        setState(() {
+          collection = data.entries
+              .map((entry) => Map<String, dynamic>.from(entry.value))
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        print("No collections found for user: ${widget.userId}"); // 데이터 없을 때 로그
+        setState(() {
+          collection = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Firebase data fetch error: $e"); // 오류 로그 추가
       setState(() {
-        collection = data.entries
-            .map((entry) => Map<String, dynamic>.from(entry.value))
-            .toList();
-        isLoading = false;
-      });
-    } else {
-      print("No collections found for user: ${widget.userId}"); // 데이터 없을 때 로그
-      setState(() {
-        collection = [];
         isLoading = false;
       });
     }
-  } catch (e) {
-    print("Firebase data fetch error: $e");  // 오류 로그 추가
-    setState(() {
-      isLoading = false;
-    });
   }
-}
 
   String? _selectedCollection; // 선택된 컬렉션 이름
   bool _enterCollection = false;
 
   List<Map<String, dynamic>> getFilteredCollectionBooks() {
-  if (_selectedCollection == null) {
-    print("No collection selected.");
-    return []; // 컬렉션이 선택되지 않았을 경우 빈 리스트 반환
+    if (_selectedCollection == null) {
+      print("No collection selected.");
+      return []; // 컬렉션이 선택되지 않았을 경우 빈 리스트 반환
+    }
+
+    print("Fetching filtered books for collection: $_selectedCollection");
+    List<Map<String, dynamic>> filteredBooks = bookcase.where((book) {
+      return book["collection_name"] == _selectedCollection;
+    }).toList();
+
+    print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
+    return filteredBooks;
   }
-
-  print("Fetching filtered books for collection: $_selectedCollection");
-  List<Map<String, dynamic>> filteredBooks = bookcase.where((book) {
-    return book["collection_name"] == _selectedCollection;
-  }).toList();
-
-  print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
-  return filteredBooks;
-}
-
 
 //   List<Map<String, dynamic>> getFilteredCollectionBooks() {
 //   // 선택된 컬렉션이 없을 때 모든 컬렉션을 반환
@@ -314,9 +309,6 @@ List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
 //   print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
 //   return filteredBooks;
 // }
-
-
-
 
   // 컬렉션 추가 함수
   Future<void> addCollection(
@@ -682,7 +674,9 @@ List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const BookSearchPage(userId: '',)),
+                      builder: (context) => const BookSearchPage(
+                            userId: '',
+                          )),
                 );
               },
               child: Container(
@@ -705,24 +699,24 @@ List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8), // 패딩 설정
                         ),
-                    //     onTap: () {
-                    //       // 검색 바를 탭하면 페이지로 이동
-                    //       Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //             builder: (context) => const BookSearchPage(userId: '',)),
-                    //       );
-                    //     },
-                    //   ),
-                    // ),
-                    onChanged: (value) {
-                        // 검색어 입력 시 검색어 업데이트
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
+                        //     onTap: () {
+                        //       // 검색 바를 탭하면 페이지로 이동
+                        //       Navigator.push(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //             builder: (context) => const BookSearchPage(userId: '',)),
+                        //       );
+                        //     },
+                        //   ),
+                        // ),
+                        onChanged: (value) {
+                          // 검색어 입력 시 검색어 업데이트
+                          setState(() {
+                            searchQuery = value;
+                          });
+                        },
+                      ),
                     ),
-                  ),
                     IconButton(
                       icon: const Icon(Icons.search,
                           color: Color.fromARGB(255, 109, 109, 109)),
@@ -801,9 +795,6 @@ List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
     );
   }
 
-  
-  
-
   // 세그먼트 탭을 만들기 위한 메소드
   Widget _buildSegment(String label, int index) {
     return GestureDetector(
@@ -854,20 +845,19 @@ List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
   // }
 
   // 탭에 맞는 책 목록 반환
-List<Map<String, dynamic>> getFilteredBookcase(String status) {
-  final filteredBooks = bookcase.where((book) {
-    if (status == "reading") {
-      return book["status"] == "reading";
-    } else if (status == "completed") {
-      return book["status"] == "completed";
-    }
-    return true;
-  }).toList();
+  List<Map<String, dynamic>> getFilteredBookcase(String status) {
+    final filteredBooks = bookcase.where((book) {
+      if (status == "reading") {
+        return book["status"] == "reading";
+      } else if (status == "completed") {
+        return book["status"] == "completed";
+      }
+      return true;
+    }).toList();
 
-  // 검색어에 따라 필터링
-  return searchBooks(filteredBooks);
-}
-
+    // 검색어에 따라 필터링
+    return searchBooks(filteredBooks);
+  }
 
   // 선택된 탭에 해당하는 콘텐츠를 반환하는 메소드
   Widget _getTabContent(int index) {
@@ -950,73 +940,81 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
       //     ),
       //   );
       case 0: // 전체
-  final filteredBooks = getFilteredBookcase("all");
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
-    child: Column(
-      children: [
-        // 그리드 뷰
-        Expanded(
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3, // 3개의 열
-              crossAxisSpacing: 8, // 열 간 간격
-              mainAxisSpacing: 8, // 행 간 간격
-              childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
-            ),
-            itemCount: filteredBooks.length,
-            itemBuilder: (context, index) {
-              final bookInfo = filteredBooks[index]["book_info"];
-              final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
-
-              if (bookImagePath == null || bookImagePath.isEmpty) {
-                return Card(
-                  child: Center(
-                    child: Icon(Icons.error, size: 50, color: Colors.red),
+        final filteredBooks = getFilteredBookcase("all");
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
+          child: Column(
+            children: [
+              // 그리드 뷰
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3, // 3개의 열
+                    crossAxisSpacing: 8, // 열 간 간격
+                    mainAxisSpacing: 8, // 행 간 간격
+                    childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
                   ),
-                );
-              }
+                  itemCount: filteredBooks.length,
+                  itemBuilder: (context, index) {
+                    final bookInfo = filteredBooks[index]["book_info"];
+                    final bookImagePath =
+                        bookInfo != null ? bookInfo["image_path"] : null;
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BookDetail(
-                        userId: widget.userId,
-                        bookId: int.tryParse(filteredBooks[index]["book_id"]?.toString() ?? "0") ?? 0,
-                      ),
-                    ),
-                  );
-                },
-                child: Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      bookImagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
+                    if (bookImagePath == null || bookImagePath.isEmpty) {
+                      return Card(
+                        child: Center(
+                          child: Icon(Icons.error, size: 50, color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookDetail(
+                              userId: widget.userId,
+                              bookId: int.tryParse(filteredBooks[index]
+                                              ["book_id"]
+                                          ?.toString() ??
+                                      "0") ??
+                                  0,
+                              nickname: widget.nickname,
+                            ),
+                          ),
+                        );
                       },
-                    ),
-                  ),
+                      child: Card(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 4,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            bookImagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.image_not_supported,
+                                  size: 50, color: Colors.grey);
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           ),
-        ),
-      ],
-    ),
-  );
+        );
 
       case 1: // 읽는 중
         //final filteredBooks = getFilteredBookcase("reading");
-        final filteredBooks = bookcase.where((book) => book["reading_status"] == "읽는 중").toList();
+        final filteredBooks =
+            bookcase.where((book) => book["reading_status"] == "읽는 중").toList();
         return Padding(
           padding: const EdgeInsets.only(
               bottom: 16.0, right: 16.0, left: 16.0), // 외부 여백
@@ -1034,17 +1032,20 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                   ),
                   itemCount: filteredBooks.length,
                   itemBuilder: (context, index) {
-                        // 책 데이터를 기반으로 진행률 계산
-              final totalPages = filteredBooks[index]["book_info"]?["page"] ?? 0;
-              final currentPage = filteredBooks[index]["current_page"] ?? 0; // 수정된 부분
-              final progress = (totalPages > 0)
-                  ? (currentPage / totalPages).clamp(0.0, 1.0)
-                  : 0.0;
+                    // 책 데이터를 기반으로 진행률 계산
+                    final totalPages =
+                        filteredBooks[index]["book_info"]?["page"] ?? 0;
+                    final currentPage =
+                        filteredBooks[index]["current_page"] ?? 0; // 수정된 부분
+                    final progress = (totalPages > 0)
+                        ? (currentPage / totalPages).clamp(0.0, 1.0)
+                        : 0.0;
 
                     // 로그 추가
-              print("Book ID: ${filteredBooks[index]["book_id"] ?? "Unknown"}, "
-                  "Current Page: $currentPage, Total Pages: $totalPages, "
-                  "Progress: ${(progress * 100).toStringAsFixed(2)}%");
+                    print(
+                        "Book ID: ${filteredBooks[index]["book_id"] ?? "Unknown"}, "
+                        "Current Page: $currentPage, Total Pages: $totalPages, "
+                        "Progress: ${(progress * 100).toStringAsFixed(2)}%");
 
                     return Column(
                       mainAxisSize: MainAxisSize.min, // Column의 크기를 자식 요소에 맞춤
@@ -1059,9 +1060,12 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                                   builder: (context) => BookDetail(
                                     userId: widget.userId,
                                     //bookId: filteredBooks[index]["id"]!,
-                                    bookId: int.tryParse(
-                                      filteredBooks[index]["book_id"]?.toString() ?? "0") ??
-                                0,
+                                    bookId: int.tryParse(filteredBooks[index]
+                                                    ["book_id"]
+                                                ?.toString() ??
+                                            "0") ??
+                                        0,
+                                    nickname: widget.nickname,
                                   ),
                                 ),
                               );
@@ -1076,16 +1080,19 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                                 borderRadius:
                                     BorderRadius.circular(10), // 카드 둥근 모서리
                                 child: Image.asset(
-                                  filteredBooks[index]["book_info"]?["image_path"] ?? "assets/images/default_image.png",
-                            fit: BoxFit.cover, // 이미지를 카드에 꽉 차게
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
-                            },
+                                  filteredBooks[index]["book_info"]
+                                          ?["image_path"] ??
+                                      "assets/images/default_image.png",
+                                  fit: BoxFit.cover, // 이미지를 카드에 꽉 차게
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(Icons.image_not_supported,
+                                        size: 50, color: Colors.grey);
+                                  },
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
                         //           filteredBooks[index]["book_info"]?["image_path"] ?? "assets/images/default_image.png",
                         //           //filteredBooks[index]["image_path"]!,
                         //           fit: BoxFit.cover, // 이미지를 카드에 꽉 차게
@@ -1115,7 +1122,7 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                             ),
                           ),
                         ),
-                       SizedBox(height: 4),
+                        SizedBox(height: 4),
 // Text(
 //   '${(progress * 100).toInt()}%', // 진행률을 퍼센트로 표시
 //   style: TextStyle(
@@ -1150,7 +1157,8 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
         );
       case 2: // 완료
         //final filteredBooks = getFilteredBookcase("completed");
-        final filteredBooks = bookcase.where((book) => book["reading_status"] == "완료").toList();
+        final filteredBooks =
+            bookcase.where((book) => book["reading_status"] == "완료").toList();
         return Padding(
           padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
           child: Column(
@@ -1182,8 +1190,9 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                     itemCount: filteredBooks.length,
                     itemBuilder: (context, index) {
                       // 각 책 정보 가져오기
-                final book = filteredBooks[index];
-                final bookImagePath = book["book_info"]?["image_path"] ?? "assets/images/default_image.png";
+                      final book = filteredBooks[index];
+                      final bookImagePath = book["book_info"]?["image_path"] ??
+                          "assets/images/default_image.png";
 
                       return GestureDetector(
                         onTap: () {
@@ -1196,7 +1205,10 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                               builder: (context) => BookDetail(
                                 userId: widget.userId,
                                 //bookId: filteredBooks[index]["id"]!,
-                                bookId: int.tryParse(filteredBooks[index]["id"] ?? '0') ?? 0, // String을 int로 변환
+                                bookId: int.tryParse(
+                                        filteredBooks[index]["id"] ?? '0') ??
+                                    0, // String을 int로 변환
+                                nickname: widget.nickname,
                               ),
                             ),
                           );
@@ -1210,7 +1222,9 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
-                              filteredBooks[index]["book_info"]?["image_path"] ?? 'assets/images/books/3부작.jpg',
+                              filteredBooks[index]["book_info"]
+                                      ?["image_path"] ??
+                                  'assets/images/books/3부작.jpg',
                               fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
                             ),
                           ),
@@ -1223,7 +1237,7 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
             ],
           ),
         );
-            case 3: // 컬렉션
+      case 3: // 컬렉션
         if (!_enterCollection) {
           // 컬렉션 리스트
           return Padding(
@@ -1387,44 +1401,43 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
 //   );
 // },
 
-        // itemBuilder: (context, index) {
-        //   if (index > 0) {
-        //     // 컬렉션 내부 이미지 가져오기
-        //     final filteredBooks = getFilteredCollectionBooks();
-        //     final bookInfo = filteredBooks[index - 1]["book_info"];
-        //     final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
+          // itemBuilder: (context, index) {
+          //   if (index > 0) {
+          //     // 컬렉션 내부 이미지 가져오기
+          //     final filteredBooks = getFilteredCollectionBooks();
+          //     final bookInfo = filteredBooks[index - 1]["book_info"];
+          //     final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
 
-        //     return GestureDetector(
-        //       onTap: () {
-        //         setState(() {
-        //           _enterCollection = true;
-        //           _selectedCollection = collection[index - 1]["collection_name"];
-        //         });
-        //       },
-        //       child: Card(
-        //         child: bookImagePath != null
-        //             ? Image.asset(
-        //                 bookImagePath,
-        //                 fit: BoxFit.cover,
-        //                 errorBuilder: (context, error, stackTrace) {
-        //                   return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
-        //                 },
-        //               )
-        //             : Icon(Icons.error, size: 50, color: Colors.red),
-        //       ),
-        //     );
-        //   }
+          //     return GestureDetector(
+          //       onTap: () {
+          //         setState(() {
+          //           _enterCollection = true;
+          //           _selectedCollection = collection[index - 1]["collection_name"];
+          //         });
+          //       },
+          //       child: Card(
+          //         child: bookImagePath != null
+          //             ? Image.asset(
+          //                 bookImagePath,
+          //                 fit: BoxFit.cover,
+          //                 errorBuilder: (context, error, stackTrace) {
+          //                   return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
+          //                 },
+          //               )
+          //             : Icon(Icons.error, size: 50, color: Colors.red),
+          //       ),
+          //     );
+          //   }
 
-        //   // 첫 번째 카드(+) 추가 버튼
-        //   return Card(
-        //     child: Center(
-        //       child: Icon(Icons.add, size: 50, color: Colors.blue),
-        //     ),
-        //   );
-        // },
-    //   ),
-    // );
-
+          //   // 첫 번째 카드(+) 추가 버튼
+          //   return Card(
+          //     child: Center(
+          //       child: Icon(Icons.add, size: 50, color: Colors.blue),
+          //     ),
+          //   );
+          // },
+          //   ),
+          // );
         } else {
           final filteredBooks = getFilteredCollectionBooks();
           return Padding(
@@ -1520,8 +1533,12 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                                   userId: widget.userId,
                                   // bookId: filteredBooks[index]["book_info"]?["book_id"] ??
                                   //     filteredBooks[index]["id"], // `book_id` 또는 `id` 사용
-                                  bookId: int.tryParse(filteredBooks[index]["book_id"] ?? '') ??
-          filteredBooks[index]["id"], // String을 int로 변환, 변환 실패 시 fallback
+                                  bookId: int.tryParse(filteredBooks[index]
+                                              ["book_id"] ??
+                                          '') ??
+                                      filteredBooks[index][
+                                          "id"], // String을 int로 변환, 변환 실패 시 fallback
+                                  nickname: widget.nickname,
                                 ),
                               ),
                             );
@@ -1541,15 +1558,14 @@ List<Map<String, dynamic>> getFilteredBookcase(String status) {
                             //   ),
                             // ),
                             child: ClipRRect(
-  borderRadius: BorderRadius.circular(10),
-  child: Image.asset(
-    filteredBooks[index]["book_info"]?["image_path"] ?? 
-    'assets/images/books/3부작.jpg', // 기본 이미지 경로
-    fit: BoxFit.cover,
-  ),
-),
-
-
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                filteredBooks[index]["book_info"]
+                                        ?["image_path"] ??
+                                    'assets/images/books/3부작.jpg', // 기본 이미지 경로
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         );
                       },

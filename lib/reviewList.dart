@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class ReviewList extends StatefulWidget {
+  final String userId;
+  final String nickname;
   final List<Map<String, dynamic>> reviews;
 
   // 리뷰 리스트를 부모에서 받도록 설정
-  ReviewList({required this.reviews});
+  ReviewList(
+      {required this.reviews, required this.userId, required this.nickname});
 
   @override
   _ReviewListState createState() => _ReviewListState();
@@ -43,13 +46,13 @@ class _ReviewListState extends State<ReviewList> {
                     Row(
                       children: [
                         Text(
-                          '닉네임',
+                          widget.nickname,
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         SizedBox(width: 5),
                         Text(
-                          '@id',
+                          '@${widget.userId}',
                           style: TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],
@@ -111,7 +114,7 @@ class _ReviewListState extends State<ReviewList> {
                           widget.reviews.insert(
                             0,
                             {
-                              'username': '새 사용자',
+                              'username': widget.nickname,
                               'content': _reviewController.text,
                               'date': DateTime.now()
                                   .toLocal()
@@ -147,24 +150,24 @@ class _ReviewListState extends State<ReviewList> {
             ),
           ),
         ),
-        
+
         // 리뷰 목록
         widget.reviews.isEmpty
             ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: 20),  // 위쪽에 간격 추가
-                  Text(
-                    '작성된 리뷰가 없습니다.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 20), // 위쪽에 간격 추가
+                    Text(
+                      '작성된 리뷰가 없습니다.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
+                  ],
+                ),
+              )
             : ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -173,7 +176,8 @@ class _ReviewListState extends State<ReviewList> {
                   final review = widget.reviews[index];
                   return Card(
                     color: Color.fromARGB(255, 247, 241, 250),
-                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+                    margin:
+                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30), // 둥근 모서리 설정
                     ),
@@ -192,8 +196,8 @@ class _ReviewListState extends State<ReviewList> {
                           Row(
                             children: List.generate(
                               review['rating'],
-                              (index) =>
-                                  Icon(Icons.star, size: 16, color: Colors.amber),
+                              (index) => Icon(Icons.star,
+                                  size: 16, color: Colors.amber),
                             ),
                           ),
                         ],

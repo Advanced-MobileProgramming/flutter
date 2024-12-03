@@ -35,11 +35,7 @@ class _HomePageState extends State<HomePage> {
     },
   );
 
-  final List<String> reviews = [
-    "재미있는 책이었어요.",
-    "유익한 내용이 많았어요.",
-    "감동적인 이야기였어요.",
-  ];
+  List<Map<String, dynamic>> reviews = [];
 
   // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
@@ -110,9 +106,9 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookSearchPage(
-                            userId: widget.userId)), // BookSearchPage로 이동
-                  );
+                          builder: (context) => BookSearchPage(
+                              userId: widget.userId)), // BookSearchPage로 이동
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -140,24 +136,26 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const BookSearchPage(userId: '',)),
+                                    builder: (context) => const BookSearchPage(
+                                          userId: '',
+                                        )),
                               );
                             },
                           ),
                         ),
                         IconButton(
-  icon: const Icon(Icons.search,
-      color: Color.fromARGB(255, 109, 109, 109)),
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BookSearchPage(userId: widget.userId),
-      ),
-    );
-  },
-),
+                          icon: const Icon(Icons.search,
+                              color: Color.fromARGB(255, 109, 109, 109)),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BookSearchPage(userId: widget.userId),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -288,72 +286,88 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(8),
                         color: Color.fromARGB(255, 221, 218, 226),
                       ),
-                      child: Column(
-                        children: reviews.map((review) {
-                          return Card(
-                            margin:
-                                EdgeInsets.symmetric(vertical: 8), // 각 카드 간격
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0,
-                                  right: 20.0,
-                                  top: 20.0,
-                                  bottom: 50.0), // 카드 내부 여백
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "책 제목", // 제목 표시
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          // 더보기 버튼 클릭 이벤트 처리
-                                        },
-                                        child: Text(
-                                          "더보기",
-                                          style: TextStyle(color: Colors.blue),
-                                        ),
-                                      ),
-                                    ],
+                      child: reviews.isEmpty
+                          ? SizedBox(
+                              height: 150, // "리뷰가 없습니다." 메시지의 높이를 원래 크기만큼 고정
+                              child: Center(
+                                child: Text(
+                                  '리뷰가 없습니다.',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.grey,
                                   ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Image.asset(
-                                        'image/book_image_1.jpg',
-                                        width: 80,
-                                        height: 80,
-                                        //fit: BoxFit.cover,
-                                      ),
-                                      SizedBox(width: 16), // 이미지와 텍스트 간격
-                                      Expanded(
-                                        child: Text(
-                                          "❝" + review + "❞", // 리뷰 내용 표시
-                                          maxLines: 2, // 최대 두 줄 표시
-                                          overflow: TextOverflow
-                                              .ellipsis, // 내용 초과 시 생략
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
+                            )
+                          : Column(
+                              children: reviews.map((review) {
+                                return Card(
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 8), // 각 카드 간격
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  elevation: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20.0,
+                                        right: 20.0,
+                                        top: 20.0,
+                                        bottom: 50.0), // 카드 내부 여백
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              review["book_title"], // 제목 표시
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                // 더보기 버튼 클릭 이벤트 처리
+                                              },
+                                              child: Text(
+                                                "더보기",
+                                                style: TextStyle(
+                                                    color: Colors.blue),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Image.asset(
+                                              review["book_image"],
+                                              width: 80,
+                                              height: 80,
+                                            ),
+                                            SizedBox(width: 16), // 이미지와 텍스트 간격
+                                            Expanded(
+                                              child: Text(
+                                                "❝" +
+                                                    review["review"] +
+                                                    "❞", // 리뷰 내용 표시
+                                                maxLines: 2, // 최대 두 줄 표시
+                                                overflow: TextOverflow
+                                                    .ellipsis, // 내용 초과 시 생략
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                             ),
-                          );
-                        }).toList(),
-                      ),
                     ),
                   ],
                 ),

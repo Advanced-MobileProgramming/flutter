@@ -120,8 +120,10 @@ class _AllBooksPageState extends State<AllBooksPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              BookshelfPage(userId: widget.userId, nickname: widget.nickname,),
+          builder: (context) => BookshelfPage(
+            userId: widget.userId,
+            nickname: widget.nickname,
+          ),
         ),
       );
     } else if (index == 2) {
@@ -151,12 +153,11 @@ class _AllBooksPageState extends State<AllBooksPage> {
     // }).toList();
 
     final filteredBooks = books.where((book) {
-  final title = book["title"] ?? ''; // title이 null이면 빈 문자열로 대체
-  final author = book["author"] ?? ''; // author가 null이면 빈 문자열로 대체
-  return title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-         author.toLowerCase().contains(searchQuery.toLowerCase());
-}).toList();
-
+      final title = book["title"] ?? ''; // title이 null이면 빈 문자열로 대체
+      final author = book["author"] ?? ''; // author가 null이면 빈 문자열로 대체
+      return title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          author.toLowerCase().contains(searchQuery.toLowerCase());
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -239,6 +240,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
                                 builder: (context) => BookDetail(
                                   userId: widget.userId,
                                   bookId: book["id"],
+                                  nickname: widget.nickname,
                                 ),
                               ),
                             );

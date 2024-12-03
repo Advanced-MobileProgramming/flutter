@@ -8,8 +8,10 @@ import 'package:soobook/addBook.dart';
 class BookDetail extends StatefulWidget {
   final String userId;
   final int bookId;
+  final String nickname;
 
-  BookDetail({required this.userId, required this.bookId});
+  BookDetail(
+      {required this.userId, required this.bookId, required this.nickname});
 
   @override
   _BookDetailState createState() => _BookDetailState();
@@ -162,6 +164,7 @@ class _BookDetailState extends State<BookDetail> {
               userId: widget.userId,
               book: book,
               bookId: widget.bookId,
+              nickname: widget.nickname,
             ),
           ),
         );
@@ -173,6 +176,7 @@ class _BookDetailState extends State<BookDetail> {
               userId: widget.userId,
               book: book,
               bookId: widget.bookId,
+              nickname: widget.nickname,
             ),
           ),
         );
@@ -236,9 +240,13 @@ class UnstoredBookDetail extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> book;
   final int bookId; // bookId를 추가합니다.
+  final String nickname;
 
   UnstoredBookDetail(
-      {required this.userId, required this.book, required this.bookId});
+      {required this.userId,
+      required this.book,
+      required this.bookId,
+      required this.nickname});
 
   @override
   _UnstoredBookDetailState createState() => _UnstoredBookDetailState();
@@ -605,7 +613,11 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
   // 리뷰 목록을 보여주는 메소드
 
   Widget _buildReviewList() {
-    return ReviewList(reviews: reviews); // ReviewList 위젯 호출
+    return ReviewList(
+      reviews: reviews,
+      userId: widget.userId,
+      nickname: widget.nickname,
+    ); // ReviewList 위젯 호출
   }
 }
 
@@ -614,9 +626,13 @@ class StoredBookDetail extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> book;
   final int? bookId; // bookId를 추가합니다.
+  final String nickname;
 
   StoredBookDetail(
-      {required this.userId, required this.book, required this.bookId});
+      {required this.userId,
+      required this.book,
+      required this.bookId,
+      required this.nickname});
 
   @override
   _StoredBookDetailState createState() => _StoredBookDetailState();
@@ -1366,7 +1382,11 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
         );
       case 2: // 리뷰 탭
         return Container(
-          child: ReviewList(reviews: reviews), // ReviewList 위젯 호출
+          child: ReviewList(
+            reviews: reviews,
+            userId: widget.userId,
+            nickname: widget.nickname,
+          ), // ReviewList 위젯 호출
         );
       default:
         return Center(child: Text("잘못된 탭입니다."));
