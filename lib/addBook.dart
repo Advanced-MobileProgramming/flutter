@@ -808,6 +808,7 @@ class _AddBookState extends State<AddBook> {
                                       await bookcasesRef.update({
                                         "collection_name": "선택 안 함",
                                         "reading_status": "읽는 중", // 읽기 상태 업데이트
+                                        "start_date": _startDate
                                       });
                                       print("컬렉션 '선택 안 함'으로 성공적으로 업데이트되었습니다.");
                                     } catch (e) {
@@ -852,6 +853,7 @@ class _AddBookState extends State<AddBook> {
                                       "collection_name": collection[index - 1]
                                           ["collection_name"], // 선택된 컬렉션 이름 저장
                                       "reading_status": "읽는 중", // 읽기 상태도 함께 저장
+                                      "start_date": _startDate
                                     });
                                     print(
                                         "컬렉션 ${collection[index - 1]["collection_name"]}으로 성공적으로 업데이트되었습니다.");
@@ -982,6 +984,8 @@ class _AddBookState extends State<AddBook> {
                                       await bookcasesRef.update({
                                         "collection_name": "선택 안 함",
                                         "reading_status": "완료", // 읽기 상태 업데이트
+                                        "start_date": _startDate,
+                                        "end_date": _endDate
                                       });
                                       print("컬렉션 '선택 안 함'으로 성공적으로 업데이트되었습니다.");
                                     } catch (e) {
@@ -1026,6 +1030,8 @@ class _AddBookState extends State<AddBook> {
                                       "collection_name": collection[index - 1]
                                           ["collection_name"], // 선택된 컬렉션 이름 저장
                                       "reading_status": "완료", // 읽기 상태도 함께 저장
+                                      "start_date": _startDate,
+                                      "end_date": _endDate
                                     });
                                     print(
                                         "컬렉션 ${collection[index - 1]["collection_name"]}으로 성공적으로 업데이트되었습니다.");
