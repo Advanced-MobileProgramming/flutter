@@ -499,6 +499,31 @@ void selectCollection(String collectionName) async {
                     width: 100, // 현재 페이지 입력 필드
                     child: TextField(
                       keyboardType: TextInputType.number,
+                      onChanged: (value) async {
+    int newPage = int.tryParse(value) ?? 0;
+
+    // Firebase 업데이트 로직
+    final DatabaseReference bookcasesRef =
+        FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"]}");
+
+    try {
+      String newStatus = newPage > 0 ? "읽는 중" : "읽기 전";
+
+      await bookcasesRef.update({
+        "current_page": newPage,
+        "reading_status": newStatus,
+      });
+
+      setState(() {
+        widget.book["current_page"] = newPage;
+        widget.book["reading_status"] = newStatus;
+      });
+
+      print("페이지와 상태가 업데이트되었습니다.");
+    } catch (e) {
+      print("페이지 업데이트 오류: $e");
+    }
+  },
                       decoration: InputDecoration(
                         hintText: '현재 페이지',
                         filled: true, // 배경색 활성화

@@ -240,7 +240,7 @@ Future<void> _checkBookState() async {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => StoredBookDetail(userId: widget.userId, book: book),
+          builder: (context) => StoredBookDetail(userId: widget.userId, book: book, bookId: null,),
         ),
       );
     } else {
@@ -696,8 +696,9 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
 class StoredBookDetail extends StatefulWidget {
   final String userId;
   final Map<String, dynamic> book;
+  final int? bookId; // bookId를 추가합니다.
 
-  StoredBookDetail({required this.userId, required this.book});
+  StoredBookDetail({required this.userId, required this.book, required this.bookId});
 
   @override
   _StoredBookDetailState createState() => _StoredBookDetailState();
@@ -711,11 +712,40 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
   //String get endDay => widget.book["end_day"] ?? ''; // end_day가 없으면 빈 문자열 반환
 
   // readPages가 book 객체에 포함되어 있다고 가정
-  int get readPages => widget.book.containsKey("readPages")
-      ? widget.book["readPages"]
-      : 0; // readPages가 없으면 0으로 처리
-  int get totalPages =>
-      widget.book.containsKey("page") ? widget.book["page"] : 0;
+  // int get readPages => widget.book.containsKey("readPages")
+  //     ? widget.book["readPages"]
+  //     : 0; // readPages가 없으면 0으로 처리
+  // int get totalPages =>
+  //     widget.book.containsKey("page") ? widget.book["page"] : 0;
+  int get currentPage {
+  final bookRef = FirebaseDatabase.instance
+      .ref("bookcases/${widget.userId}/${widget.bookId}"); // Firebase 참조 생성
+
+  int page = 0; // 기본값
+
+  bookRef.get().then((snapshot) {
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      if (data.containsKey("current_page")) {
+        page = data["current_page"]; // current_page 값을 가져옴
+        print("Current Page: $page"); // 로그 출력
+      } else {
+        print("current_page key not found"); // 키가 없을 경우 로그
+      }
+    } else {
+      print("No data found for this book"); // 데이터가 없을 경우 로그
+    }
+  }).catchError((error) {
+    print("Error fetching current_page: $error"); // 오류 처리
+  });
+
+  return page; // 기본값 반환
+}
+
+
+int get totalPages =>
+    widget.book.containsKey("page") ? widget.book["page"] : 0;
+
 
       // 날짜 포맷 함수 (null 또는 빈 값을 처리)
 String formatDate(String? dateStr) {
@@ -935,6 +965,19 @@ String formatDate(String? dateStr) {
                     Column(
                       children: [
                         Center(
+                          child: GestureDetector(
+    onTap: () {
+      // AddBook 모달 띄우기
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return AddBook(
+            userId: widget.userId,
+            book: widget.book,
+          );
+        },
+      );
+    },
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -944,7 +987,7 @@ String formatDate(String? dateStr) {
                                 height: 65, // 원의 높이
                                 child: CircularProgressIndicator(
                                   value: totalPages > 0
-                                      ? (readPages / totalPages)
+                                      ? (currentPage  / totalPages)
                                           .clamp(0.0, 1.0) // 진행률 계산
                                       : 0.0, // 페이지 수가 0일 경우 0으로 설정
                                   // value: widget.book["page"] > 0
@@ -958,17 +1001,18 @@ String formatDate(String? dateStr) {
                                 ),
                               ),
                               Text(
-                                "${totalPages > 0 ? ((readPages / totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
+                                "${totalPages > 0 ? ((currentPage  / totalPages) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
                                 //"${widget.book["page"] > 0 ? ((widget.readPages / widget.book["page"]) * 100).clamp(0.0, 100.0).toInt() : 0}%", // 퍼센트를 텍스트로 표시
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Color.fromARGB(255, 126, 113, 159),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
+        ),
+      ],
+    ),
+  ),
+),
 //                         Center(
 //   child: Stack(
 //     alignment: Alignment.center,
@@ -989,12 +1033,11 @@ String formatDate(String? dateStr) {
 //     ],
 //   ),
 // ),
-
                         SizedBox(height: 8),
                         // 추가된 텍스트
                         Text(
                           //"${widget.readPages}/${widget.book["page"]}p",
-                          "$readPages/$totalPages p",
+                          "$currentPage /$totalPages p",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
