@@ -18,55 +18,123 @@ class _BookReportPageState extends State<BookReportPage> {
   }
 
   // Firebase에서 데이터를 가져오는 함수
+  // Future<void> _fetchBookReports() async {
+  //   try {
+  //     final reportsSnapshot = await _databaseRef.child('bookReports').once();
+  //     final booksSnapshot = await _databaseRef.child('books').once();
+
+  //     if (reportsSnapshot.snapshot.value != null &&
+  //         booksSnapshot.snapshot.value != null) {
+  //       final reportsData =
+  //           Map<String, dynamic>.from(reportsSnapshot.snapshot.value as Map);
+  //       final booksData =
+  //           Map<String, dynamic>.from(booksSnapshot.snapshot.value as Map);
+
+  //       List<Map<String, dynamic>> loadedReports = [];
+
+  //       reportsData.forEach((key, report) {
+  //         final bookId = report['book_id'];
+  //         final userId = report['user_id'];
+  //         final userReport = report['content'];
+
+  //         if (booksData.containsKey(bookId)) {
+  //           final book = booksData[bookId];
+  //           final DateTime publicationDate =
+  //               DateTime.fromMillisecondsSinceEpoch(
+  //                   book['publication_date'] * 1000);
+
+  //           loadedReports.add({
+  //             'userId': userId,
+  //             'bookId': bookId,
+  //             'title': book['title'],
+  //             'author': book['author'],
+  //             'bookReport': userReport,
+  //             'image': book['image_path'],
+  //             'publisher': book['publisher'],
+  //             'publishYear': publicationDate.year.toString(),
+  //             'publishMonth': publicationDate.month.toString(),
+  //           });
+  //         }
+  //       });
+
+  //       setState(() {
+  //         bookReports = loadedReports;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
+  //     );
+  //   }
+  // }
+
   Future<void> _fetchBookReports() async {
-    try {
-      final reportsSnapshot = await _databaseRef.child('reports').once();
-      final booksSnapshot = await _databaseRef.child('books').once();
+  try {
+    print("Fetching bookReports and books from Firebase...");
+    final reportsSnapshot = await _databaseRef.child('bookReports').once();
+    final booksSnapshot = await _databaseRef.child('books').once();
 
-      if (reportsSnapshot.snapshot.value != null &&
-          booksSnapshot.snapshot.value != null) {
-        final reportsData =
-            Map<String, dynamic>.from(reportsSnapshot.snapshot.value as Map);
-        final booksData =
-            Map<String, dynamic>.from(booksSnapshot.snapshot.value as Map);
+    print("Reports Snapshot: ${reportsSnapshot.snapshot.value}");
+    print("Books Snapshot: ${booksSnapshot.snapshot.value}");
 
-        List<Map<String, dynamic>> loadedReports = [];
+    if (reportsSnapshot.snapshot.value != null &&
+        booksSnapshot.snapshot.value != null) {
+      final reportsData =
+          Map<String, dynamic>.from(reportsSnapshot.snapshot.value as Map);
+      final booksData =
+          Map<String, dynamic>.from(booksSnapshot.snapshot.value as Map);
 
-        reportsData.forEach((key, report) {
-          final bookId = report['book_id'];
-          final userId = report['user_id'];
-          final userReport = report['report'];
+      print("Parsed Reports Data: $reportsData");
+      print("Parsed Books Data: $booksData");
 
+      List<Map<String, dynamic>> loadedReports = [];
+
+      reportsData.forEach((userId, userReports) {
+        final userReportsMap =
+            Map<String, dynamic>.from(userReports as Map); // 사용자별 데이터 처리
+        userReportsMap.forEach((bookId, report) {
           if (booksData.containsKey(bookId)) {
             final book = booksData[bookId];
             final DateTime publicationDate =
                 DateTime.fromMillisecondsSinceEpoch(
                     book['publication_date'] * 1000);
 
+            print("Book matched for bookId: $bookId");
+
             loadedReports.add({
               'userId': userId,
               'bookId': bookId,
               'title': book['title'],
               'author': book['author'],
-              'bookReport': userReport,
+              'bookReport': report['content'], // content 필드
               'image': book['image_path'],
               'publisher': book['publisher'],
               'publishYear': publicationDate.year.toString(),
               'publishMonth': publicationDate.month.toString(),
             });
+          } else {
+            print("No matching book found for bookId: $bookId");
           }
         });
+      });
 
-        setState(() {
-          bookReports = loadedReports;
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
-      );
+      print("Loaded Reports: $loadedReports");
+
+      setState(() {
+        bookReports = loadedReports;
+      });
+    } else {
+      print("No data found in bookReports or books.");
     }
+  } catch (e) {
+    print("Error fetching data: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
+    );
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {

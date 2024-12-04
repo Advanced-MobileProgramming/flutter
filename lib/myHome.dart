@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 20),
-              // 검색 바
+              //검색 바
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Container(

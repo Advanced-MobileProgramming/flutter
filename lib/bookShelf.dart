@@ -173,18 +173,39 @@ class _BookshelfPageState extends State<BookshelfPage> {
   bool isEditing = false; // 편집 모드 여부
   Set<bool> selectedBooks = {}; // 각 도서의 선택 여부 관리
 
-  // 편집 모드 토글
-  void toggleEditMode() {
-    setState(() {
-      if(!isEditing) // 편집 버튼 클릭 시
-        isEditing = !isEditing;
-      else { // 삭제 버튼 클릭 시
-        bookcase.removeWhere((book) => selectedBooks.contains(book["book_id"]));
-        selectedBooks.clear(); // 선택 초기화
-        isEditing = false; // 편집 모드 종료
-      }
-    });
+
+void toggleEditMode() async {
+  setState(() {
+    if (!isEditing) {
+      // 편집 모드 시작
+      isEditing = true;
+    } else {
+      // 삭제 버튼 클릭 시
+      List<String> booksToRemove = bookcase
+          .where((book) => book["selected"] == true) // 선택된 책 필터링
+          .map((book) => book["id"].toString()) // 책 ID 가져오기
+          .toList();
+
+      // Firebase에서 데이터 삭제
+      removeBooksFromFirebase(booksToRemove);
+
+      // UI 업데이트
+      bookcase.removeWhere((book) => booksToRemove.contains(book["id"]));
+      selectedBooks.clear(); // 선택 초기화
+      isEditing = false; // 편집 모드 종료
+    }
+  });
+}
+
+// Firebase에서 선택된 책 삭제
+Future<void> removeBooksFromFirebase(List<String> booksToRemove) async {
+  for (String bookId in booksToRemove) {
+    final DatabaseReference bookRef =
+        FirebaseDatabase.instance.ref("bookcases/${widget.userId}/$bookId");
+    await bookRef.remove();
   }
+}
+
 
 //   Future<void> fetchBookcases() async {
 //   final DatabaseReference bookcasesRef =
