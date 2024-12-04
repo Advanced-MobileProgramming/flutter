@@ -75,9 +75,7 @@ class _BookReportPageState extends State<BookReportPage> {
         title: Text(
           '나의 독후감',
           style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 126, 113, 159)),
+              fontSize: 30, color: Color.fromARGB(255, 126, 113, 159)),
         ),
         backgroundColor: Colors.white,
         automaticallyImplyLeading: true,
@@ -85,7 +83,16 @@ class _BookReportPageState extends State<BookReportPage> {
         titleSpacing: 20.0,
       ),
       body: bookReports.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Text(
+                '독후감이 없습니다.',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+              ),
+            )
           : SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,

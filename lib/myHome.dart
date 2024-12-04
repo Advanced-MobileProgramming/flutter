@@ -16,9 +16,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
-  final PageController _pageController =
-      PageController(viewportFraction: 0.5); // viewportFraction을 0.5로 설정
+  final PageController _pageController = PageController(viewportFraction: 0.5);
+  final TextEditingController _searchController = TextEditingController();
 
   // 책 리스트
   final List<Map<String, dynamic>> books = List.generate(
@@ -28,9 +27,7 @@ class _HomePageState extends State<HomePage> {
       "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
       "author": "Author $index", // 책 저자
       "description": "책에 대한 간단한 설명입니다.", // 책 설명
-      "status": index % 2 == 0
-          ? "reading" // 읽는 중
-          : "completed", // 완료
+      "status": index % 2 == 0 ? "reading" : "completed", // 읽는 중/완료
       "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
     },
   );
@@ -71,6 +68,25 @@ class _HomePageState extends State<HomePage> {
     _pageController.jumpToPage(index); // 애니메이션 없이 페이지 전환
   }
 
+  // 검색창에서 입력한 텍스트로 AllBooksPage로 이동
+  void _searchBooks() {
+    String searchQuery = _searchController.text;
+
+    if (searchQuery.isNotEmpty) {
+      // 검색어가 있으면 AllBooksPage로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AllBooksPage(
+            userId: widget.userId,
+            nickname: widget.nickname,
+            searchQuery: searchQuery, // 검색어 전달
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,71 +116,43 @@ class _HomePageState extends State<HomePage> {
               // 검색 바
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: InkWell(
-                  onTap: () {
-                    // 검색 페이지로 이동
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => BookSearchPage(
-                              userId: widget.userId)), // BookSearchPage로 이동
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color:
-                          const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: '도서명이나 저자를 입력하세요.',
-                              hintStyle: const TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 109, 109, 109),
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8), // 패딩 설정
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color:
+                        const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            hintText: '도서명이나 저자를 입력하세요.',
+                            hintStyle: const TextStyle(
+                              fontSize: 14,
+                              color: Color.fromARGB(255, 109, 109, 109),
                             ),
-                            onTap: () {
-                              // 검색 바를 탭하면 페이지로 이동
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const BookSearchPage(
-                                          userId: '',
-                                        )),
-                              );
-                            },
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8), // 패딩 설정
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.search,
-                              color: Color.fromARGB(255, 109, 109, 109)),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    BookSearchPage(userId: widget.userId),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.search,
+                            color: Color.fromARGB(255, 109, 109, 109)),
+                        onPressed: _searchBooks, // 검색 버튼 클릭 시 _searchBooks 호출
+                      ),
+                    ],
                   ),
                 ),
               ),
               SizedBox(height: 20),
               // 인사말
               Padding(
-                padding: const EdgeInsets.only(left: 16.0), // 왼쪽에만 16의 여백 설정
+                padding: const EdgeInsets.only(left: 16.0),
                 child: Text(
                   '${widget.nickname}님, 안녕하세요:D\n오늘도 수Book한 하루 되세요!',
                   style: TextStyle(
@@ -173,7 +161,6 @@ class _HomePageState extends State<HomePage> {
                       color: Color.fromARGB(255, 126, 113, 159)),
                 ),
               ),
-
               SizedBox(height: 20),
               // 오늘의 선택 섹션
               Container(

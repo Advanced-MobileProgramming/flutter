@@ -9,8 +9,10 @@ import 'myPage.dart';
 class AllBooksPage extends StatefulWidget {
   final String userId;
   final String nickname;
+  final String? searchQuery; // 검색어를 받는 변수
 
-  AllBooksPage({required this.userId, required this.nickname});
+  AllBooksPage(
+      {required this.userId, required this.nickname, this.searchQuery});
 
   @override
   _AllBooksPageState createState() => _AllBooksPageState();
@@ -20,41 +22,17 @@ class _AllBooksPageState extends State<AllBooksPage> {
   int _selectedIndex = 2;
   List<Map<String, dynamic>> books = [];
   bool isLoading = true;
-  String searchQuery = '';
+  String searchQuery = ''; // 여기서는 초기 값만 설정해줍니다.
 
   @override
   void initState() {
     super.initState();
+    // 검색어 초기화 (생성자에서 전달된 검색어 사용)
+    searchQuery = widget.searchQuery ?? '';
     fetchBooks(); // Firebase에서 책 데이터 가져오기
   }
 
   // Firebase에서 책 데이터 가져오기
-  // Future<void> fetchBooks() async {
-  //   final DatabaseReference booksRef = FirebaseDatabase.instance.ref("books");
-
-  //   try {
-  //     final snapshot = await booksRef.get();
-  //     if (snapshot.exists) {
-  //       final data = Map<String, dynamic>.from(snapshot.value as Map);
-  //       setState(() {
-  //         books = data.entries
-  //             .map((entry) => Map<String, dynamic>.from(entry.value))
-  //             .toList();
-  //         isLoading = false;
-  //       });
-  //     } else {
-  //       setState(() {
-  //         books = [];
-  //         isLoading = false;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Firebase 데이터 가져오기 오류: $e");
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
   Future<void> fetchBooks() async {
     final DatabaseReference booksRef = FirebaseDatabase.instance.ref("books");
 
@@ -147,11 +125,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final filteredBooks = books.where((book) {
-    //   return book["title"]!.toLowerCase().contains(searchQuery.toLowerCase()) ||
-    //       book["author"]!.toLowerCase().contains(searchQuery.toLowerCase());
-    // }).toList();
-
+    // 검색어에 맞는 책을 필터링
     final filteredBooks = books.where((book) {
       final title = book["title"] ?? ''; // title이 null이면 빈 문자열로 대체
       final author = book["author"] ?? ''; // author가 null이면 빈 문자열로 대체
