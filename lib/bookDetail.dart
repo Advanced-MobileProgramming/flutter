@@ -1352,7 +1352,7 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
           padding: const EdgeInsets.only(
             left: 22.0,
             right: 20.0,
-            top: 50.0,
+            top: 20.0,
           ), // 안쪽 여백
           decoration: BoxDecoration(
             color: Color.fromARGB(255, 247, 241, 250),
@@ -1413,10 +1413,8 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
             ),
           ),
         ),
-        // 텍스트 중앙 배치
-        SizedBox(
-          height: 50,
-        ),
+        // 텍스트를 아래로 내리기 위해 SizedBox 추가
+        SizedBox(height: 80), // 80만큼 여백을 두어 아래로 내려줌
         Center(
           child: Text(
             '작성된 독후감이 없습니다.',
@@ -1493,25 +1491,83 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
       textDirection: TextDirection.ltr,
     );
     textPainter.layout(
-        maxWidth: MediaQuery.of(context).size.width - 32); // 최대 너비 설정
+      maxWidth: MediaQuery.of(context).size.width - 32, // 최대 너비 설정
+    );
 
     int lineCount = textPainter.computeLineMetrics().length; // 텍스트가 차지하는 줄 수 계산
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 독후감 텍스트, 줄 수 계산 후 넘치면 ... 표시
-        Text(
-          _currentReport,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Color.fromARGB(255, 126, 113, 159),
+        // 점 3개 버튼을 Column 위에 배치하고, 위쪽으로 조금 올리기
+        if (_currentReport.isNotEmpty && !_isEditing)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 0.0, right: 0.0),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: Icon(Icons.more_vert), // 점 3개 버튼
+                onPressed: () {
+                  _showMoreOptions(context); // 더보기 버튼 클릭 시 행동
+                },
+              ),
+            ),
           ),
-          overflow: TextOverflow.ellipsis, // 텍스트가 넘치면 "..." 표시
-          maxLines: 9, // 9줄로 제한
-        ),
-        if (lineCount > 9) // 줄 수가 9줄을 초과하면
+
+        // 독후감 수정 UI (TextField가 활성화된 상태일 때)
+        if (_isEditing)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0), // 텍스트 필드 위쪽 여백
+            child: TextField(
+              controller: _controller, // 텍스트 컨트롤러 연결
+              autofocus: true, // 자동으로 포커스를 설정
+              maxLines: 7, // 최대 줄 수
+              decoration: InputDecoration(
+                hintText: '독후감을 수정하세요...',
+                filled: true, // 배경색 활성화
+                fillColor: Color.fromARGB(255, 250, 248, 250), // 배경색 설정
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30), // 둥근 모서리
+                  borderSide: BorderSide.none, // 테두리 제거
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none, // 비활성 상태 테두리 제거
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none, // 포커스 상태 테두리 제거
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 15,
+                ),
+              ),
+              onChanged: (newText) {
+                setState(() {
+                  _currentReport = newText; // 텍스트 변경 시 저장
+                });
+              },
+            ),
+          )
+        else
+          // 독후감 텍스트가 작성된 상태
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              _currentReport,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Color.fromARGB(255, 126, 113, 159),
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 9, // 9줄로 제한
+            ),
+          ),
+
+        // 9줄을 초과하면 더보기 버튼을 표시
+        if (lineCount > 9)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -1537,6 +1593,43 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
             ],
           ),
       ],
+    );
+  }
+
+// 독후감 수정 다이얼로그 옵션
+  void _showMoreOptions(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('수정'),
+                onTap: () {
+                  // 수정 버튼 클릭 시 _isEditing을 true로 설정하여 수정 가능하도록 함
+                  setState(() {
+                    _isEditing = true;
+                    _controller.text = _currentReport; // 현재 독후감 내용 불러오기
+                  });
+                  Navigator.pop(context); // 다이얼로그 닫기
+                },
+              ),
+              ListTile(
+                title: Text('삭제'),
+                onTap: () {
+                  // 삭제 기능 구현 (예시)
+                  setState(() {
+                    _currentReport = ''; // 독후감 내용 삭제
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
