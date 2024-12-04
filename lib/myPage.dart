@@ -6,6 +6,7 @@ import 'package:soobook/login.dart'; // 로그인 페이지 임포트
 import 'package:soobook/profileEdit.dart';
 import 'package:soobook/mybookReport.dart';
 import 'package:soobook/myReview.dart';
+import 'package:soobook/feedback.dart';
 
 class MyPage extends StatefulWidget {
   final String userId;
@@ -191,8 +192,15 @@ class _MyPageState extends State<MyPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('의견 보내기 페이지로 이동')),
+                      // 의견 보내기 버튼 클릭 시 FeedbackPage로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackPage(
+                            userId: widget.userId,
+                            nickname: widget.nickname,
+                          ),
+                        ),
                       );
                     },
                   ),
