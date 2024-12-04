@@ -183,62 +183,64 @@ class _AllBooksPageState extends State<AllBooksPage> {
           SizedBox(height: 16),
           isLoading
               ? Center(child: CircularProgressIndicator())
-              : Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.7,
-                      ),
-                      itemCount: filteredBooks.length,
-                      itemBuilder: (context, index) {
-                        final book = filteredBooks[index];
-                        final timestamp = book["publication_date"];
-                        String publishYear = "0000";
-                        String publishMonth = "00";
+              : filteredBooks.isEmpty
+                  ? Center(child: Text('해당 도서가 존재하지 않습니다.'))
+                  : Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: GridView.builder(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.7,
+                          ),
+                          itemCount: filteredBooks.length,
+                          itemBuilder: (context, index) {
+                            final book = filteredBooks[index];
+                            final timestamp = book["publication_date"];
+                            String publishYear = "0000";
+                            String publishMonth = "00";
 
-                        if (timestamp != null && timestamp is int) {
-                          final date = DateTime.fromMillisecondsSinceEpoch(
-                              timestamp * 1000);
-                          publishYear = date.year.toString();
-                          publishMonth = date.month.toString().padLeft(2, '0');
-                        }
+                            if (timestamp != null && timestamp is int) {
+                              final date = DateTime.fromMillisecondsSinceEpoch(
+                                  timestamp * 1000);
+                              publishYear = date.year.toString();
+                              publishMonth = date.month.toString().padLeft(2, '0');
+                            }
 
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BookDetail(
-                                  userId: widget.userId,
-                                  bookId: book["id"],
-                                  nickname: widget.nickname,
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookDetail(
+                                      userId: widget.userId,
+                                      bookId: book["id"],
+                                      nickname: widget.nickname,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  book["image_path"] ?? "image/book_image_1.jpg",
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.image_not_supported,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    );
+                                  },
                                 ),
                               ),
                             );
                           },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              book["image_path"] ?? "image/book_image_1.jpg",
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.image_not_supported,
-                                  size: 50,
-                                  color: Colors.grey,
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
