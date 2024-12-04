@@ -171,6 +171,7 @@ class _AllBooksPageState extends State<AllBooksPage> {
         ),
         backgroundColor: Colors.white,
         toolbarHeight: 120.0,
+        automaticallyImplyLeading: false, // 뒤로 가기 버튼 비활성화
       ),
       body: Column(
         children: [
