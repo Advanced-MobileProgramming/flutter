@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:soobook/allBooks.dart';
+import 'package:soobook/appTOS.dart';
+import 'package:soobook/appUpdates.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myHome.dart'; // HomePage가 필요하다면 임포트
 import 'package:soobook/login.dart'; // 로그인 페이지 임포트
@@ -211,6 +213,13 @@ class _MyPageState extends State<MyPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AppUpdatesPage(
+                          ),
+                        ),
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('업데이트 페이지로 이동')),
                       );
@@ -223,6 +232,13 @@ class _MyPageState extends State<MyPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AppTOSPage(
+                          ),
+                        ),
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('이용약관 페이지로 이동')),
                       );
