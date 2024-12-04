@@ -170,6 +170,45 @@ class _BookshelfPageState extends State<BookshelfPage> {
     }
   }
 
+  bool isEditing = false; // 편집 모드 여부
+  Set<bool> selectedBooks = {}; // 각 도서의 선택 여부 관리
+
+  // 편집 모드 토글
+  void toggleEditMode() {
+    setState(() {
+      isEditing = !isEditing;
+    });
+  }
+
+  Widget _buildEditButton() {
+    return TextButton(
+      onPressed: () {
+        if (isEditing) {
+          // 편집 완료 시 선택된 책들을 삭제
+          setState(() {
+            // 선택된 책 삭제
+            bookcase
+                .removeWhere((book) => selectedBooks.contains(book["book_id"]));
+            selectedBooks.clear(); // 선택 초기화
+            isEditing = false; // 편집 모드 종료
+          });
+        } else {
+          // 편집 모드 시작
+          setState(() {
+            isEditing = true;
+          });
+        }
+      },
+      child: Text(
+        isEditing ? "완료" : "편집", // 편집 모드일 때는 "완료", 아닐 때는 "편집"
+        style: TextStyle(
+          color: Color.fromARGB(255, 126, 113, 159),
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+
 //   Future<void> fetchBookcases() async {
 //   final DatabaseReference bookcasesRef =
 //       FirebaseDatabase.instance.ref("bookcases/${widget.userId}");
@@ -945,6 +984,11 @@ class _BookshelfPageState extends State<BookshelfPage> {
           padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
           child: Column(
             children: [
+              // 편집 버튼 (편집 모드에서만 "완료"로 변환)
+              Align(
+                alignment: Alignment.topRight,
+                child: _buildEditButton(),
+              ),
               // 그리드 뷰
               Expanded(
                 child: GridView.builder(
@@ -1138,13 +1182,11 @@ class _BookshelfPageState extends State<BookshelfPage> {
               ),
               // 편집 버튼
               Align(
-                alignment: Alignment.topRight, // 오른쪽 상단에 고정
+                alignment: Alignment.topRight,
                 child: TextButton(
-                  onPressed: () {
-                    // 버튼 동작 정의
-                  },
+                  onPressed: toggleEditMode,
                   child: Text(
-                    "편집",
+                    isEditing ? "완료" : "편집",
                     style: TextStyle(
                       color: Color.fromARGB(255, 126, 113, 159),
                       decoration: TextDecoration.underline,
@@ -1165,14 +1207,15 @@ class _BookshelfPageState extends State<BookshelfPage> {
             children: [
               // 편집 텍스트 버튼
               Align(
-                alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
+                alignment: Alignment.topRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: toggleEditMode,
                   child: Text(
-                    "편집", // 텍스트 버튼의 내용
+                    isEditing ? "완료" : "편집",
                     style: TextStyle(
-                        color: Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
-                        decoration: TextDecoration.underline),
+                      color: Color.fromARGB(255, 126, 113, 159),
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
