@@ -176,37 +176,14 @@ class _BookshelfPageState extends State<BookshelfPage> {
   // 편집 모드 토글
   void toggleEditMode() {
     setState(() {
-      isEditing = !isEditing;
+      if(!isEditing) // 편집 버튼 클릭 시
+        isEditing = !isEditing;
+      else { // 삭제 버튼 클릭 시
+        bookcase.removeWhere((book) => selectedBooks.contains(book["book_id"]));
+        selectedBooks.clear(); // 선택 초기화
+        isEditing = false; // 편집 모드 종료
+      }
     });
-  }
-
-  Widget _buildEditButton() {
-    return TextButton(
-      onPressed: () {
-        if (isEditing) {
-          // 편집 완료 시 선택된 책들을 삭제
-          setState(() {
-            // 선택된 책 삭제
-            bookcase
-                .removeWhere((book) => selectedBooks.contains(book["book_id"]));
-            selectedBooks.clear(); // 선택 초기화
-            isEditing = false; // 편집 모드 종료
-          });
-        } else {
-          // 편집 모드 시작
-          setState(() {
-            isEditing = true;
-          });
-        }
-      },
-      child: Text(
-        isEditing ? "완료" : "편집", // 편집 모드일 때는 "완료", 아닐 때는 "편집"
-        style: TextStyle(
-          color: Color.fromARGB(255, 126, 113, 159),
-          decoration: TextDecoration.underline,
-        ),
-      ),
-    );
   }
 
 //   Future<void> fetchBookcases() async {
@@ -984,10 +961,19 @@ class _BookshelfPageState extends State<BookshelfPage> {
           padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
           child: Column(
             children: [
-              // 편집 버튼 (편집 모드에서만 "완료"로 변환)
+              // 편집 버튼
               Align(
                 alignment: Alignment.topRight,
-                child: _buildEditButton(),
+                child: TextButton(
+                  onPressed: toggleEditMode,
+                  child: Text(
+                    isEditing ? "삭제" : "편집",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 126, 113, 159),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
               ),
               // 그리드 뷰
               Expanded(
@@ -996,13 +982,12 @@ class _BookshelfPageState extends State<BookshelfPage> {
                     crossAxisCount: 3, // 3개의 열
                     crossAxisSpacing: 8, // 열 간 간격
                     mainAxisSpacing: 8, // 행 간 간격
-                    childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
+                    childAspectRatio: 0.7, // 아이템의 가로 세로 비율
                   ),
                   itemCount: filteredBooks.length,
                   itemBuilder: (context, index) {
                     final bookInfo = filteredBooks[index]["book_info"];
-                    final bookImagePath =
-                        bookInfo != null ? bookInfo["image_path"] : null;
+                    final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
 
                     if (bookImagePath == null || bookImagePath.isEmpty) {
                       return Card(
@@ -1011,42 +996,56 @@ class _BookshelfPageState extends State<BookshelfPage> {
                         ),
                       );
                     }
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookDetail(
-                              userId: widget.userId,
-                              bookId: int.tryParse(filteredBooks[index]
-                                              ["book_id"]
-                                          ?.toString() ??
-                                      "0") ??
-                                  0,
-                              nickname: widget.nickname,
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              if (!isEditing) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookDetail(
+                                      userId: widget.userId,
+                                      bookId: int.tryParse(
+                                              filteredBooks[index]["book_id"]?.toString() ?? "0") ??
+                                          0,
+                                      nickname: widget.nickname,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Card(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 4,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  bookImagePath,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(Icons.image_not_supported,
+                                        size: 50, color: Colors.grey);
+                                  },
+                                ),
+                              ),
                             ),
                           ),
-                        );
-                      },
-                      child: Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
                         ),
-                        elevation: 4,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            bookImagePath,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.image_not_supported,
-                                  size: 50, color: Colors.grey);
+                        if (isEditing) // 편집 모드
+                          Checkbox(
+                            value: filteredBooks[index]["selected"] ?? false,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                filteredBooks[index]["selected"] = value ?? false;
+                              });
                             },
                           ),
-                        ),
-                      ),
+                      ],
                     );
                   },
                 ),
@@ -1054,6 +1053,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
             ],
           ),
         );
+
 
       case 1: // 읽는 중
         //final filteredBooks = getFilteredBookcase("reading");
@@ -1098,21 +1098,18 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           child: GestureDetector(
                             onTap: () {
                               // StoredBookDetail 페이지로 이동
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BookDetail(
-                                    userId: widget.userId,
-                                    //bookId: filteredBooks[index]["id"]!,
-                                    bookId: int.tryParse(filteredBooks[index]
-                                                    ["book_id"]
-                                                ?.toString() ??
-                                            "0") ??
-                                        0,
-                                    nickname: widget.nickname,
+                              if (!isEditing) {  // isEditing이 false일 때만 BookDetail로 이동
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookDetail(
+                                      userId: widget.userId,
+                                      bookId: int.tryParse(filteredBooks[index]["book_id"]?.toString() ?? "0") ?? 0,
+                                      nickname: widget.nickname,
+                                    ),
                                   ),
-                                ),
-                              );
+                                );
+                              }
                             },
                             child: Card(
                               color: Colors.white,
@@ -1146,27 +1143,39 @@ class _BookshelfPageState extends State<BookshelfPage> {
                         //   ),
                         // ),
                         SizedBox(height: 8.0),
-                        // 진행 바와 텍스트
-                        SizedBox(
-                          width: 110, // 진행 바의 너비
-                          child: ClipRRect(
-                            borderRadius:
-                                BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
-                            child: LinearProgressIndicator(
-                              // value: filteredBooks[index]["totalPages"] > 0
-                              //     ? (filteredBooks[index]["readPages"] /
-                              //             filteredBooks[index]["totalPages"])
-                              //         .clamp(0.0, 1.0) // 진행 상태 계산
-                              //     : 0.0, // 페이지가 0일 경우 0
-                              value: progress, // 계산된 진행률 값
+                        if (isEditing) // 편집 모드일 때만 체크박스 추가
+                          Checkbox(
+                            value: filteredBooks[index]["selected"] ?? false,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                filteredBooks[index]["selected"] = value ?? false;
+                              });
+                            },
+                          )
+                        else ...[ // 편집 모드가 아닐 때는 진행 바 표시
+                          // 진행 바와 텍스트
+                          SizedBox(
+                            width: 110, // 진행 바의 너비
+                            child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
+                              child: LinearProgressIndicator(
+                                // value: filteredBooks[index]["totalPages"] > 0
+                                //     ? (filteredBooks[index]["readPages"] /
+                                //             filteredBooks[index]["totalPages"])
+                                //         .clamp(0.0, 1.0) // 진행 상태 계산
+                                //     : 0.0, // 페이지가 0일 경우 0
+                                value: progress, // 계산된 진행률 값
 
-                              backgroundColor: Colors.grey[200], // 배경색
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color.fromARGB(255, 126, 113, 200)), // 진행 색상
+                                backgroundColor: Colors.grey[200], // 배경색
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color.fromARGB(255, 126, 113, 200) // 진행 색상
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 4),
+                          SizedBox(height: 4),
+                        ]
 // Text(
 //   '${(progress * 100).toInt()}%', // 진행률을 퍼센트로 표시
 //   style: TextStyle(
@@ -1186,7 +1195,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                 child: TextButton(
                   onPressed: toggleEditMode,
                   child: Text(
-                    isEditing ? "완료" : "편집",
+                    isEditing ? "삭제" : "편집",
                     style: TextStyle(
                       color: Color.fromARGB(255, 126, 113, 159),
                       decoration: TextDecoration.underline,
@@ -1211,7 +1220,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                 child: TextButton(
                   onPressed: toggleEditMode,
                   child: Text(
-                    isEditing ? "완료" : "편집",
+                    isEditing ? "삭제" : "편집",
                     style: TextStyle(
                       color: Color.fromARGB(255, 126, 113, 159),
                       decoration: TextDecoration.underline,
@@ -1232,46 +1241,57 @@ class _BookshelfPageState extends State<BookshelfPage> {
                     ),
                     itemCount: filteredBooks.length,
                     itemBuilder: (context, index) {
-                      // 각 책 정보 가져오기
                       final book = filteredBooks[index];
                       final bookImagePath = book["book_info"]?["image_path"] ??
                           "assets/images/default_image.png";
 
-                      return GestureDetector(
-                        onTap: () {
-                          // 카드를 눌렀을 때 동작
-                          print(
-                              '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BookDetail(
-                                userId: widget.userId,
-                                //bookId: filteredBooks[index]["id"]!,
-                                bookId: int.tryParse(
-                                        filteredBooks[index]["id"] ?? '0') ??
-                                    0, // String을 int로 변환
-                                nickname: widget.nickname,
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                if (!isEditing) {
+                                  // 카드를 눌렀을 때 동작
+                                  print('${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookDetail(
+                                        userId: widget.userId,
+                                        bookId: int.tryParse(filteredBooks[index]["id"] ?? '0') ?? 0, 
+                                        nickname: widget.nickname,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Card(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 4,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    filteredBooks[index]["book_info"]?["image_path"] ??
+                                        'assets/images/books/3부작.jpg',
+                                    fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                                  ),
+                                ),
                               ),
                             ),
-                          );
-                        },
-                        child: Card(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
                           ),
-                          elevation: 4,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              filteredBooks[index]["book_info"]
-                                      ?["image_path"] ??
-                                  'assets/images/books/3부작.jpg',
-                              fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
+                          if (isEditing) // 편집 모드일 때 체크박스 표시
+                            Checkbox(
+                              value: filteredBooks[index]["selected"] ?? false,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  filteredBooks[index]["selected"] = value ?? false;
+                                });
+                              },
                             ),
-                          ),
-                        ),
+                        ],
                       );
                     },
                   ),
