@@ -59,49 +59,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
     }
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: Text(
-  //         '나의 리뷰',
-  //         style: TextStyle(
-  //           fontSize: 30,
-  //           fontWeight: FontWeight.bold,
-  //           color: Color.fromARGB(255, 126, 113, 159),
-  //         ),
-  //       ),
-  //       backgroundColor: Colors.white,
-  //       automaticallyImplyLeading: true,
-  //       toolbarHeight: 120.0,
-  //       titleSpacing: 20.0,
-  //     ),
-  //     body: SingleChildScrollView(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         children: [
-  //           SizedBox(height: 20),
-  //           ...List.generate(reviews.length, (i) {
-  //             return Column(
-  //               children: [
-  //                 _buildBookCard(
-  //                   reviews[i]['title'],
-  //                   reviews[i]['author'],
-  //                   Color.fromARGB(235, 234, 229, 239),
-  //                   Color.fromARGB(255, 126, 113, 159),
-  //                   reviews[i]['rating'],
-  //                   reviews[i]['review'],
-  //                   i,
-  //                 ),
-  //                 if (i < reviews.length - 1) SizedBox(height: 16),
-  //               ],
-  //             );
-  //           }),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -160,20 +117,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
   Widget _buildBookCard(String title, String author, Color backgroundColor,
       Color textColor, int rating, String review, int index) {
     return GestureDetector(
-      // onTap: () {
-      //   // 카드를 탭하면 전체 리뷰 페이지로 이동
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => ReviewDetailPage(
-      //         title: title,
-      //         author: author,
-      //         review: review,
-      //         rating: rating,
-      //       ),
-      //     ),
-      //   );
-      // },
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

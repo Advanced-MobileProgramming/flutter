@@ -13,40 +13,6 @@ class _LogInState extends State<LogIn> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // 기존 코드
-  // String? _username;
-  // String? _password;
-
-  // void _login() {
-  //   if (_formKey.currentState!.validate()) {
-  //     // 로그인 처리 로직
-  //     setState(() {
-  //       _username = _usernameController.text;
-  //       _password = _passwordController.text;
-  //     });
-
-  //     print("Logging in with username: $_username");
-
-  //     if (_username != null && _username!.isNotEmpty) {
-  //       // 로그인 성공 메시지
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Logged in as $_username')),
-  //       );
-
-  //       // HomePage로 이동하며 아이디 전달
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => HomePage(username: _username!),
-  //         ),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('로그인 아이디를 입력해주세요.')),
-  //       );
-  //     }
-  //   }
-  // }
 
   void _firebaseLogin() async {
     if (_formKey.currentState!.validate()) {
@@ -107,49 +73,12 @@ class _LogInState extends State<LogIn> {
           SnackBar(content: Text('로그인 중 오류가 발생했습니다.')),
         );
       }
-
-      // 기존 비밀번호 비교 코드
-      //   if(storedPassword == password) {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text('로그인 성공')),
-      //     );
-      //     Navigator.pushReplacement(context,
-      //       MaterialPageRoute(
-      //         builder: (context) => HomePage(username: username)
-      //       ),
-      //     );
-      //   } else {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
-      //     );
-      //   }
-      // } catch (e) {
-      //   print(e);
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('로그인 중 오류가 발생했습니다.')),
-      //   );
-      // }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Log in'),
-      //   backgroundColor: Colors.redAccent,
-      //   centerTitle: true,
-      //   leading: IconButton(
-      //     icon: Icon(Icons.menu),
-      //     onPressed: () {},
-      //   ),
-      //   actions: <Widget>[
-      //     IconButton(
-      //       icon: Icon(Icons.search),
-      //       onPressed: () {},
-      //     ),
-      //   ],
-      // ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -218,16 +147,6 @@ class _LogInState extends State<LogIn> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    // ElevatedButton(
-                    //   onPressed: _login,
-                    //   child: Text('회원가입'),
-                    //   style: ElevatedButton.styleFrom(
-                    //     backgroundColor: Colors.white,
-                    //     padding: EdgeInsets.symmetric(vertical: 15, horizontal: 150),
-                    //     textStyle: TextStyle(fontSize: 16,),
-                    //     side: BorderSide.none,
-                    //   ),
-                    // ),
                     TextButton(
                         onPressed: () {
                           Navigator.push(

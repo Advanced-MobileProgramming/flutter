@@ -231,10 +231,7 @@ class _HomePageState extends State<HomePage> {
                                         fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 5),
-                                  // Text(
-                                  //   books[index]["description"]!, // 책 설명 추가
-                                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
-                                  // ),
+                                  
                                 ],
                               ),
                             ),

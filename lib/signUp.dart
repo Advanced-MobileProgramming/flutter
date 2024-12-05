@@ -64,15 +64,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  // 회원가입 처리 로직(기존)
-  // void _signUp() {
-  //   if (_formKey.currentState!.validate()) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('회원가입 완료: ${_usernameController.text}')),
-  //     );
-  //   }
-  // }
-
   // 아이디 중복 확인 로직
   Future<void> _checkUsernameAvailability() async {
     final username = _usernameController.text;
@@ -86,20 +77,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
     // Firebase Realtime Database의 users 경로 참조
     final DatabaseReference userRef = FirebaseDatabase.instance.ref("users");
-
-    // 서버와 통신하여 아이디 중복 확인 (여기서는 비동기 예시로 대체)
-    //   await Future.delayed(Duration(seconds: 1)); // 비동기 요청 시뮬레이션
-    //   setState(() {
-    //     // 예시: 'testuser'는 이미 사용 중인 아이디
-    //     if (username == 'testuser') {
-    //       _isUsernameAvailable = false;
-    //       _usernameMessage = '이미 사용 중인 아이디입니다.';
-    //     } else {
-    //       _isUsernameAvailable = true;
-    //       _usernameMessage = '사용 가능한 아이디입니다.';
-    //     }
-    //   });
-    // }
 
     try {
       // Firebase에서 해당 아이디가 존재하는지 확인
