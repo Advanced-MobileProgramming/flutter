@@ -290,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               // 책 이미지 - 왼쪽에 배치, 크기 조정
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(0),
+                                borderRadius: BorderRadius.circular(8),
                                 child: Image.asset(
                                   review["book_image"], // 리뷰 이미지
                                   width: 120,
