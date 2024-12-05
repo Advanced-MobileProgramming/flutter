@@ -428,10 +428,10 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
                                   );
 
                                   // 저장 완료 메시지
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text("책이 책장에 기본값으로 추가되었습니다.")),
-                                  );
+                                  // ScaffoldMessenger.of(context).showSnackBar(
+                                  //   SnackBar(
+                                  //       content: Text("책이 책장에 기본값으로 추가되었습니다.")),
+                                  // );
 
                                   // 모달 열기
                                   showModalBottomSheet(
@@ -1527,14 +1527,14 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
                   });
 
                   // 삭제 성공 메시지
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("독후감이 성공적으로 삭제되었습니다!")),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text("독후감이 성공적으로 삭제되었습니다!")),
+                  // );
                 } catch (e) {
                   print("Error deleting book report: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("독후감 삭제에 실패했습니다.")),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text("독후감 삭제에 실패했습니다.")),
+                  // );
                 }
                 Navigator.pop(context); // 다이얼로그 닫기
               },
@@ -1565,14 +1565,14 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
     });
 
     // 저장 성공 메시지
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("독후감이 성공적으로 저장되었습니다!")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text("독후감이 성공적으로 저장되었습니다!")),
+    // );
   } catch (e) {
     print("Error saving book report: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("독후감 저장에 실패했습니다.")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text("독후감 저장에 실패했습니다.")),
+    // );
   }
 }
 

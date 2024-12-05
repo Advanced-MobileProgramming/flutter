@@ -220,9 +220,9 @@ class _MyPageState extends State<MyPage> {
                           ),
                         ),
                       );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('업데이트 페이지로 이동')),
-                      );
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(content: Text('업데이트 페이지로 이동')),
+                      // );
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),
@@ -239,9 +239,9 @@ class _MyPageState extends State<MyPage> {
                           ),
                         ),
                       );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('이용약관 페이지로 이동')),
-                      );
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(content: Text('이용약관 페이지로 이동')),
+                      // );
                     },
                   ),
                   Divider(color: Color.fromARGB(255, 126, 113, 159)),

@@ -78,9 +78,9 @@ class _BookReportPageState extends State<BookReportPage> {
     }
   } catch (e) {
     print("Error fetching data: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
+    // );
   }
 }
 

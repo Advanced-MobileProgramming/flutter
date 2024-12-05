@@ -97,9 +97,9 @@ class _SignUpPageState extends State<SignUpPage> {
       }
     } catch (e) {
       print("아이디 중복 확인 중 오류 발생: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('아이디 중복 확인 중 오류가 발생했습니다.')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('아이디 중복 확인 중 오류가 발생했습니다.')),
+      // );
     }
   }
 
