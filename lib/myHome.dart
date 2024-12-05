@@ -33,13 +33,12 @@ class _HomePageState extends State<HomePage> {
     },
   );
 
-  List<Map<String, dynamic>> reviews = [
-    {
-      "book_title": "book title",
-      "book_image": 'image/book_image_1.jpg', // 임시 이미지 경로
-      "review": "이 책은 Flutter에 대한 기본 개념을 쉽게 설명해 줍니다. 추천합니다!",
-    }
-  ];
+  Map<String, dynamic> review = {
+    "book_title": "book title",
+    "book_image": 'image/book_image_1.jpg', // 임시 이미지 경로
+    "review": "이 책은 Flutter에 대한 기본 개념을 쉽게 설명해 줍니다. 추천합니다!",
+  };
+
 
   // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
@@ -249,6 +248,7 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 20),
               // 내가 쓴 리뷰 섹션
+              // 내가 쓴 리뷰 섹션
               Text(
                 '   내가 쓴 리뷰',
                 style: TextStyle(
@@ -257,14 +257,14 @@ class _HomePageState extends State<HomePage> {
                   color: Color.fromARGB(255, 126, 113, 159),
                 ),
               ),
-              SizedBox(height: 10,),
+              SizedBox(height: 10),
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: Color.fromARGB(255, 221, 218, 226),
                 ),
-                child: reviews.isEmpty
+                child: review.isEmpty
                     ? SizedBox(
                         height: 150,
                         child: Center(
@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.asset(
-                                  reviews[0]["book_image"], // 첫 번째 리뷰 이미지
+                                  review["book_image"], // 리뷰 이미지
                                   width: 120,
                                   height: 180,
                                   fit: BoxFit.cover, // 이미지 잘리지 않도록 설정
@@ -309,9 +309,9 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            reviews[0]["book_title"], // 첫 번째 리뷰 제목
+                                            review["book_title"], // 리뷰 제목
                                             style: TextStyle(
-                                              color:  Color.fromARGB(255, 126, 113, 159),
+                                              color: Color.fromARGB(255, 126, 113, 159),
                                               fontSize: 25,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -340,7 +340,7 @@ class _HomePageState extends State<HomePage> {
                                     SizedBox(height: 8),
                                     // 리뷰 내용
                                     Text(
-                                      "❝${reviews[0]["review"]}❞",
+                                      "❝${review["review"]}❞",
                                       maxLines: 3, // 리뷰를 최대 3줄로 제한
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(color: Colors.grey),
@@ -351,8 +351,8 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
-                      ),
-              ),
+                      ),              
+                    ),
               SizedBox(height: 20,)
             ],
           ),
