@@ -35,30 +35,26 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         return AlertDialog(
           title: Text('프로필 사진 변경'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: Wrap(
+              spacing: 10.0, // 이미지 간의 가로 간격
+              runSpacing: 10.0, // 줄 간의 세로 간격
               children: [
-                // DefaultProfile.png 부터 Profile5.png까지 이미지 선택
                 for (int i = 0; i <= 5; i++) // 0부터 5까지 반복
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        // 이미지 선택시 해당 경로로 변경
                         _profileImagePath = i == 0
                             ? 'image/DefaultProfile.png' // DefaultProfile.png 선택
                             : 'image/Profile$i.png'; // Profile1.png부터 Profile5.png까지 선택
                       });
                       Navigator.of(context).pop(); // 다이얼로그 닫기
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: Image.asset(
-                        i == 0
-                            ? 'image/DefaultProfile.png' // DefaultProfile.png 이미지 표시
-                            : 'image/Profile$i.png', // Profile1.png부터 Profile5.png까지 이미지 표시
-                        width: 100,
-                        height: 100,
-                      ),
+                    child: Image.asset(
+                      i == 0
+                          ? 'image/DefaultProfile.png' // DefaultProfile.png 이미지 표시
+                          : 'image/Profile$i.png', // Profile1.png부터 Profile5.png까지 이미지 표시
+                      width: 100,
+                      height: 100,
                     ),
                   ),
               ],
