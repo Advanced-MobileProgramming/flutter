@@ -149,35 +149,46 @@ class _AllBooksPageState extends State<AllBooksPage> {
       ),
       body: Column(
         children: [
-          // 검색 바
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: '도서명이나 저자를 입력하세요.',
-                hintStyle: TextStyle(
-                  fontSize: 14,
-                  color: Color.fromARGB(255, 109, 109, 109),
-                ),
-                border: InputBorder.none,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                filled: true,
-                fillColor: Color.fromARGB(98, 187, 163, 187),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
+            child: // 검색 바
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: const Color.fromARGB(98, 187, 163, 187), // 채도가 낮은 보라색
+                  ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: '도서명이나 저자를 입력하세요.',
+                        hintStyle: const TextStyle(
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 109, 109, 109),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8), // 패딩 설정
+                      ),
+                      onChanged: (value) {
+                        // 검색어 입력 시 검색어 업데이트
+                        setState(() {
+                          searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search,
+                        color: Color.fromARGB(255, 109, 109, 109)),
+                    onPressed: () {
+                      // 추가적인 검색 동작 처리 가능
+                    },
+                  ),
+                ],
               ),
-              onChanged: (query) {
-                setState(() {
-                  searchQuery = query;
-                });
-              },
             ),
           ),
           SizedBox(height: 16),
