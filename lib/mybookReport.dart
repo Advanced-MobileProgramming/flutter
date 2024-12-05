@@ -188,13 +188,13 @@ class _BookReportPageState extends State<BookReportPage> {
                         color: textColor,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.more_vert),
-                      color: Colors.black,
-                      onPressed: () {
-                        _showMoreOptions(context, index);
-                      },
-                    ),
+                    // IconButton(
+                    //   icon: Icon(Icons.more_vert),
+                    //   color: Colors.black,
+                    //   onPressed: () {
+                    //     //_showMoreOptions(context, index);
+                    //   },
+                    // ),
                   ],
                 ),
                 SizedBox(height: 16),
@@ -218,77 +218,77 @@ class _BookReportPageState extends State<BookReportPage> {
       ),
     );
   }
-
-  // 플로팅 메뉴를 표시하는 함수
-  void _showMoreOptions(BuildContext context, int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.edit, color: Colors.blue),
-                title: Text('수정', style: TextStyle(color: Colors.blue)),
-                onTap: () {
-                  Navigator.pop(context); // 메뉴 닫기
-                  _showEditReviewDialog(context, index);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.delete, color: Colors.red),
-                title: Text('삭제', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  setState(() {
-                    bookReports.removeAt(index); // 삭제
-                  });
-                  Navigator.pop(context); // 메뉴 닫기
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // 독후감 수정 창을 띄우는 함수
-  void _showEditReviewDialog(BuildContext context, int index) {
-    TextEditingController _bookReportController = TextEditingController();
-    _bookReportController.text = bookReports[index]['bookReport'];
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('독후감 수정'),
-          content: TextField(
-            controller: _bookReportController,
-            maxLines: 3,
-            decoration: InputDecoration(hintText: "독후감을 수정하세요."),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // 취소
-              },
-              child: Text('취소'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  // 수정된 독후감을 저장
-                  bookReports[index]['bookReport'] = _bookReportController.text;
-                });
-                Navigator.pop(context); // 수정 완료 후 다이얼로그 닫기
-              },
-              child: Text('수정'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
+//   // 플로팅 메뉴를 표시하는 함수
+//   void _showMoreOptions(BuildContext context, int index) {
+//     showModalBottomSheet(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return Container(
+//           padding: EdgeInsets.all(16),
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: <Widget>[
+//               ListTile(
+//                 leading: Icon(Icons.edit, color: Colors.blue),
+//                 title: Text('수정', style: TextStyle(color: Colors.blue)),
+//                 onTap: () {
+//                   Navigator.pop(context); // 메뉴 닫기
+//                   _showEditReviewDialog(context, index);
+//                 },
+//               ),
+//               ListTile(
+//                 leading: Icon(Icons.delete, color: Colors.red),
+//                 title: Text('삭제', style: TextStyle(color: Colors.red)),
+//                 onTap: () {
+//                   setState(() {
+//                     bookReports.removeAt(index); // 삭제
+//                   });
+//                   Navigator.pop(context); // 메뉴 닫기
+//                 },
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   // 독후감 수정 창을 띄우는 함수
+//   void _showEditReviewDialog(BuildContext context, int index) {
+//     TextEditingController _bookReportController = TextEditingController();
+//     _bookReportController.text = bookReports[index]['bookReport'];
+
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text('독후감 수정'),
+//           content: TextField(
+//             controller: _bookReportController,
+//             maxLines: 3,
+//             decoration: InputDecoration(hintText: "독후감을 수정하세요."),
+//           ),
+//           actions: [
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.pop(context); // 취소
+//               },
+//               child: Text('취소'),
+//             ),
+//             TextButton(
+//               onPressed: () {
+//                 setState(() {
+//                   // 수정된 독후감을 저장
+//                   bookReports[index]['bookReport'] = _bookReportController.text;
+//                 });
+//                 Navigator.pop(context); // 수정 완료 후 다이얼로그 닫기
+//               },
+//               child: Text('수정'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+// }
