@@ -42,8 +42,9 @@ class _BookReportPageState extends State<BookReportPage> {
         final userReportsMap =
             Map<String, dynamic>.from(userReports as Map); // 사용자별 데이터 처리
         userReportsMap.forEach((bookId, report) {
-          if (booksData.containsKey(bookId)) {
-            final book = booksData[bookId];
+          final previousBookId = (int.parse(bookId) - 1).toString(); // bookId -1 계산
+          if (booksData.containsKey(previousBookId)) {
+            final book = booksData[previousBookId];
             final DateTime publicationDate =
                 DateTime.fromMillisecondsSinceEpoch(
                     book['publication_date'] * 1000);

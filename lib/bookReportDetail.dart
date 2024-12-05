@@ -46,10 +46,13 @@ class _BookReportDetailPageState extends State<BookReportDetailPage> {
         print("Report for bookId ${widget.bookId} not found.");
       }
 
+      // bookId를 -1로 조정하여 이전 데이터 가져오기
+      final previousBookId = (int.parse(widget.bookId) - 1).toString();
+
 
       // books 테이블에서 book 정보 가져오기
       final bookSnapshot =
-          await _databaseRef.child("books").child(widget.bookId).once();
+          await _databaseRef.child("books").child(previousBookId).once();
       Map<String, dynamic>? fetchedBookDetails;
 
       if (bookSnapshot.snapshot.value != null) {

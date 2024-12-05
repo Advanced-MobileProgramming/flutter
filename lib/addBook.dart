@@ -489,7 +489,7 @@ class _AddBookState extends State<AddBook> {
                   collapsedBackgroundColor: Colors.white,
                   children: [
                     Container(
-                      height: 170, // 최대 높이 설정
+                      height: 110, // 최대 높이 설정
                       child: ListView.builder(
                         shrinkWrap: true, // ListView가 무한히 확장되지 않도록 설정
                         physics: BouncingScrollPhysics(),
@@ -665,7 +665,7 @@ class _AddBookState extends State<AddBook> {
                   collapsedBackgroundColor: Colors.white,
                   children: [
                     Container(
-                      height: 170, // 최대 높이 설정
+                      height: 130, // 최대 높이 설정
                       child: ListView.builder(
                         shrinkWrap: true, // ListView가 무한히 확장되지 않도록 설정
                         physics: BouncingScrollPhysics(),
