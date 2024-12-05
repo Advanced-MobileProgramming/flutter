@@ -35,38 +35,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
     fetchCollections();
   }
 
-  // Firebase에서 책장 데이터 가져오기
-  // Future<void> fetchBookcases() async {
-  //   final DatabaseReference bookcasesRef =
-  //       FirebaseDatabase.instance.ref("bookcases");
-
-  //   try {
-  //     final snapshot = await bookcasesRef
-  //         .orderByChild("user_id")
-  //         .equalTo(widget.userId)
-  //         .get();
-  //     if (snapshot.exists) {
-  //       final data = Map<String, dynamic>.from(snapshot.value as Map);
-  //       setState(() {
-  //         bookcase = data.entries
-  //             .map((entry) => Map<String, dynamic>.from(entry.value))
-  //             .toList();
-  //         isLoading = false;
-  //       });
-  //     } else {
-  //       setState(() {
-  //         bookcase = [];
-  //         isLoading = false;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Firebase 데이터 가져오기 오류: $e");
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
   // 검색 로직 추가
   List<Map<String, dynamic>> searchBooks(List<Map<String, dynamic>> books) {
     if (searchQuery.isEmpty) {
@@ -173,90 +141,42 @@ class _BookshelfPageState extends State<BookshelfPage> {
   bool isEditing = false; // 편집 모드 여부
   Set<bool> selectedBooks = {}; // 각 도서의 선택 여부 관리
 
-  // 편집 모드 토글
-  void toggleEditMode() {
-    setState(() {
-      if(!isEditing) // 편집 버튼 클릭 시
-        isEditing = !isEditing;
-      else { // 삭제 버튼 클릭 시
-        bookcase.removeWhere((book) => selectedBooks.contains(book["book_id"]));
-        selectedBooks.clear(); // 선택 초기화
-        isEditing = false; // 편집 모드 종료
-      }
-    });
+
+void toggleEditMode() async {
+  setState(() {
+    if (!isEditing) {
+      // 편집 모드 시작
+      isEditing = true;
+    } else {
+      // 삭제 버튼 클릭 시
+      List<String> booksToRemove = bookcase
+          .where((book) => book["selected"] == true) // 선택된 책 필터링
+          .map((book) => book["id"].toString()) // 책 ID 가져오기
+          .toList();
+
+      // Firebase에서 데이터 삭제
+      removeBooksFromFirebase(booksToRemove);
+
+      // UI 업데이트
+      bookcase.removeWhere((book) => booksToRemove.contains(book["id"]));
+      selectedBooks.clear(); // 선택 초기화
+      isEditing = false; // 편집 모드 종료
+    }
+  });
+}
+
+// Firebase에서 선택된 책 삭제
+Future<void> removeBooksFromFirebase(List<String> booksToRemove) async {
+  for (String bookId in booksToRemove) {
+    final DatabaseReference bookRef =
+        FirebaseDatabase.instance.ref("bookcases/${widget.userId}/$bookId");
+    await bookRef.remove();
+
+    // bookReports에서 해당 책 관련 데이터 삭제
+    final DatabaseReference reportRef = FirebaseDatabase.instance.ref("bookReports/${widget.userId}/$bookId");
+    await reportRef.remove();
   }
-
-//   Future<void> fetchBookcases() async {
-//   final DatabaseReference bookcasesRef =
-//       FirebaseDatabase.instance.ref("bookcases/${widget.userId}");
-
-//   try {
-//     // Firebase에서 특정 userId의 데이터를 가져오기
-//     final snapshot = await bookcasesRef.get();
-//     if (snapshot.exists && snapshot.value != null) {
-//       if (snapshot.value is Map) {
-//         // Map 타입 처리
-//         // final data = (snapshot.value as Map).entries.map((entry) {
-//         //   return Map<String, dynamic>.from(entry.value as Map);
-//         // }).toList();
-//         final data = (snapshot.value as Map).entries.map((entry) {
-//           // 각 엔트리에서 필요한 데이터를 추출하여 리스트에 추가
-//           final value = Map<String, dynamic>.from(entry.value as Map);
-//           return {
-//             "id": entry.key, // Firebase 키
-//             "image_path": value["image_path"], // 기존 데이터 필드
-//             "book_id": value["book_id"], // 추가 데이터 필드
-//             "book_image": value["book_image"], // 추가 데이터 필드
-//             ...value, // 기존 데이터 유지
-//           };
-//         }).toList();
-//         setState(() {
-//           bookcase = data;
-//           isLoading = false;
-//         });
-//       } else if (snapshot.value is List) {
-//         // List 타입 처리
-//         final data = (snapshot.value as List)
-//             .where((item) => item != null) // null 필터링
-//             // .map((item) => Map<String, dynamic>.from(item as Map))
-//             // .toList();
-//             .map((item) {
-//               final value = Map<String, dynamic>.from(item as Map);
-//               return {
-//                 "id": value["id"], // Firebase 키
-//                 "image_path": value["image_path"], // 기존 데이터 필드
-//                 "book_id": value["book_id"], // 추가 데이터 필드
-//                 "book_image": value["book_image"], // 추가 데이터 필드
-//                 ...value, // 기존 데이터 유지
-//               };
-//             })
-//             .toList();
-//         setState(() {
-//           bookcase = data;
-//           isLoading = false;
-//         });
-//       } else {
-//         // 데이터가 예상한 타입이 아닌 경우
-//         setState(() {
-//           bookcase = [];
-//           isLoading = false;
-//         });
-//       }
-//     } else {
-//       // 데이터가 없는 경우
-//       setState(() {
-//         bookcase = [];
-//         isLoading = false;
-//       });
-//     }
-//   } catch (e) {
-//     // 오류 처리
-//     print("Firebase 데이터 가져오기 오류: $e");
-//     setState(() {
-//       isLoading = false;
-//     });
-//   }
-// }
+}
 
   // Firebase에서 콜렉션 데이터 가져오기
   Future<void> fetchCollections() async {
@@ -306,25 +226,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
     print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
     return filteredBooks;
   }
-
-//   List<Map<String, dynamic>> getFilteredCollectionBooks() {
-//   // 선택된 컬렉션이 없을 때 모든 컬렉션을 반환
-//   if (_selectedCollection == null) {
-//     print("No collection selected.");
-//     return []; // 컬렉션이 선택되지 않았을 경우 빈 리스트 반환
-//   }
-
-//   // 필터링된 책을 가져오는 부분
-//   print("Fetching filtered books for collection: $_selectedCollection");
-
-//   // 해당 컬렉션에 해당하는 책들을 필터링
-//   List<Map<String, dynamic>> filteredBooks = bookcase.where((book) {
-//     return book["collection_name"] == _selectedCollection;
-//   }).toList();
-
-//   print("Filtered Books: $filteredBooks"); // 필터링된 책 정보 확인
-//   return filteredBooks;
-// }
 
   // 컬렉션 추가 함수
   Future<void> addCollection(
@@ -715,16 +616,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8), // 패딩 설정
                         ),
-                        //     onTap: () {
-                        //       // 검색 바를 탭하면 페이지로 이동
-                        //       Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //             builder: (context) => const BookSearchPage(userId: '',)),
-                        //       );
-                        //     },
-                        //   ),
-                        // ),
                         onChanged: (value) {
                           // 검색어 입력 시 검색어 업데이트
                           setState(() {
@@ -847,19 +738,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
     );
   }
 
-  // // 탭에 맞는 책 목록을 필터링하여 반환하는 메소드
-  // List<Map<String, dynamic>> getFilteredBookcase(String status) {
-  //   if (status == "reading") {
-  //     // 읽는 중(reading)
-  //     return bookcase.where((book) => book["status"] == "reading").toList();
-  //   } else if (status == "completed") {
-  //     // 완료 (completed)
-  //     return bookcase.where((book) => book["status"] == "completed").toList();
-  //   }
-  //   // 전체 목록(all)
-  //   return bookcase;
-  // }
-
   // 탭에 맞는 책 목록 반환
   List<Map<String, dynamic>> getFilteredBookcase(String status) {
     final filteredBooks = bookcase.where((book) {
@@ -878,83 +756,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
   // 선택된 탭에 해당하는 콘텐츠를 반환하는 메소드
   Widget _getTabContent(int index) {
     switch (index) {
-      // case 0: // 전체
-      //   final filteredBooks = getFilteredBookcase("all");
-      //   return Padding(
-      //     padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
-      //     child: Column(
-      //       children: [
-      //         // 편집 텍스트 버튼
-      //         Align(
-      //           alignment: Alignment.topRight, // 오른쪽 상단에 버튼을 배치
-      //           child: TextButton(
-      //             onPressed: () {},
-      //             child: Text(
-      //               "편집", // 텍스트 버튼의 내용
-      //               style: TextStyle(
-      //                   color: Color.fromARGB(255, 126, 113, 159), // 버튼 텍스트 색상
-      //                   decoration: TextDecoration.underline),
-      //             ),
-      //           ),
-      //         ),
-      //         // 그리드 뷰
-      //         Expanded(
-      //           child: Padding(
-      //             padding: const EdgeInsets.all(0), // 외부와의 패딩 값
-      //             child: GridView.builder(
-      //               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-      //                 crossAxisCount: 3, // 3개의 열
-      //                 crossAxisSpacing: 8, // 열 간 간격
-      //                 mainAxisSpacing: 8, // 행 간 간격
-      //                 childAspectRatio: 0.7, // 아이템의 가로 세로 비율 (이미지 크기 조정)
-      //               ),
-      //               itemCount: filteredBooks.length,
-      //               itemBuilder: (context, index) {
-      //                 return GestureDetector(
-      //                   onTap: () {
-      //                     // 카드를 눌렀을 때 동작
-      //                     print(
-      //                         '${filteredBooks[index]["title"]} 카드가 클릭되었습니다.');
-      //                     Navigator.push(
-      //                       context,
-      //                       MaterialPageRoute(
-      //                         builder: (context) => BookDetail(
-      //                           userId: widget.userId,
-      //                           //bookId: filteredBooks[index]["id"]!,
-      //                           bookId: filteredBooks[index]["id"] is int
-      //     ? filteredBooks[index]["id"] as int
-      //     : int.tryParse(filteredBooks[index]["id"]?.toString() ?? '') ??
-      //         (filteredBooks[index]["book_id"] is int
-      //             ? filteredBooks[index]["book_id"] as int
-      //             : int.tryParse(filteredBooks[index]["book_id"]?.toString() ?? '') ?? 0),
-      //                         ),
-      //                       ),
-      //                     );
-      //                   },
-      //                   child: Card(
-      //                     color: Colors.white,
-      //                     shape: RoundedRectangleBorder(
-      //                       borderRadius: BorderRadius.circular(10),
-      //                     ),
-      //                     elevation: 4,
-      //                     child: ClipRRect(
-      //                       borderRadius: BorderRadius.circular(10),
-      //                       child: Image.asset(
-      //                         // filteredBooks[index]
-      //                         //     ["image_path"]!, // 동적으로 이미지 변경
-      //                         bookcase[index]["book_image"] ?? bookcase[index]["image_path"]!, // `book_image` 사용
-      //                         fit: BoxFit.cover, // 이미지를 카드 크기에 맞게 채움
-      //                       ),
-      //                     ),
-      //                   ),
-      //                 );
-      //               },
-      //             ),
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   );
       case 0: // 전체
         final filteredBooks = getFilteredBookcase("all");
         return Padding(
@@ -1134,14 +935,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                             ),
                           ),
                         ),
-                        //           filteredBooks[index]["book_info"]?["image_path"] ?? "assets/images/default_image.png",
-                        //           //filteredBooks[index]["image_path"]!,
-                        //           fit: BoxFit.cover, // 이미지를 카드에 꽉 차게
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
+                    
                         SizedBox(height: 8.0),
                         if (isEditing) // 편집 모드일 때만 체크박스 추가
                           Checkbox(
@@ -1160,11 +954,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               borderRadius:
                                   BorderRadius.circular(10), // 둥근 끝을 위한 반경 설정
                               child: LinearProgressIndicator(
-                                // value: filteredBooks[index]["totalPages"] > 0
-                                //     ? (filteredBooks[index]["readPages"] /
-                                //             filteredBooks[index]["totalPages"])
-                                //         .clamp(0.0, 1.0) // 진행 상태 계산
-                                //     : 0.0, // 페이지가 0일 경우 0
+                                
                                 value: progress, // 계산된 진행률 값
 
                                 backgroundColor: Colors.grey[200], // 배경색
@@ -1176,14 +966,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
                           ),
                           SizedBox(height: 4),
                         ]
-// Text(
-//   '${(progress * 100).toInt()}%', // 진행률을 퍼센트로 표시
-//   style: TextStyle(
-//         fontSize: 14,
-//         fontWeight: FontWeight.bold,
-//         color: Color.fromARGB(255, 126, 113, 159),
-//       ),
-// ),
                       ],
                     );
                   },
@@ -1415,92 +1197,6 @@ class _BookshelfPageState extends State<BookshelfPage> {
               },
             ),
           );
-//         case 3: // 컬렉션
-//   if (!_enterCollection) {
-//     // 컬렉션 리스트
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0), // 외부 여백 추가
-//       child: GridView.builder(
-//         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//           crossAxisCount: 2, // 한 행에 2개의 카드
-//           crossAxisSpacing: 16, // 열 간 간격
-//           mainAxisSpacing: 23, // 행 간 간격
-//           childAspectRatio: 1, // 카드의 가로 세로 비율
-//         ),
-//         itemCount: collection.length + 1, // 첫 번째 카드(+) 포함하여 개수 설정
-//         itemBuilder: (context, index) {
-//   if (index > 0) {
-//     // 컬렉션 내부 이미지 가져오기
-//     final filteredBooks = getFilteredCollectionBooks();
-
-//     // filteredBooks가 비어 있지 않고, index - 1이 유효한 범위인지 체크
-//     if (filteredBooks.isNotEmpty && index - 1 < filteredBooks.length) {
-//       final bookInfo = filteredBooks[index - 1]["book_info"];
-//       final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
-
-//       return GestureDetector(
-//         onTap: () {
-//           setState(() {
-//             _enterCollection = true;
-//             _selectedCollection = collection[index - 1]["collection_name"];
-//           });
-//         },
-//         child: Card(
-//           child: bookImagePath != null
-//               ? Image.asset(bookImagePath, fit: BoxFit.cover)
-//               : Center(child: Text("이미지 없음")),
-//         ),
-//       );
-//     } else {
-//       return Center(child: Text("데이터 없음")); // filteredBooks가 비어 있으면 처리
-//     }
-//   }
-
-//   // 첫 번째 카드(+) 추가 버튼
-//   return Card(
-//     child: Center(
-//       child: Icon(Icons.add, size: 50, color: Colors.blue),
-//     ),
-//   );
-// },
-
-          // itemBuilder: (context, index) {
-          //   if (index > 0) {
-          //     // 컬렉션 내부 이미지 가져오기
-          //     final filteredBooks = getFilteredCollectionBooks();
-          //     final bookInfo = filteredBooks[index - 1]["book_info"];
-          //     final bookImagePath = bookInfo != null ? bookInfo["image_path"] : null;
-
-          //     return GestureDetector(
-          //       onTap: () {
-          //         setState(() {
-          //           _enterCollection = true;
-          //           _selectedCollection = collection[index - 1]["collection_name"];
-          //         });
-          //       },
-          //       child: Card(
-          //         child: bookImagePath != null
-          //             ? Image.asset(
-          //                 bookImagePath,
-          //                 fit: BoxFit.cover,
-          //                 errorBuilder: (context, error, stackTrace) {
-          //                   return Icon(Icons.image_not_supported, size: 50, color: Colors.grey);
-          //                 },
-          //               )
-          //             : Icon(Icons.error, size: 50, color: Colors.red),
-          //       ),
-          //     );
-          //   }
-
-          //   // 첫 번째 카드(+) 추가 버튼
-          //   return Card(
-          //     child: Center(
-          //       child: Icon(Icons.add, size: 50, color: Colors.blue),
-          //     ),
-          //   );
-          // },
-          //   ),
-          // );
         } else {
           final filteredBooks = getFilteredCollectionBooks();
           return Padding(
@@ -1612,14 +1308,7 @@ class _BookshelfPageState extends State<BookshelfPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             elevation: 4,
-                            // child: ClipRRect(
-                            //   borderRadius: BorderRadius.circular(10),
-                            //   child: Image.asset(
-                            //     filteredBooks[index]["book_image"] ??
-                            //         filteredBooks[index]["image_path"], // 이미지 경로
-                            //     fit: BoxFit.cover,
-                            //   ),
-                            // ),
+                          
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.asset(

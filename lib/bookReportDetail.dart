@@ -30,24 +30,22 @@ class _BookReportDetailPageState extends State<BookReportDetailPage> {
   // reports와 books 테이블에서 데이터를 가져오는 함수
   Future<void> _fetchReportAndBookDetails() async {
     try {
-      // reports 테이블에서 report 가져오기
+
+      // 수정된 코드
       final reportSnapshot = await _databaseRef
-          .child("reports")
-          .orderByChild("user_id")
-          .equalTo(widget.userId)
+          .child("bookReports")
+          .child(widget.userId) // 유저별 데이터를 바로 접근
+          .child(widget.bookId) // 책 ID에 해당하는 데이터를 접근
           .once();
 
       String? fetchedReport;
 
       if (reportSnapshot.snapshot.value != null) {
-        final reportsData =
-            Map<String, dynamic>.from(reportSnapshot.snapshot.value as Map);
-        reportsData.forEach((key, value) {
-          if (value["book_id"] == widget.bookId) {
-            fetchedReport = value["report"];
-          }
-        });
+        fetchedReport = (reportSnapshot.snapshot.value as Map)["content"];
+      } else {
+        print("Report for bookId ${widget.bookId} not found.");
       }
+
 
       // books 테이블에서 book 정보 가져오기
       final bookSnapshot =
@@ -66,10 +64,9 @@ class _BookReportDetailPageState extends State<BookReportDetailPage> {
         publicationMonth = date.month.toString();
       }
 
-      // 상태 업데이트
       setState(() {
-        report = fetchedReport;
-        bookDetails = fetchedBookDetails;
+        report = fetchedReport ?? ""; // 독후감이 없을 경우 빈 문자열 설정
+        bookDetails = fetchedBookDetails ?? {}; // 책 정보가 없을 경우 빈 맵 설정
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,7 +124,7 @@ class _BookReportDetailPageState extends State<BookReportDetailPage> {
                                 ),
                               ],
                             ),
-                            child: Image.network(
+                            child: Image.asset(
                               bookDetails!["image_path"],
                               width: 120,
                               height: 160,

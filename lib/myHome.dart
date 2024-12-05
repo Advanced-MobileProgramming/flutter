@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 20),
-              // 검색 바
+              //검색 바
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Container(
@@ -231,10 +231,7 @@ class _HomePageState extends State<HomePage> {
                                         fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 5),
-                                  // Text(
-                                  //   books[index]["description"]!, // 책 설명 추가
-                                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
-                                  // ),
+                                  
                                 ],
                               ),
                             ),

@@ -8,9 +8,6 @@ import 'allBooks.dart';
 import 'bookShelf.dart';
 import 'myPage.dart';
 
-// void main() {
-//   runApp(MyApp());
-// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,14 +46,6 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(builder: (context) => LogIn()),
       );
-
-      /* myHome.dart 테스트용 - testUser로 ID 넘겨서 바로 화면 홈화면 띄움 */
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => HomePage(username: "testUser"),
-      //   ),
-      // );
     });
   }
 

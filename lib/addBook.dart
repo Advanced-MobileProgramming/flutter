@@ -8,7 +8,6 @@ class AddBook extends StatefulWidget {
   final int selectedTabIndex;
   final int? bookId;
 
-  //const AddBook({required this.userId, required this.book});
   const AddBook(
       {Key? key,
       required this.userId,
@@ -23,12 +22,6 @@ class AddBook extends StatefulWidget {
 }
 
 class _AddBookState extends State<AddBook> {
-  // int _currentTabIndex = 0; // 세그먼트 바 초기값
-  // DateTime? _startDate;
-  // DateTime? _endDate;
-  // List<Map<String, dynamic>> collection = [];
-  // String _selectCollection = "선택 안 함";
-  // bool _isExpanded = false; // 리스트가 펼쳐져 있는지 여부
   int _currentTabIndex = 0;
   DateTime? _startDate;
   DateTime? _endDate;
@@ -70,41 +63,6 @@ class _AddBookState extends State<AddBook> {
     }
   }
 
-  // Firebase에서 콜렉션 데이터 가져오기
-  // Future<void> fetchCollections() async {
-  //   final DatabaseReference collectionsRef =
-  //       FirebaseDatabase.instance.ref("collections");
-
-  //   try {
-  //     final snapshot = await collectionsRef.child(widget.userId).get();
-  //     if (snapshot.exists) {
-  //       final data = Map<String, dynamic>.from(snapshot.value as Map);
-  //       setState(() {
-  //         collection = data.entries
-  //             .map((entry) => Map<String, dynamic>.from(entry.value))
-  //             .toList();
-  //       });
-  //       print("collection 개수:${collection.length}");
-  //     }
-  //   } catch (e) {
-  //     throw ("Firebase 데이터 가져오기 오류: $e");
-  //   }
-  // }
-  // Future<void> fetchCollections() async {
-  //   final DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections");
-
-  //   try {
-  //     final snapshot = await collectionsRef.child(widget.userId).get();
-  //     if (snapshot.exists) {
-  //       final data = Map<String, dynamic>.from(snapshot.value as Map);
-  //       setState(() {
-  //         collection = data.entries.map((entry) => Map<String, dynamic>.from(entry.value)).toList();
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print("Firebase 데이터 가져오기 오류: $e");
-  //   }
-  // }
   // Firebase에서 컬렉션 데이터 가져오기
   Future<void> fetchCollections() async {
     DatabaseReference collectionsRef =
@@ -127,12 +85,6 @@ class _AddBookState extends State<AddBook> {
     }
   }
 
-// 선택한 컬렉션 ID 저장 및 UI에 표시
-// void selectCollection(String collectionName) {
-//   setState(() {
-//     _selectCollection = collectionName;
-//   });
-// }
   void selectCollection(String collectionName) async {
     setState(() {
       _selectCollection = collectionName; // UI 업데이트
@@ -147,17 +99,6 @@ class _AddBookState extends State<AddBook> {
     // Firebase 업데이트
     final DatabaseReference bookcasesRef = FirebaseDatabase.instance
         .ref("bookcases/${widget.userId}/${widget.book["id"]}");
-    //FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.book["id"].toString()}"); // 변환 추가
-
-//   try {
-//     await bookcasesRef.update({
-//       "collection_name": collectionName, // 선택된 컬렉션 이름 저장
-//     });
-//     print("컬렉션 ${collectionName}이 성공적으로 저장되었습니다.");
-//   } catch (e) {
-//     print("컬렉션 저장 오류: $e");
-//   }
-// }
 
     print("저장 경로: bookcases/${widget.userId}/${widget.book["id"].toString()}");
     print(
@@ -185,79 +126,6 @@ class _AddBookState extends State<AddBook> {
     }
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
-
-  // 책장에 책 추가 함수
-  // Future<void> addBookcase(
-  //     {required String userId,
-  //     required String readingStatus,
-  //     required Map<String, dynamic> book,
-  //     String? pagesRead}) async {
-  //   final DatabaseReference bookcasesRef =
-  //       FirebaseDatabase.instance.ref("bookcases");
-  //       final DatabaseReference collectionsRef = FirebaseDatabase.instance.ref("collections");
-
-  //     // 선택한 컬렉션 ID 찾기
-  // String? selectedCollectionId;
-  // if (_selectCollection != "선택 안 함") {
-  //   selectedCollectionId = collection.firstWhere(
-  //     (col) => col["collection_name"] == _selectCollection,
-  //     orElse: () => {"collection_id": null},
-  //   )["collection_id"];
-  // }
-
-  //   final bookcaseData = {
-  //     "user_id": userId,
-  //     "book_id": book["id"],
-  //     "book_image": book["image_path"],
-  //     "collection_name": _selectCollection,
-  //     "collection_id": selectedCollectionId, // 컬렉션 ID 추가
-  //     "reading_status": readingStatus,
-  //     "pages_read": pagesRead ?? 0,
-  //     "start_date": _startDate,
-  //     "end_date": _endDate
-  //   };
-
-  //   //await bookcasesRef.child(userId).child(book["id"]).set(bookcaseData);
-  //   await bookcasesRef
-  //   .child(userId)
-  //   .child(book["id"].toString()) // int -> String 변환
-  //   .set(bookcaseData);
-
-  //   // 선택된 컬렉션에 책 추가
-  // if (selectedCollectionId != null) {
-  //   await collectionsRef
-  //       .child(userId)
-  //       .child(selectedCollectionId)
-  //       .child("books")
-  //       .child(book["id"].toString())
-  //       .set(book);
-  // }
-
-  // print("책이 성공적으로 저장되었습니다.");
-  // }
-
-  // Future<void> addBookToBookcase() async {
-  //   DatabaseReference bookcasesRef = FirebaseDatabase.instance.ref("bookcases/${widget.userId}");
-  //   String? selectedCollectionId = collection.firstWhere(
-  //     (col) => col["collection_name"] == _selectCollection,
-  //     orElse: () => {"collection_id": null}
-  //   )["collection_id"];
-
-  //   final bookcaseData = {
-  //     "user_id": widget.userId,
-  //     "book_id": widget.book["id"],
-  //     "book_image": widget.book["image_path"],
-  //     "reading_status": _currentTabIndex == 0 ? "읽기 전" : (_currentTabIndex == 1 ? "읽는 중" : "완료"),
-  //     "start_date": _startDate?.toIso8601String(),
-  //     "end_date": _endDate?.toIso8601String(),
-  //     "pages_read": _pagesReadController.text,
-  //     "collection_id": selectedCollectionId,
-  //     "collection_name": _selectCollection
-  //   };
-
-  //   await bookcasesRef.child(widget.book["id"].toString()).set(bookcaseData);
-  //   print("책이 성공적으로 저장되었습니다.");
-  // }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime initialDate =
@@ -314,28 +182,6 @@ class _AddBookState extends State<AddBook> {
       ),
     );
   }
-
-  // 날짜 선택 함수
-  // Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-  //   DateTime initialDate =
-  //       isStartDate ? _startDate ?? DateTime.now() : _endDate ?? DateTime.now();
-  //   DateTime? selectedDate = await showDatePicker(
-  //     context: context,
-  //     initialDate: initialDate,
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2101),
-  //   );
-
-  //   if (selectedDate != null) {
-  //     setState(() {
-  //       if (isStartDate) {
-  //         _startDate = selectedDate;
-  //       } else {
-  //         _endDate = selectedDate;
-  //       }
-  //     });
-  //   }
-  // }
 
   // 선택된 탭에 해당하는 콘텐츠를 반환하는 메소드
   Widget _getTabContent(int index) {
@@ -462,97 +308,6 @@ class _AddBookState extends State<AddBook> {
             ],
           ),
         );
-
-      // case 0: // 읽기 전
-      //   return Padding(
-      //     padding: const EdgeInsets.all(16.0),
-      //     child: Column(
-      //       children: [
-      //         // ExpansionTile을 감싸는 Container에 borderRadius 설정
-      //         Container(
-      //           decoration: BoxDecoration(
-      //             color: Colors.white, // 배경색
-      //             borderRadius: BorderRadius.circular(10), // 둥근 모서리 설정
-      //           ),
-      //           child: ExpansionTile(
-      //             key: UniqueKey(),
-      //             onExpansionChanged: (expanded) {
-      //               setState(() {
-      //                 _isExpanded = expanded; // 펼침/접힘 상태 업데이트
-      //               });
-      //             },
-      //             initiallyExpanded: _isExpanded, // 초기 상태 설정
-      //             title: Text(
-      //               _selectCollection,
-      //               style:
-      //                   TextStyle(fontSize: 16, color: Colors.black), // 텍스트 색상
-      //             ),
-      //             backgroundColor: Colors.white, // 열렸을 때 배경 색상
-      //             collapsedBackgroundColor: Colors.white, // 닫혔을 때 배경 색상
-      //             children: [
-      //               // ListView를 Container로 감싸서 최대 높이 설정
-      //               Container(
-      //                 height: 170, // 최대 높이 설정
-      //                 child: ListView.builder(
-      //                   shrinkWrap: true, // ListView가 무한히 확장되지 않도록 설정
-      //                   physics: BouncingScrollPhysics(), // 리스트만 스크롤되도록 설정
-      //                   itemCount: collection.length + 1, // 리스트 항목 수
-      //                   itemBuilder: (context, index) {
-      //                     // "컬렉션 선택 안 함" 항목 처리
-      //                     if (index == 0) {
-      //                       return Column(
-      //                         children: [
-      //                           ListTile(
-      //                             title: Text('선택 안 함'),
-      //                             onTap: () {
-      //                               print("선택 안 함을 클릭했습니다.");
-      //                               setState(() {
-      //                                 _selectCollection = "선택 안 함";
-      //                                 _isExpanded = false;
-      //                               });
-      //                             },
-      //                           ),
-      //                           Divider(
-      //                             height: 1, // 보더라인 위아래 간격 설정
-      //                             thickness: 1, // 보더라인 두께 설정
-      //                           ),
-      //                         ],
-      //                       );
-      //                     }
-
-      //                     // 컬렉션 항목 처리
-      //                     return Column(
-      //                       children: [
-      //                         ListTile(
-      //                           title: Text(
-      //                               '${collection[index - 1]["collection_name"]}'),
-      //                           onTap: () {
-      //                             print(
-      //                                 "컬렉션 ${collection[index - 1]["collection_name"]}을 클릭했습니다.");
-      //                             setState(() {
-      //                               _selectCollection = collection[index - 1]
-      //                                   ["collection_name"];
-      //                               _isExpanded = false;
-      //                             });
-      //                           },
-      //                         ),
-      //                         // 보더라인 추가 (마지막 항목 이후에는 보더라인 추가 안 함)
-      //                         if (index < 4)
-      //                           Divider(
-      //                             height: 1, // 보더라인 위아래 간격 설정
-      //                             thickness: 1, // 보더라인 두께 설정
-      //                           ),
-      //                       ],
-      //                     );
-      //                   },
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   );
       case 1: // 읽는 중
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -594,12 +349,6 @@ class _AddBookState extends State<AddBook> {
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 126, 113, 159))),
                   SizedBox(width: 16),
-                  //               Container(
-                  //                 width: 100, // 현재 페이지 입력 필드
-                  //                 child: TextField(
-                  //                   keyboardType: TextInputType.number,
-                  //                   onChanged: (value) async {
-                  // int newPage = int.tryParse(value) ?? 0;
                   Container(
                     width: 100,
                     child: TextField(
@@ -607,11 +356,6 @@ class _AddBookState extends State<AddBook> {
                       controller: _pagesReadController,
                       onChanged: (value) async {
                         int newPage = int.tryParse(value) ?? 0;
-                        //       controller: TextEditingController(
-                        //                         text: '${widget.book["current_page"]}'),
-                        //                     keyboardType: TextInputType.number,
-                        //                     onChanged: (value) async {
-                        //                       int newPage = int.tryParse(value) ?? 0;
 
                         // Firebase 업데이트 로직
                         final DatabaseReference bookcasesRef =
@@ -651,34 +395,6 @@ class _AddBookState extends State<AddBook> {
                           print("페이지 업데이트 오류: $e");
                         }
                       },
-
-//   controller: TextEditingController(
-//   text: widget.book["current_page"] != null ? '${widget.book["current_page"]}' : '0',
-// ),
-// keyboardType: TextInputType.number,
-// onChanged: (value) async {
-//   int newPage = int.tryParse(value) ?? 0;
-
-//   // 수정된 값 로그 출력
-//   print("현재 페이지 값: ${widget.book["current_page"]}");
-//   print("변경된 페이지: $newPage");  // 새 페이지가 제대로 반영되는지 확인
-
-//   final DatabaseReference bookcasesRef =
-//       FirebaseDatabase.instance.ref("bookcases/${widget.userId}/${widget.bookId}");
-
-//   try {
-//     await bookcasesRef.update({
-//       "current_page": newPage,  // 새로운 페이지 값 업데이트
-//     });
-//     print("페이지 값이 Firebase에 업데이트되었습니다.");
-
-//     setState(() {
-//       widget.book["current_page"] = newPage; // widget의 book 정보에 반영
-//     });
-//   } catch (e) {
-//     print("페이지 업데이트 오류: $e");
-//   }
-// },
                       decoration: InputDecoration(
                         //hintText: '현재 페이지',
                         hintText: widget.book["current_page"] != null &&
@@ -731,13 +447,6 @@ class _AddBookState extends State<AddBook> {
                     ),
                   ), // 구분자
                   SizedBox(width: 16),
-                  // Text(
-                  //   widget.book["page"] != null ? 'widget.book["page"]' : '0',
-                  //   style: TextStyle(
-                  //     fontSize: 20,
-                  //     color: Color.fromARGB(255, 126, 113, 159),
-                  //   ),
-                  // ),
                   Text(
                     widget.book["page"] != null
                         ? '${widget.book["page"]}'
