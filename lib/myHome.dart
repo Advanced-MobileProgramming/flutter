@@ -1,8 +1,12 @@
+import 'dart:math';
+
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:soobook/bookShelf.dart';
 import 'package:soobook/myPage.dart';
 import 'allBooks.dart';
 import 'bookSearch.dart';
+import 'myReview.dart';
 
 class HomePage extends StatefulWidget {
   final String userId;
@@ -19,20 +23,104 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(viewportFraction: 0.5);
   final TextEditingController _searchController = TextEditingController();
 
-  // 책 리스트
-  final List<Map<String, dynamic>> books = List.generate(
-    10,
-    (index) => {
-      "title": "Book $index",
-      "image": 'image/book_image_${index + 1}.jpg', // 실제 책 이미지 경로로 변경
-      "author": "Author $index", // 책 저자
-      "description": "책에 대한 간단한 설명입니다.", // 책 설명
-      "status": index % 2 == 0 ? "reading" : "completed", // 읽는 중/완료
-      "progress": index % 2 == 0 ? 0.3 * (index + 1) % 1 : 1.0, // 읽기 진행 상태
-    },
-  );
+  @override
+  void initState() {
+    super.initState();
+    fetchRandomBooks();
+    _loadReview();
+  }
 
-  List<Map<String, dynamic>> reviews = [];
+  // 책 리스트
+  List<Map<String, dynamic>> books = [];
+
+  Map<String, dynamic> review = {};
+
+  // Firebase에서 리뷰 데이터 가져오기
+  Future<void> _loadReview() async {
+    final DatabaseReference reviewsRef =
+        FirebaseDatabase.instance.ref("reviews/${widget.userId}");
+
+    try {
+      final snapshot = await reviewsRef.get();
+      if (snapshot.exists) {
+        // 첫 번째 리뷰 가져오기
+        final firstChild = snapshot.children.first;
+        if (firstChild.exists) {
+          setState(() {
+            review = Map<String, dynamic>.from(firstChild.value as Map);
+          });
+        } else {
+          setState(() {
+            review = {};
+          });
+        }
+      } else {
+        setState(() {
+          review = {};
+        });
+      }
+    } catch (e) {
+      print("Firebase 데이터 가져오기 오류: $e");
+      setState(() {});
+    }
+  }
+
+  // Firebase에서 책 데이터 랜덤하게 가져오기
+  Future<void> fetchRandomBooks() async {
+    final DatabaseReference booksRef = FirebaseDatabase.instance.ref("books");
+
+    try {
+      final snapshot = await booksRef.get();
+      if (snapshot.exists) {
+        // snapshot.value의 타입이 Map인 경우 처리
+        if (snapshot.value is Map) {
+          final dataMap = snapshot.value as Map;
+          final keys = dataMap.keys.toList(); // 모든 키를 가져옵니다.
+
+          // 키를 랜덤하게 섞고 상위 10개의 키를 선택
+          keys.shuffle(Random());
+          final randomKeys = keys.take(10);
+
+          // 선택된 키에 해당하는 데이터 추출
+          final randomBooks = randomKeys.map((key) {
+            return Map<String, dynamic>.from(dataMap[key]);
+          }).toList();
+
+          setState(() {
+            books = randomBooks;
+          });
+        }
+        // snapshot.value의 타입이 List인 경우 처리
+        else if (snapshot.value is List) {
+          final dataList = snapshot.value as List;
+
+          // 인덱스를 랜덤하게 섞고 상위 10개의 데이터 선택
+          final randomIndexes = List.generate(dataList.length, (index) => index)
+            ..shuffle(Random());
+          final randomBooks = randomIndexes.take(10).map((index) {
+            return Map<String, dynamic>.from(dataList[index]);
+          }).toList();
+
+          setState(() {
+            books = randomBooks;
+          });
+        } else {
+          setState(() {
+            books = [];
+          });
+        }
+      } else {
+        setState(() {
+          books = [];
+        });
+      }
+    } catch (e) {
+      print("Firebase 데이터 가져오기 오류: $e");
+      setState(() {
+        books = [];
+      });
+    }
+  }
 
   // 탭을 눌렀을 때 페이지 변경
   void _onItemTapped(int index) {
@@ -198,7 +286,6 @@ class _HomePageState extends State<HomePage> {
                                 value = (1 - (value.abs() * 0.3))
                                     .clamp(0.7, 1.0); // 크기 조정
                               }
-
                               return Center(
                                 child: SizedBox(
                                   height: Curves.easeOut.transform(value) * 250,
@@ -217,7 +304,7 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Image.asset(
-                                    books[index]["image"]!, // 동적으로 이미지 변경
+                                    books[index]["image_path"]!, // 동적으로 이미지 변경
                                     height: Curves.easeOut.transform(1.0) *
                                         150, // 기본 이미지 크기
                                     width: Curves.easeOut.transform(1.0) *
@@ -243,118 +330,120 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 20),
               // 내가 쓴 리뷰 섹션
+              // 내가 쓴 리뷰 섹션
+              Text(
+                '   내가 쓴 리뷰',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 126, 113, 159),
+                ),
+              ),
+              SizedBox(height: 10),
               Container(
-                padding: EdgeInsets.all(10),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
+                  color: Color.fromARGB(255, 221, 218, 226),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 16.0), // 왼쪽에만 16의 여백 설정
-                      child: Text(
-                        '내가 쓴 리뷰',
-                        style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 126, 113, 159)),
-                      ),
-                    ),
-                    SizedBox(height: 16), // 제목과 리스트 간격
-                    Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Color.fromARGB(255, 221, 218, 226),
-                      ),
-                      child: reviews.isEmpty
-                          ? SizedBox(
-                              height: 150, // "리뷰가 없습니다." 메시지의 높이를 원래 크기만큼 고정
-                              child: Center(
-                                child: Text(
-                                  '리뷰가 없습니다.',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
+                child: review.isEmpty
+                    ? SizedBox(
+                        height: 150,
+                        child: Center(
+                          child: Text(
+                            '리뷰가 없습니다.',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Card(
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 책 이미지 - 왼쪽에 배치, 크기 조정
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(
+                                  review["book_image"], // 리뷰 이미지
+                                  width: 120,
+                                  height: 180,
+                                  fit: BoxFit.cover, // 이미지 잘리지 않도록 설정
                                 ),
                               ),
-                            )
-                          : Column(
-                              children: reviews.map((review) {
-                                return Card(
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 8), // 각 카드 간격
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  elevation: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 20.0,
-                                        right: 20.0,
-                                        top: 20.0,
-                                        bottom: 50.0), // 카드 내부 여백
-                                    child: Column(
+                              SizedBox(width: 16), // 이미지와 텍스트 사이 간격
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 제목과 더보기 버튼
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              review["book_title"], // 제목 표시
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                        Expanded(
+                                          child: Text(
+                                            review["book_title"], // 리뷰 제목
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 126, 113, 159),
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                            TextButton(
-                                              onPressed: () {
-                                                // 더보기 버튼 클릭 이벤트 처리
-                                              },
-                                              child: Text(
-                                                "더보기",
-                                                style: TextStyle(
-                                                    color: Colors.blue),
-                                              ),
-                                            ),
-                                          ],
+                                            overflow: TextOverflow
+                                                .ellipsis, // 제목이 길 경우 생략
+                                          ),
                                         ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Image.asset(
-                                              review["book_image"],
-                                              width: 80,
-                                              height: 80,
-                                            ),
-                                            SizedBox(width: 16), // 이미지와 텍스트 간격
-                                            Expanded(
-                                              child: Text(
-                                                "❝" +
-                                                    review["review"] +
-                                                    "❞", // 리뷰 내용 표시
-                                                maxLines: 2, // 최대 두 줄 표시
-                                                overflow: TextOverflow
-                                                    .ellipsis, // 내용 초과 시 생략
-                                                style: TextStyle(
-                                                    color: Colors.grey),
+                                        TextButton(
+                                          onPressed: () {
+                                            // MyReviewPage로 이동
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MyReviewPage(
+                                                        userId: widget.userId),
                                               ),
+                                            );
+                                          },
+                                          child: Text(
+                                            "더보기",
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 126, 113, 159),
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                    ),
-                  ],
-                ),
+                                    SizedBox(height: 8),
+                                    // 리뷰 내용
+                                    Text(
+                                      "❝${review["review"]}❞",
+                                      maxLines: 3, // 리뷰를 최대 3줄로 제한
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
               ),
+              SizedBox(
+                height: 20,
+              )
             ],
           ),
         ),

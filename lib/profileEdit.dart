@@ -76,16 +76,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     );
   }
 
-  // Firebase 데이터베이스에 닉네임 업데이트 (수정)
-// void updateNicknameInDatabase(String newNickname) { 
-//   DatabaseReference userRef = FirebaseDatabase.instance.ref('users/${widget.userId}');
-
-//   userRef.update({'nickname': newNickname}).then((_) {
-//     print("닉네임이 성공적으로 업데이트 되었습니다.");
-//   }).catchError((error) {
-//     print("닉네임 업데이트 중 에러 발생: $error");
-//   });
-// }
 
 void updateNicknameInDatabase(String newNickname) {
   DatabaseReference userRef = FirebaseDatabase.instance.ref('users/${widget.userId}');
@@ -106,9 +96,9 @@ void updateNicknameInDatabase(String newNickname) {
     );
   }).catchError((error) {
     print("닉네임 업데이트 중 에러 발생: $error");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("닉네임 업데이트 중 에러가 발생했습니다: $error")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text("닉네임 업데이트 중 에러가 발생했습니다: $error")),
+    // );
   });
 }
 
@@ -161,24 +151,6 @@ void updateNicknameInDatabase(String newNickname) {
     },
   );
 }
-  //           TextButton(
-  //             onPressed: () {
-  //               // 여기서 새로운 닉네임을 처리
-  //               setState(() {
-  //                 _nickname = _nicknameController.text; // _username을 업데이트
-  //               });
-  //               Navigator.of(context).pop(); // 다이얼로그 닫기
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 SnackBar(content: Text('닉네임이 변경되었습니다.')),
-  //               );
-  //             },
-  //             child: Text('저장'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -247,30 +219,7 @@ void updateNicknameInDatabase(String newNickname) {
               child: Text('취소'),
             ),
             TextButton(
-              // onPressed: () {
-              //   String inputPassword = _passwordController.text;
-              //   // 예: 실제 비밀번호를 여기서 가져옴 (현재는 "1234"로 가정)
-              //   String storedPassword = "1234";
-
-              //   if (inputPassword == storedPassword) {
-              //     // 탈퇴 성공 처리
-              //     Navigator.of(context).pop(); // 다이얼로그 닫기
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //       SnackBar(content: Text('회원탈퇴가 완료되었습니다.')),
-              //     );
-
-              //     // 로그인 페이지로 이동
-              //     Navigator.pushReplacement(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => LogIn()),
-              //     );
-              //   } else {
-              //     // 비밀번호 불일치 처리
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //       SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
-              //     );
-              //   }
-              // },
+              
               onPressed: () async {
               String inputPassword = _passwordController.text.trim();
 
@@ -339,9 +288,9 @@ Future<void> _deleteUserAndRelatedData(String userId) async {
     print("모든 관련 데이터가 삭제되었습니다.");
   } catch (e) {
     print("데이터 삭제 중 에러 발생: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("데이터 삭제 중 오류가 발생했습니다: $e")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text("데이터 삭제 중 오류가 발생했습니다: $e")),
+    // );
   }
 }
 

@@ -72,9 +72,9 @@ class _BookReportDetailPageState extends State<BookReportDetailPage> {
         bookDetails = fetchedBookDetails ?? {}; // 책 정보가 없을 경우 빈 맵 설정
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
+      // );
     }
   }
 
