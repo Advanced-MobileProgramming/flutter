@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'bookReportDetail.dart'; // 새로운 파일을 import
+import 'package:firebase_database/firebase_database.dart';
+import 'bookReportDetail.dart'; // 독후감 상세 페이지
 
 class BookReportPage extends StatefulWidget {
   @override
@@ -7,70 +8,140 @@ class BookReportPage extends StatefulWidget {
 }
 
 class _BookReportPageState extends State<BookReportPage> {
-  // 독후감 데이터 리스트
-  List<Map<String, dynamic>> bookReports = [
-    {'title': '책 제목 1', 'author': '저자 1', 'bookReport': '이 책은 정말 훌륭했습니다.'},
-    {
-      'title': '책 제목 2',
-      'author': '저자 2',
-      'bookReport': '좋은 책이었지만 아쉬운 점이 많았어요.'
-    },
-    {'title': '책 제목 3', 'author': '저자 3', 'bookReport': '정말 추천하는 책입니다!'},
-    {'title': '책 제목 4', 'author': '저자 4', 'bookReport': '정말 추천하는 책입니다!'},
-    {'title': '책 제목 5', 'author': '저자 5', 'bookReport': '정말 추천하는 책입니다!'},
-  ];
+  final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref();
+  List<Map<String, dynamic>> bookReports = []; // 독후감 데이터를 저장할 리스트
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookReports(); // Firebase 데이터 가져오기
+  }
+
+  // Firebase에서 데이터를 가져오는 함수
+  Future<void> _fetchBookReports() async {
+    try {
+      final reportsSnapshot = await _databaseRef.child('reports').once();
+      final booksSnapshot = await _databaseRef.child('books').once();
+
+      if (reportsSnapshot.snapshot.value != null &&
+          booksSnapshot.snapshot.value != null) {
+        final reportsData =
+            Map<String, dynamic>.from(reportsSnapshot.snapshot.value as Map);
+        final booksData =
+            Map<String, dynamic>.from(booksSnapshot.snapshot.value as Map);
+
+        List<Map<String, dynamic>> loadedReports = [];
+
+        reportsData.forEach((key, report) {
+          final bookId = report['book_id'];
+          final userId = report['user_id'];
+          final userReport = report['report'];
+
+          if (booksData.containsKey(bookId)) {
+            final book = booksData[bookId];
+            final DateTime publicationDate =
+                DateTime.fromMillisecondsSinceEpoch(
+                    book['publication_date'] * 1000);
+
+            loadedReports.add({
+              'userId': userId,
+              'bookId': bookId,
+              'title': book['title'],
+              'author': book['author'],
+              'bookReport': userReport,
+              'image': book['image_path'],
+              'publisher': book['publisher'],
+              'publishYear': publicationDate.year.toString(),
+              'publishMonth': publicationDate.month.toString(),
+            });
+          }
+        });
+
+        setState(() {
+          bookReports = loadedReports;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("데이터를 불러오는 중 오류가 발생했습니다: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('나의 독후감',
-            style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 126, 113, 159))),
+        title: Text(
+          '나의 독후감',
+          style: TextStyle(
+              fontSize: 30, color: Color.fromARGB(255, 126, 113, 159)),
+        ),
         backgroundColor: Colors.white,
         automaticallyImplyLeading: true,
         toolbarHeight: 120.0,
         titleSpacing: 20.0,
       ),
-      body: SingleChildScrollView(
-        // 스크롤 가능한 영역
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(height: 20), // 상단 여백
-            // 카드들 사이에 간격 추가
-            for (var i = 0; i < bookReports.length; i++) ...[
-              _buildBookCard(
-                bookReports[i]['title'],
-                bookReports[i]['author'],
-                Color.fromARGB(235, 234, 229, 239),
-                Color.fromARGB(255, 126, 113, 159),
-                bookReports[i]['bookReport'],
-                i,
+      body: bookReports.isEmpty
+          ? Center(
+              child: Text(
+                '독후감이 없습니다.',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
               ),
-              // 각 카드 사이에 16px 간격 추가
-              if (i < bookReports.length - 1) SizedBox(height: 16),
-            ],
-          ],
-        ),
-      ),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20),
+                  for (var i = 0; i < bookReports.length; i++) ...[
+                    _buildBookCard(
+                      bookReports[i]['title'],
+                      bookReports[i]['author'],
+                      Color.fromARGB(235, 234, 229, 239),
+                      Color.fromARGB(255, 126, 113, 159),
+                      bookReports[i]['bookReport'],
+                      bookReports[i]['publisher'],
+                      bookReports[i]['publishYear'],
+                      bookReports[i]['publishMonth'],
+                      bookReports[i]['image'],
+                      bookReports[i]['userId'],
+                      bookReports[i]['bookId'],
+                      i,
+                    ),
+                    if (i < bookReports.length - 1) SizedBox(height: 16),
+                  ],
+                ],
+              ),
+            ),
     );
   }
 
-  Widget _buildBookCard(String title, String author, Color backgroundColor,
-      Color textColor, String bookReport, int index) {
+  Widget _buildBookCard(
+      String title,
+      String author,
+      Color backgroundColor,
+      Color textColor,
+      String bookReport,
+      String publisher,
+      String publishYear,
+      String publishMonth,
+      String image,
+      String userId,
+      String bookId,
+      int index) {
     return GestureDetector(
       onTap: () {
-        // 카드 클릭 시 독후감 전체 내용을 보여주는 페이지로 이동
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => BookReportDetailPage(
-              title: title,
-              author: author,
-              bookReport: bookReport,
+              userId: userId,
+              bookId: bookId,
             ),
           ),
         );
@@ -91,7 +162,6 @@ class _BookReportPageState extends State<BookReportPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween, // 양쪽에 정렬
                   children: [
-                    // 왼쪽에 책 제목과 저자
                     Text(
                       '$title / $author',
                       style: TextStyle(
@@ -100,19 +170,16 @@ class _BookReportPageState extends State<BookReportPage> {
                         color: textColor,
                       ),
                     ),
-                    // 오른쪽에 점 3개 버튼
                     IconButton(
                       icon: Icon(Icons.more_vert),
                       color: Colors.black,
                       onPressed: () {
-                        // 점 3개 버튼 클릭 시 플로팅 메뉴 표시
                         _showMoreOptions(context, index);
                       },
                     ),
                   ],
                 ),
-                SizedBox(height: 16), // 제목, 저자, 버튼과 리뷰 간 간격
-                // 리뷰 텍스트 중앙 정렬
+                SizedBox(height: 16),
                 Align(
                   alignment: Alignment.center,
                   child: Text(
@@ -122,8 +189,8 @@ class _BookReportPageState extends State<BookReportPage> {
                       fontSize: 16,
                       color: textColor,
                     ),
-                    maxLines: 2, // 최대 2줄로 제한
-                    overflow: TextOverflow.ellipsis, // 넘칠 경우 "..." 표시
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 )
               ],
@@ -148,7 +215,6 @@ class _BookReportPageState extends State<BookReportPage> {
                 leading: Icon(Icons.edit, color: Colors.blue),
                 title: Text('수정', style: TextStyle(color: Colors.blue)),
                 onTap: () {
-                  // 수정 클릭 시 독후감 수정하는 창 띄우기
                   Navigator.pop(context); // 메뉴 닫기
                   _showEditReviewDialog(context, index);
                 },
@@ -157,7 +223,9 @@ class _BookReportPageState extends State<BookReportPage> {
                 leading: Icon(Icons.delete, color: Colors.red),
                 title: Text('삭제', style: TextStyle(color: Colors.red)),
                 onTap: () {
-                  print('삭제 클릭됨');
+                  setState(() {
+                    bookReports.removeAt(index); // 삭제
+                  });
                   Navigator.pop(context); // 메뉴 닫기
                 },
               ),

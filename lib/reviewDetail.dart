@@ -27,13 +27,29 @@ class ReviewDetailPage extends StatelessWidget {
         titleSpacing: 20.0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Divider(
+              color: Color.fromARGB(255, 126, 113, 159), thickness: 0.5),
+            SizedBox(height: 16),
             Text(
-              '$title / $author',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              '$title',
+              style: TextStyle(
+                fontSize: 33, 
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 126, 113, 159)
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              '저자 | $author',
+              style: TextStyle(
+                fontSize: 20, 
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 126, 113, 159)
+              ),
             ),
             SizedBox(height: 16),
             // 별점 표시
@@ -42,21 +58,26 @@ class ReviewDetailPage extends StatelessWidget {
                 5,
                 (index) => Icon(
                   index < rating ? Icons.star : Icons.star_border,
-                  color: Color.fromARGB(255, 126, 113, 159),
+                  color: Colors.amber,
                   size: 24,
                 ),
               ),
             ),
             SizedBox(height: 16),
-            Text(
-              '리뷰:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              review,
-              style: TextStyle(fontSize: 16),
-            ),
+            Divider(
+              color: Color.fromARGB(255, 126, 113, 159), thickness: 0.5),
+            SizedBox(height: 16),
+            Padding(
+              padding: EdgeInsets.all(16.0), // 원하는 여백 추가
+              child: Text(
+                review,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 126, 113, 159),
+                    fontSize: 14,
+                  ),
+              ),
+            )
           ],
         ),
       ),
