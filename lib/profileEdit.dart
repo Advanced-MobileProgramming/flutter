@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:soobook/allBooks.dart';
 import 'package:soobook/bookShelf.dart';
@@ -21,11 +22,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   // _username을 상태로 관리
   String _nickname = "";
   String _profileImagePath = 'image/DefaultProfile.png'; // 기본 프로필 사진
+  String _userId = "";
 
   @override
   void initState() {
     super.initState();
     _nickname = widget.nickname; // 초기값 설정
+    _userId = widget.userId;
   }
 
   void _showProfileImageChangeDialog() {
@@ -73,8 +76,46 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     );
   }
 
+  // Firebase 데이터베이스에 닉네임 업데이트 (수정)
+// void updateNicknameInDatabase(String newNickname) { 
+//   DatabaseReference userRef = FirebaseDatabase.instance.ref('users/${widget.userId}');
+
+//   userRef.update({'nickname': newNickname}).then((_) {
+//     print("닉네임이 성공적으로 업데이트 되었습니다.");
+//   }).catchError((error) {
+//     print("닉네임 업데이트 중 에러 발생: $error");
+//   });
+// }
+
+void updateNicknameInDatabase(String newNickname) {
+  DatabaseReference userRef = FirebaseDatabase.instance.ref('users/${widget.userId}');
+
+  userRef.update({'nickname': newNickname}).then((_) {
+    print("닉네임이 성공적으로 업데이트 되었습니다.");
+    // UI 업데이트를 위해 상태 변경
+    setState(() {
+      _nickname = newNickname; // 닉네임 상태 업데이트
+    });
+    // 변경된 닉네임을 모든 관련 페이지에 반영하기 위해 라우트 업데이트
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => MyPage(userId: widget.userId, nickname: _nickname)),
+      ModalRoute.withName('/'),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('닉네임이 변경되었습니다.')),
+    );
+  }).catchError((error) {
+    print("닉네임 업데이트 중 에러 발생: $error");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("닉네임 업데이트 중 에러가 발생했습니다: $error")),
+    );
+  });
+}
+
+
   // 닉네임 변경을 위한 다이얼로그 표시 함수
   void _showNicknameChangeDialog() {
+    TextEditingController _nicknameController = TextEditingController(); //
     _nicknameController.text = widget.nickname; // 기본값으로 현재 유저 닉네임 설정
 
     showDialog(
@@ -96,23 +137,48 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               child: Text('취소'),
             ),
             TextButton(
-              onPressed: () {
-                // 여기서 새로운 닉네임을 처리
-                setState(() {
-                  _nickname = _nicknameController.text; // _username을 업데이트
-                });
-                Navigator.of(context).pop(); // 다이얼로그 닫기
+            onPressed: () {
+              String newNickname = _nicknameController.text.trim();
+              if (newNickname.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('닉네임이 변경되었습니다.')),
+                  SnackBar(content: Text('닉네임을 입력해주세요.')),
                 );
-              },
-              child: Text('저장'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                return;
+              }
+              setState(() {
+                _nickname = newNickname; // 닉네임 상태 업데이트
+              });
+              updateNicknameInDatabase(newNickname); // DB에 닉네임 업데이트
+              Navigator.of(context).pop(); // 다이얼로그 닫기
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('닉네임이 변경되었습니다.')),
+              );
+            },
+            child: Text('저장'),
+          ),
+        ],
+      );
+    },
+  );
+}
+  //           TextButton(
+  //             onPressed: () {
+  //               // 여기서 새로운 닉네임을 처리
+  //               setState(() {
+  //                 _nickname = _nicknameController.text; // _username을 업데이트
+  //               });
+  //               Navigator.of(context).pop(); // 다이얼로그 닫기
+  //               ScaffoldMessenger.of(context).showSnackBar(
+  //                 SnackBar(content: Text('닉네임이 변경되었습니다.')),
+  //               );
+  //             },
+  //             child: Text('저장'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -181,13 +247,45 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               child: Text('취소'),
             ),
             TextButton(
-              onPressed: () {
-                String inputPassword = _passwordController.text;
-                // 예: 실제 비밀번호를 여기서 가져옴 (현재는 "1234"로 가정)
-                String storedPassword = "1234";
+              // onPressed: () {
+              //   String inputPassword = _passwordController.text;
+              //   // 예: 실제 비밀번호를 여기서 가져옴 (현재는 "1234"로 가정)
+              //   String storedPassword = "1234";
+
+              //   if (inputPassword == storedPassword) {
+              //     // 탈퇴 성공 처리
+              //     Navigator.of(context).pop(); // 다이얼로그 닫기
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       SnackBar(content: Text('회원탈퇴가 완료되었습니다.')),
+              //     );
+
+              //     // 로그인 페이지로 이동
+              //     Navigator.pushReplacement(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => LogIn()),
+              //     );
+              //   } else {
+              //     // 비밀번호 불일치 처리
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
+              //     );
+              //   }
+              // },
+              onPressed: () async {
+              String inputPassword = _passwordController.text.trim();
+
+              // Firebase에서 비밀번호 확인
+              DatabaseReference userRef = FirebaseDatabase.instance.ref('users/${widget.userId}');
+              final userSnapshot = await userRef.once();
+
+              if (userSnapshot.snapshot.value != null) {
+                Map<String, dynamic> userData = Map<String, dynamic>.from(userSnapshot.snapshot.value as Map);
+                String storedPassword = userData['password'];
 
                 if (inputPassword == storedPassword) {
-                  // 탈퇴 성공 처리
+                  // 비밀번호 일치 -> 회원 탈퇴
+                  //await userRef.remove(); // Firebase에서 사용자 삭제
+                  await _deleteUserAndRelatedData(widget.userId); // 사용자 및 관련 데이터 삭제
                   Navigator.of(context).pop(); // 다이얼로그 닫기
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('회원탈퇴가 완료되었습니다.')),
@@ -204,7 +302,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
                   );
                 }
-              },
+              } else {
+                // 사용자 데이터가 없는 경우
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('사용자 정보를 찾을 수 없습니다.')),
+                );
+              }
+            },
               child: Text('확인'),
             ),
           ],
@@ -212,6 +316,34 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
       },
     );
   }
+
+  // 사용자 및 관련 데이터 삭제
+Future<void> _deleteUserAndRelatedData(String userId) async {
+  try {
+    // users 테이블에서 삭제
+    DatabaseReference userRef = FirebaseDatabase.instance.ref('users/$userId');
+    await userRef.remove();
+
+    // bookReports 테이블에서 삭제
+    DatabaseReference bookReportsRef = FirebaseDatabase.instance.ref('bookReports/$userId');
+    await bookReportsRef.remove();
+
+    // bookshelves 테이블에서 삭제 (예시로 추가한 테이블)
+    DatabaseReference bookcasesRef = FirebaseDatabase.instance.ref('bookcases/$userId');
+    await bookcasesRef.remove();
+
+    // bookshelves 테이블에서 삭제 (예시로 추가한 테이블)
+    DatabaseReference bookcollectionRef = FirebaseDatabase.instance.ref('collections/$userId');
+    await bookcollectionRef.remove();
+
+    print("모든 관련 데이터가 삭제되었습니다.");
+  } catch (e) {
+    print("데이터 삭제 중 에러 발생: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("데이터 삭제 중 오류가 발생했습니다: $e")),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +404,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           ),
                           // 유저 ID
                           Text(
-                            '@${_nickname}', // 여기에 실제 유저 id를 넣으세요
+                            '@${_userId}', // 여기에 실제 유저 id를 넣으세요
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
