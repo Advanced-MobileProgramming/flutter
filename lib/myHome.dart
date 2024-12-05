@@ -231,7 +231,6 @@ class _HomePageState extends State<HomePage> {
                                         fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height: 5),
-                                  
                                 ],
                               ),
                             ),
@@ -277,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                                 child: Text(
                                   '리뷰가 없습니다.',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 13,
                                     color: Colors.grey,
                                   ),
                                 ),
