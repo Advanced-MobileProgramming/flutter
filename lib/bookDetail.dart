@@ -29,7 +29,6 @@ class _BookDetailState extends State<BookDetail> {
     fetchBook();
     fetchCurrentPage(); // current_page 가져오기
   }
-  
 
   // Firebase에서 책 데이터 가져오기
   Future<void> fetchBook() async {
@@ -605,7 +604,7 @@ class _UnstoredBookDetailState extends State<UnstoredBookDetail> {
 
   Widget _buildReviewList() {
     return ReviewList(
-      reviews: reviews,
+      book: widget.book,
       userId: widget.userId,
       nickname: widget.nickname,
     ); // ReviewList 위젯 호출
@@ -701,31 +700,30 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
   }
 
   Future<void> _fetchBookReport() async {
-  try {
-    final DatabaseReference bookReportsRef = FirebaseDatabase.instance
-        .ref("bookReports/${widget.userId}/${widget.bookId}");
+    try {
+      final DatabaseReference bookReportsRef = FirebaseDatabase.instance
+          .ref("bookReports/${widget.userId}/${widget.bookId}");
 
-    final snapshot = await bookReportsRef.get();
+      final snapshot = await bookReportsRef.get();
 
-    if (snapshot.exists) {
-      final reportData = Map<String, dynamic>.from(snapshot.value as Map);
+      if (snapshot.exists) {
+        final reportData = Map<String, dynamic>.from(snapshot.value as Map);
+        setState(() {
+          _currentReport = reportData["content"] ?? ""; // 독후감 내용
+          _isEditing = false; // 수정 상태 초기화
+        });
+      } else {
+        setState(() {
+          _currentReport = ""; // 독후감이 없을 경우 빈 값 설정
+        });
+      }
+    } catch (e) {
+      print("Error fetching book report: $e");
       setState(() {
-        _currentReport = reportData["content"] ?? ""; // 독후감 내용
-        _isEditing = false; // 수정 상태 초기화
-      });
-    } else {
-      setState(() {
-        _currentReport = ""; // 독후감이 없을 경우 빈 값 설정
+        _currentReport = ""; // 오류 시 빈 값으로 설정
       });
     }
-  } catch (e) {
-    print("Error fetching book report: $e");
-    setState(() {
-      _currentReport = ""; // 오류 시 빈 값으로 설정
-    });
   }
-}
-
 
   void updateCurrentPage(int currentPage) async {
     final DatabaseReference bookcasesRef =
@@ -1104,7 +1102,6 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
                                 },
                               );
                             },
-
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -1274,7 +1271,7 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
       case 2: // 리뷰 탭
         return Container(
           child: ReviewList(
-            reviews: reviews,
+            book: widget.book,
             userId: widget.userId,
             nickname: widget.nickname,
           ), // ReviewList 위젯 호출
@@ -1443,20 +1440,20 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
           )
         else
           Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(
-            _currentReport.isNotEmpty
-                ? _currentReport
-                : "작성된 독후감이 없습니다.", // 독후감이 없을 때 메시지 표시
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Color.fromARGB(255, 126, 113, 159),
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              _currentReport.isNotEmpty
+                  ? _currentReport
+                  : "작성된 독후감이 없습니다.", // 독후감이 없을 때 메시지 표시
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Color.fromARGB(255, 126, 113, 159),
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 9, // 9줄로 제한
             ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 9, // 9줄로 제한
           ),
-        ),
 
         // 9줄을 초과하면 더보기 버튼을 표시
         if (lineCount > 9)
@@ -1470,7 +1467,8 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
                     MaterialPageRoute(
                       builder: (context) => BookReportDetailPage(
                         userId: widget.userId,
-                        bookId: widget.book["id"].toString(), // int를 String으로 변환
+                        bookId:
+                            widget.book["id"].toString(), // int를 String으로 변환
                       ),
                     ),
                   );
@@ -1511,70 +1509,69 @@ class _StoredBookDetailState extends State<StoredBookDetail> {
               ListTile(
                 title: Text('삭제'),
                 onTap: () async {
-                // 삭제 로직
-                try {
-                  final DatabaseReference bookReportsRef = FirebaseDatabase.instance
-                      .ref("bookReports/${widget.userId}/${widget.book["id"]}");
+                  // 삭제 로직
+                  try {
+                    final DatabaseReference bookReportsRef =
+                        FirebaseDatabase.instance.ref(
+                            "bookReports/${widget.userId}/${widget.book["id"]}");
 
-                  // Firebase에서 독후감 삭제
-                  await bookReportsRef.remove();
-                  print("독후감이 성공적으로 삭제되었습니다.");
+                    // Firebase에서 독후감 삭제
+                    await bookReportsRef.remove();
+                    print("독후감이 성공적으로 삭제되었습니다.");
 
-                  // UI 상태 초기화
-                  setState(() {
-                    _currentReport = ''; // 독후감 내용 초기화
-                    _isEditing = false; // 수정 상태 해제
-                  });
+                    // UI 상태 초기화
+                    setState(() {
+                      _currentReport = ''; // 독후감 내용 초기화
+                      _isEditing = false; // 수정 상태 해제
+                    });
 
-                  // 삭제 성공 메시지
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text("독후감이 성공적으로 삭제되었습니다!")),
-                  // );
-                } catch (e) {
-                  print("Error deleting book report: $e");
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text("독후감 삭제에 실패했습니다.")),
-                  // );
-                }
-                Navigator.pop(context); // 다이얼로그 닫기
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+                    // 삭제 성공 메시지
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text("독후감이 성공적으로 삭제되었습니다!")),
+                    // );
+                  } catch (e) {
+                    print("Error deleting book report: $e");
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text("독후감 삭제에 실패했습니다.")),
+                    // );
+                  }
+                  Navigator.pop(context); // 다이얼로그 닫기
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   // 수정된 코드
   void _saveBookReport() async {
-  try {
-    final DatabaseReference bookReportsRef = FirebaseDatabase.instance
-        .ref("bookReports/${widget.userId}/${widget.bookId}");
+    try {
+      final DatabaseReference bookReportsRef = FirebaseDatabase.instance
+          .ref("bookReports/${widget.userId}/${widget.bookId}");
 
-    // Firebase에 독후감 저장
-    await bookReportsRef.set({
-      "content": _controller.text,
-      //"updatedAt": DateTime.now().toIso8601String(), // 수정 시간 기록
-    });
+      // Firebase에 독후감 저장
+      await bookReportsRef.set({
+        "content": _controller.text,
+        //"updatedAt": DateTime.now().toIso8601String(), // 수정 시간 기록
+      });
 
-    // 로컬 상태 업데이트
-    setState(() {
-      _currentReport = _controller.text; // 저장된 텍스트
-      _isEditing = false; // 수정 상태 해제
-    });
+      // 로컬 상태 업데이트
+      setState(() {
+        _currentReport = _controller.text; // 저장된 텍스트
+        _isEditing = false; // 수정 상태 해제
+      });
 
-    // 저장 성공 메시지
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(content: Text("독후감이 성공적으로 저장되었습니다!")),
-    // );
-  } catch (e) {
-    print("Error saving book report: $e");
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(content: Text("독후감 저장에 실패했습니다.")),
-    // );
+      // 저장 성공 메시지
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("독후감이 성공적으로 저장되었습니다!")),
+      // );
+    } catch (e) {
+      print("Error saving book report: $e");
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("독후감 저장에 실패했습니다.")),
+      // );
+    }
   }
-}
-
-
 }

@@ -1,6 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'reviewDetail.dart'; // Import the new file
 
 class MyReviewPage extends StatefulWidget {
   final String userId;
@@ -59,7 +58,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,8 +94,8 @@ class _MyReviewPageState extends State<MyReviewPage> {
                     return Column(
                       children: [
                         _buildBookCard(
-                          reviews[i]['title'],
-                          reviews[i]['author'],
+                          reviews[i]['book_title'],
+                          reviews[i]['book_author'],
                           Color.fromARGB(235, 234, 229, 239),
                           Color.fromARGB(255, 126, 113, 159),
                           reviews[i]['rating'],
@@ -207,8 +205,26 @@ class _MyReviewPageState extends State<MyReviewPage> {
               ListTile(
                 leading: Icon(Icons.delete, color: Colors.red),
                 title: Text('삭제', style: TextStyle(color: Colors.red)),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
+                  final DatabaseReference reviewsRef = FirebaseDatabase.instance
+                      .ref(
+                          "reviews/${widget.userId}/${reviews[index]["book_id"]}");
+
+                  try {
+                    // 리뷰 삭제
+                    await reviewsRef.remove();
+                    // 삭제 후 리뷰 목록 새로고침
+                    setState(() {
+                      fetchReviews();
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('리뷰가 삭제되었습니다!')),
+                    );
+                  } catch (error) {
+                    // 오류 처리
+                    throw ("Error deleting review: $error");
+                  }
                 },
               ),
             ],
@@ -242,13 +258,10 @@ class _MyReviewPageState extends State<MyReviewPage> {
             ),
             TextButton(
               onPressed: () async {
-                final DatabaseReference reviewsRef =
-                    FirebaseDatabase.instance.ref("reviews");
+                final DatabaseReference reviewsRef = FirebaseDatabase.instance
+                    .ref("reviews/${widget.userId}/${review["book_id"]}");
                 // Firebase에 current_page 업데이트
-                await reviewsRef
-                    .child(widget.userId)
-                    .child(review["book_id"].toString())
-                    .update({"review": _reviewController.text});
+                await reviewsRef.update({"review": _reviewController.text});
                 setState(() {
                   reviews[index]['review'] = _reviewController.text;
                 });
