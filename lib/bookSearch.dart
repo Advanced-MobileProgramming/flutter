@@ -148,13 +148,6 @@ try {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: InkWell(
-              // onTap: () {
-              //   // 검색 페이지로 이동
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => const BookSearchPage()),
-              //   );
-              // },
               onTap: () {
                 // 검색 페이지로 이동 (userId 유지)
                 Navigator.push(
